@@ -339,6 +339,8 @@ function App() {
   const [menstruationStatus, setMenstruationStatus] = useState('');
   const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
+  const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
+  const [prostateTestAgeError, setProstateTestAgeError] = useState('');
   
   // Handle clicking a response option
   const handleOptionSelect = (optionText, nextId) => {
@@ -1181,7 +1183,68 @@ function App() {
       }
     }, 1000);
   };
-  
+
+  //Handle prostate test age input
+  const handleProstateTestAgeSubmit = () => {
+    // Validate age input
+    if (!prostateTestAgeInput.trim()) {
+      setProstateTestAgeError('Age at last prostate test is required');
+      return;
+    }
+
+    const age = parseInt(prostateTestAgeInput);
+
+    if (isNaN(age) || age < 30 || age > 120) {
+      setProstateTestAgeError('Please enter a valid age between 30 and 120');
+      return;
+    }
+
+    // Clear error
+    setProstateTestAgeError('');
+
+    // Add user's prostate test age as a message
+    setMessages(prev => [
+      ...prev,
+      {
+        id: prev.length + 1,
+        text: `Last prostate test at age ${age}`,
+        sender: 'user',
+        timestamp: new Date()
+      }
+    ]);
+
+    // Clear input
+    setProstateTestAgeInput('');
+
+    // Move to the next step (testicularIssues)
+    setTimeout(() => {
+      const nextStep = conversationFlow.testicularIssues;
+      if (nextStep) {
+        // Add bot's next question
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: prev.length + 1,
+            text: nextStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        
+        // Update the current step
+        setCurrentStep('testicularIssues');
+        
+        toast({
+          title: "Prostate test information recorded",
+          description: "Moving to next question",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    }, 1000);
+  };
   // Handle smoking amount input
   const handleSmokingAmountSubmit = () => {
     // Validate amount input
@@ -1247,7 +1310,7 @@ function App() {
   
   // Special routing function based on user sex
   const routeBasedOnSex = () => {
-    const nextId = userSex === "Female" ? "femaleQuestions" : "summary";
+    const nextId = userSex === "Female" ? "femaleQuestions" : "maleQuestions";
     const nextStep = conversationFlow[nextId];
       
     if (nextStep) {
@@ -1267,8 +1330,8 @@ function App() {
       
       toast({
         title: "Medical information recorded",
-        description: nextId === "summary" ? "Completing medical history" : 
-                    "Moving to female health questions",
+        description: userSex === "Female" ? "Moving to female health questions" : 
+                    "Moving to male health questions",
         status: "success",
         duration: 2000,
         isClosable: true,
@@ -1938,6 +2001,35 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {pregnancyAgeError && <FormErrorMessage>{pregnancyAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'prostateTestAge' ? (
+            <FormControl isInvalid={!!prostateTestAgeError}>
+              <InputGroup size="md">
+                <Input 
+                  type="number"
+                  placeholder="Enter age at last PSA test (30-120)"
+                  value={prostateTestAgeInput}
+                  onChange={(e) => setProstateTestAgeInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleProstateTestAgeSubmit();
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="teal.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button 
+                    h="1.75rem" 
+                    size="sm" 
+                    colorScheme="teal"
+                    onClick={handleProstateTestAgeSubmit}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              {prostateTestAgeError && <FormErrorMessage>{prostateTestAgeError}</FormErrorMessage>}
             </FormControl>
           ) : (
             <VStack spacing={3} align="stretch">

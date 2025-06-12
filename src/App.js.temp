@@ -1,0 +1,62 @@
+// Handle menarche age input
+  const handleMenarcheAgeSubmit = () => {
+    // Validate age input
+    if (!menarcheAgeInput.trim()) {
+      setMenarcheAgeError('Age is required');
+      return;
+    }
+    
+    const age = parseInt(menarcheAgeInput);
+    
+    if (isNaN(age) || age < 8 || age > 18) {
+      setMenarcheAgeError('Please enter a valid age between 8 and 18');
+      return;
+    }
+    
+    // Clear error
+    setMenarcheAgeError('');
+    
+    // Add user's age as a message
+    setMessages(prev => [
+      ...prev, 
+      {
+        id: prev.length + 1,
+        text: `First period at age ${age}`,
+        sender: 'user',
+        timestamp: new Date()
+      }
+    ]);
+    
+    // Clear input
+    setMenarcheAgeInput('');
+    
+    // Move to the next step
+    setTimeout(() => {
+      const nextStep = conversationFlow.menstruationStatus;
+      
+      if (nextStep) {
+        // Add bot's next question
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: prev.length + 1,
+            text: nextStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        
+        // Update the current step
+        setCurrentStep('menstruationStatus');
+        
+        toast({
+          title: "Menarche age recorded",
+          description: "Moving to next question",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    }, 1000);
+  };
