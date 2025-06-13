@@ -14,230 +14,30 @@ import {
   useColorModeValue,
   Icon,
   Divider,
-  useToast,
   Input,
-  FormControl,
-  FormErrorMessage,
   InputGroup,
   InputRightElement,
-  Select} from '@chakra-ui/react';
+  FormControl,
+  FormErrorMessage,
+  Select,
+  Checkbox,
+  SimpleGrid,
+  UnorderedList,
+  ListItem,
+  useToast} from '@chakra-ui/react';
 
 import { 
   FaUserMd, 
   FaHeartbeat, 
-  FaNotesMedical} from 'react-icons/fa';
+  FaNotesMedical,
+  FaCheck,
+  FaDownload} from 'react-icons/fa';
 
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
+import SummaryComponent from './SummaryComponent';
+import conversationFlow from './conversationFlow';
 
 function App() {
-  // Define the flowchart of conversation
-  const conversationFlow = {
-    start: {
-      question: "Hello, I'm your medical screening assistant. I'd like to ask you a few questions about your health and medical history. Would you like to proceed?",
-      options: [
-        { text: "Yes, let's begin", nextId: "age" },
-        { text: "What information will you collect?", nextId: "info" }
-      ]
-    },
-    info: {
-      question: "I'll be collecting basic health information including your demographics, medical history, medications, and allergies. This information helps us recommend the cancer test you'll most likely need to take.",
-      options: [
-        { text: "OK, let's start", nextId: "age" },
-        { text: "Maybe later", nextId: "end" }
-      ]
-    },
-    age: {
-      question: "What is your current age? Only Digits from 0-9 allowed.",
-      options: [], // Empty options because we're using the custom input field
-      inputType: "age"
-    },
-    sex: {
-      question: "What sex were you assigned at birth?",
-      options: [
-        { text: "Male", nextId: "ethnicity" },
-        { text: "Female", nextId: "ethnicity" }
-      ]
-    },
-    ethnicity: {
-      question: "What is your ethnicity?",
-      options: [],
-      inputType: "ethnicity"
-    },
-    location: {
-      question: "Where do you live (country/region)?",
-      options: [],
-      inputType: "country"
-    },
-    cancer: {
-      question: "Have you ever been diagnosed with cancer?",
-      options: [
-        { text: "Yes", nextId: "cancerDetails" },
-        { text: "No", nextId: "familyHistory" }
-      ]
-    },
-    cancerDetails: {
-      question: "Please provide details about your cancer diagnosis:",
-      options: [],
-      inputType: "cancer"
-    },
-    familyHistory: {
-      question: "Has a first-degree relative (parent, sibling, child) ever been diagnosed with cancer?",
-      options: [
-        { text: "Yes", nextId: "familyHistoryDetails" },
-        { text: "No", nextId: "chronicConditions" }
-      ]
-    },
-    familyHistoryDetails: {
-      question: "Please provide details about your family member's cancer diagnosis:",
-      options: [],
-      inputType: "familyCancer"
-    },
-    chronicConditions: {
-      question: "Do you have any of the following chronic conditions?",
-      options: [],
-      inputType: "chronic"
-    },
-    smokingStatus: {
-      question: "Do you currently smoke or have you smoked in the past?",
-      options: [
-        { text: "Yes", nextId: "smokingYears" },
-        { text: "No", nextId: "transplant" }
-      ]
-    },
-    smokingYears: {
-      question: "How many years have you smoked?",
-      options: [],
-      inputType: "smokingYears"
-    },
-    smokingAmount: {
-      question: "How many cigarettes a week on average?",
-      options: [],
-      inputType: "smokingAmount"
-    },
-    transplant: {
-      question: "Have you had organ transplants or immunosuppressive therapy?",
-      options: [
-        { text: "Yes", nextId: "medications" },
-        { text: "No", nextId: "medications" }
-      ]
-    },
-    medications: {
-      question: "Are you currently taking any of the following medications?",
-      options: [],
-      inputType: "medications"
-    },
-    allergies: {
-      question: "Do you have any known drug allergies?",
-      options: [
-        { text: "Yes", nextId: "allergyDetails" },
-        { text: "No", nextId: "checkSex" }
-      ]
-    },
-    checkSex: {
-      question: "Thank you for providing your allergy information.",
-      options: [
-        { text: "Continue", nextId: "routeBasedOnSex" }
-      ]
-    },
-    routeBasedOnSex: {
-      question: "Processing your information...",
-      options: []
-    },
-    allergyDetails: {
-      question: "Please specify your drug allergies:",
-      options: [],
-      inputType: "allergies"
-    },
-    maleQuestions: {
-      question: "We have some additional male-specific health questions. Let's continue with those.",
-      options: [
-        { text: "Continue", nextId: "urinarySymptoms" }
-      ]
-    },
-    urinarySymptoms: {
-      question: "Have you experienced urinary symptoms (e.g., weak stream, nocturia)?",
-      options: [
-        { text: "Yes", nextId: "prostateTest" },
-        { text: "No", nextId: "prostateTest" }
-      ]
-    },
-    prostateTest: {
-      question: "Have you ever had a Prostate Antigen Test?",
-      options: [
-        { text: "Yes", nextId: "prostateTestAge" },
-        { text: "No", nextId: "testicularIssues" }
-      ]
-    },
-    prostateTestAge: {
-      question: "What age were you when you took your last prostate antigen test?",
-      options: [],
-      inputType: "prostateTestAge"
-    },
-    testicularIssues: {
-      question: "Have you had testicular pain, swelling, or history of undescended testis?",
-      options: [
-        { text: "Yes", nextId: "summary" },
-        { text: "No", nextId: "summary" }
-      ]
-    },
-    femaleQuestions: {
-      question: "We have some additional female-specific health questions. Let's continue with those.",
-      options: [
-        { text: "Continue", nextId: "menarcheAge" }
-      ]
-    },
-    menarcheAge: {
-      question: "At what age did your periods start (menarche)?",
-      options: [],
-      inputType: "menarcheAge"
-    },
-    menstruationStatus: {
-      question: "Are you currently menstruating?",
-      options: [
-        { text: "Premenopausal", nextId: "pregnancy" },
-        { text: "Postmenopausal", nextId: "pregnancy" }
-      ]
-    },
-    pregnancy: {
-      question: "Have you ever been pregnant?",
-      options: [
-        { text: "Yes", nextId: "firstPregnancyAge" },
-        { text: "No", nextId: "hormoneTreatment" }
-      ]
-    },
-    firstPregnancyAge: {
-      question: "What age was your first full term pregnancy?",
-      options: [],
-      inputType: "pregnancyAge"
-    },
-    hormoneTreatment: {
-      question: "Have you ever taken birth control or hormone replacement therapy (HRT)?",
-      options: [
-        { text: "Yes", nextId: "hpvVaccine" },
-        { text: "No", nextId: "hpvVaccine" }
-      ]
-    },
-    hpvVaccine: {
-      question: "Have you received the HPV vaccine?",
-      options: [
-        { text: "Yes", nextId: "summary" },
-        { text: "No", nextId: "summary" }
-      ]
-    },
-    summary: {
-      question: "Thank you for completing your medical screening. This information will help healthcare providers better understand your health status and provide appropriate care recommendations.",
-      options: [
-        { text: "Start a new screening", nextId: "start" },
-        { text: "End conversation", nextId: "end" }
-      ]
-    },
-    end: {
-      question: "Thank you for completing the medical screening. Your health information has been recorded. Have a great day!",
-      options: [
-        { text: "Start a new screening", nextId: "start" }
-      ]
-    }
-  };
 
   const [messages, setMessages] = useState([
     {
@@ -251,6 +51,60 @@ function App() {
   const [currentStep, setCurrentStep] = useState('start');
   const messagesEndRef = useRef(null);
   const toast = useToast();
+  
+  // State to track all user responses in a consolidated format
+  const [userResponses, setUserResponses] = useState({
+    demographics: {
+      age: null,
+      sex: "",
+      ethnicity: "",
+      country: ""
+    },
+    medicalHistory: {
+      personalCancer: {
+        diagnosed: false,
+        type: "",
+        ageAtDiagnosis: null
+      },
+      familyCancer: {
+        diagnosed: false,
+        relation: "",
+        type: "",
+        ageAtDiagnosis: null
+      },
+      chronicConditions: []
+    },
+    lifestyle: {
+      smoking: {
+        current: false,
+        years: null,
+        weekly: null
+      },
+      transplant: false
+    },
+    medications: [],
+    allergies: "",
+    sexSpecificInfo: {
+      male: {
+        urinarySymptoms: false,
+        prostateTest: {
+          had: false,
+          ageAtLast: null
+        },
+        testicularIssues: false
+      },
+      female: {
+        menarcheAge: null,
+        menstruationStatus: "",
+        pregnancy: {
+          hadPregnancy: false,
+          ageAtFirst: null
+        },
+        hormoneTreatment: false,
+        hpvVaccine: false
+      }
+    }
+  });
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -344,12 +198,7 @@ function App() {
   
   // Handle clicking a response option
   const handleOptionSelect = (optionText, nextId) => {
-    // Save sex if we're in the sex question
-    if (currentStep === 'sex') {
-      setUserSex(optionText);
-    }
-    
-    // Add user's selected option as a message
+    // Add user's response as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -359,42 +208,189 @@ function App() {
         timestamp: new Date()
       }
     ]);
-    
-    // Special handling for routing based on sex
-    if (nextId === 'routeBasedOnSex') {
-      setTimeout(() => {
-        routeBasedOnSex();
-      }, 1000);
-      return;
+
+    // Update user responses based on current step
+    if (currentStep === 'sex') {
+      setUserResponses(prev => ({
+        ...prev,
+        demographics: {
+          ...prev.demographics,
+          sex: optionText
+        }
+      }));
+      setUserSex(optionText);
+    } else if (currentStep === 'cancer') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          personalCancer: {
+            ...prev.medicalHistory.personalCancer,
+            diagnosed: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'familyHistory') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          familyCancer: {
+            ...prev.medicalHistory.familyCancer,
+            diagnosed: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'smokingStatus') {
+      setUserResponses(prev => ({
+        ...prev,
+        lifestyle: {
+          ...prev.lifestyle,
+          smoking: {
+            ...prev.lifestyle.smoking,
+            current: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'transplant') {
+      setUserResponses(prev => ({
+        ...prev,
+        lifestyle: {
+          ...prev.lifestyle,
+          transplant: optionText === 'Yes'
+        }
+      }));
+    } else if (currentStep === 'allergies') {
+      if (optionText === 'No') {
+        setUserResponses(prev => ({
+          ...prev,
+          allergies: "None"
+        }));
+      }
+    } else if (currentStep === 'checkSex') {
+      // This case is kept for backward compatibility, but should no longer be used
+      // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
+      routeBasedOnSex();
+    } else if (currentStep === 'urinarySymptoms') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          male: {
+            ...prev.sexSpecificInfo.male,
+            urinarySymptoms: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'prostateTest') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          male: {
+            ...prev.sexSpecificInfo.male,
+            prostateTest: {
+              ...prev.sexSpecificInfo.male.prostateTest,
+              had: optionText === 'Yes'
+            }
+          }
+        }
+      }));
+    } else if (currentStep === 'testicularIssues') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          male: {
+            ...prev.sexSpecificInfo.male,
+            testicularIssues: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'menstruationStatus') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            menstruationStatus: optionText
+          }
+        }
+      }));
+      setMenstruationStatus(optionText);
+    } else if (currentStep === 'pregnancy') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            pregnancy: {
+              ...prev.sexSpecificInfo.female.pregnancy,
+              hadPregnancy: optionText === 'Yes'
+            }
+          }
+        }
+      }));
+    } else if (currentStep === 'hormoneTreatment') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            hormoneTreatment: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'hpvVaccine') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            hpvVaccine: optionText === 'Yes'
+          }
+        }
+      }));
     }
     
-    // Move to the next step in the conversation flow
+    // Move to the next step after a short delay
     setTimeout(() => {
-      const nextStep = conversationFlow[nextId];
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
+      // Special handling for routeBasedOnSex
+      if (nextId === "routeBasedOnSex") {
+        // Directly call the routeBasedOnSex function
+        routeBasedOnSex();
+      } else {
+        // Move to the next step in the conversation flow
+        const nextStep = conversationFlow[nextId];
         
-        // Update the current step
-        setCurrentStep(nextId);
-        
-        toast({
-          title: "Response recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
+        if (nextStep) {
+          // Add bot's next question
+          setMessages(prev => [
+            ...prev, 
+            {
+              id: prev.length + 1,
+              text: nextStep.question,
+              sender: 'bot',
+              timestamp: new Date()
+            }
+          ]);
+          
+          // Update the current step
+          setCurrentStep(nextId);
+          
+          toast({
+            title: "Response recorded",
+            description: "Moving to next question",
+            status: "success",
+            duration: 2000,
+            isClosable: true,
+            position: "top-right"
+          });
+        }
       }
     }, 1000);
   };
@@ -417,12 +413,21 @@ function App() {
     // Clear error
     setAgeError('');
     
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      demographics: {
+        ...prev.demographics,
+        age: age
+      }
+    }));
+    
     // Add user's age as a message
     setMessages(prev => [
       ...prev, 
       {
         id: prev.length + 1,
-        text: `${age} years old`,
+        text: `${age}`,
         sender: 'user',
         timestamp: new Date()
       }
@@ -476,6 +481,15 @@ function App() {
       });
       return;
     }
+    
+    // Update consolidated responses with ethnicity
+    setUserResponses(prev => ({
+      ...prev,
+      demographics: {
+        ...prev.demographics,
+        ethnicity: ethnicityInput
+      }
+    }));
     
     // Add user's ethnicity as a message
     setMessages(prev => [
@@ -536,6 +550,15 @@ function App() {
       });
       return;
     }
+    
+    // Update consolidated responses with country
+    setUserResponses(prev => ({
+      ...prev,
+      demographics: {
+        ...prev.demographics,
+        country: countryInput
+      }
+    }));
     
     // Add user's country as a message
     setMessages(prev => [
@@ -686,6 +709,15 @@ function App() {
       return;
     }
     
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      medicalHistory: {
+        ...prev.medicalHistory,
+        chronicConditions: selectedConditions
+      }
+    }));
+    
     // Add user's chronic conditions as a message
     setMessages(prev => [
       ...prev, 
@@ -730,7 +762,7 @@ function App() {
         
         toast({
           title: "Chronic conditions recorded",
-          description: "Moving to lifestyle questions",
+          description: "Moving to smoking questions",
           status: "success",
           duration: 2000,
           isClosable: true,
@@ -955,6 +987,18 @@ function App() {
   // Clear error
   setMenarcheAgeError('');
   
+  // Update user responses
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        menarcheAge: age
+      }
+    }
+  }));
+  
   // Add user's menarche age as a message
   setMessages(prev => [
     ...prev, 
@@ -1030,6 +1074,12 @@ function App() {
       return;
     }
     
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      medications: selectedMedications
+    }));
+    
     // Add user's medications as a message
     setMessages(prev => [
       ...prev, 
@@ -1101,6 +1151,12 @@ function App() {
       return;
     }
     
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      allergies: allergyInput
+    }));
+    
     // Add user's allergies as a message
     setMessages(prev => [
       ...prev, 
@@ -1115,8 +1171,18 @@ function App() {
     // Clear input
     setAllergyInput('');
     
-    // Move to the routing step
+    // Directly route based on sex instead of going to checkSex step
     setTimeout(() => {
+      toast({
+        title: "Allergy information recorded",
+        description: "Moving to gender-specific questions",
+        status: "success",
+        duration: 2000,
+        isClosable: true,
+        position: "top-right"
+      });
+      
+      // Call routeBasedOnSex directly
       routeBasedOnSex();
     }, 1000);
   };
@@ -1138,6 +1204,18 @@ function App() {
     
     // Clear error
     setSmokingYearsError('');
+    
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      lifestyle: {
+        ...prev.lifestyle,
+        smoking: {
+          ...prev.lifestyle.smoking,
+          years: years
+        }
+      }
+    }));
     
     // Add user's smoking years as a message
     setMessages(prev => [
@@ -1263,6 +1341,18 @@ function App() {
     // Clear error
     setSmokingAmountError('');
     
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      lifestyle: {
+        ...prev.lifestyle,
+        smoking: {
+          ...prev.lifestyle.smoking,
+          weekly: amount
+        }
+      }
+    }));
+    
     // Add user's smoking amount as a message
     setMessages(prev => [
       ...prev, 
@@ -1337,6 +1427,25 @@ function App() {
         isClosable: true,
         position: "top-right"
       });
+    } else {
+      // Fallback in case something goes wrong
+      console.error("Could not find next step for " + (userSex === "Female" ? "femaleQuestions" : "maleQuestions"));
+      
+      // Move to summary as a fallback
+      const fallbackStep = conversationFlow.summary;
+      if (fallbackStep) {
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: prev.length + 1,
+            text: fallbackStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        
+        setCurrentStep('summary');
+      }
     }
   };
 
@@ -1991,6 +2100,7 @@ function App() {
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
+                    
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="teal"
@@ -2031,6 +2141,8 @@ function App() {
               </InputGroup>
               {prostateTestAgeError && <FormErrorMessage>{prostateTestAgeError}</FormErrorMessage>}
             </FormControl>
+          ) : currentStep === 'summary' ? (
+            <SummaryComponent userResponses={userResponses} handleOptionSelect={handleOptionSelect} />
           ) : (
             <VStack spacing={3} align="stretch">
               {conversationFlow[currentStep]?.options.map((option, index) => (
@@ -2060,5 +2172,8 @@ function App() {
     </Box>
   );
 }
+
+// Create a SummaryComponent to show at the end
+
 
 export default App;
