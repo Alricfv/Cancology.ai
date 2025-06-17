@@ -144,6 +144,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   const healthStatus = getHealthCategory(riskScore);
   const recommendations = getRecommendations();
   
+  // Debug log to check personalCancer data
+  console.log('Personal Cancer Data:', {
+    diagnosed: userResponses.medicalHistory.personalCancer.diagnosed,
+    type: userResponses.medicalHistory.personalCancer.type,
+    ageAtDiagnosis: userResponses.medicalHistory.personalCancer.ageAtDiagnosis
+  });
+  
   // Apply a global style to prevent scrollbars at all levels
   React.useEffect(() => {
     // Apply style to body to remove scrollbars
@@ -165,7 +172,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   return (
     <Box width="100%" mx="auto" p={0} overflowX="hidden" maxW="85vw" mt={0}>
       {/* Main title */}
-      <Box textAlign="center" mb={3} width="100%">
+      <Box textAlign="center" mb={6} width="100%">
         <Heading size="lg" color={accentColor}>Cancer Screening Test</Heading>
         <Heading size="md" mt={1}>Summary Report</Heading>
       </Box>{/* Two-column layout with central divider */}
@@ -200,10 +207,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               Medical History
             </Heading><Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              <Text fontWeight="medium" whiteSpace="nowrap">Personal Cancer:</Text>              <Box display="flex" alignItems="center" flexWrap="wrap">                {userResponses.medicalHistory.personalCancer.diagnosed ? 
                   <Badge colorScheme="red" ml={1}>Yes</Badge> : 
-                  <Badge colorScheme="green" ml={1}>No</Badge>}
-                {userResponses.medicalHistory.personalCancer.diagnosed && 
+                  <Badge colorScheme="green" ml={1}>No</Badge>}                {userResponses.medicalHistory.personalCancer.diagnosed && 
                   <Text as="span" ml={2} fontWeight="normal">
-                    {userResponses.medicalHistory.personalCancer.type || "Cancer type"}
+                    {userResponses.medicalHistory.personalCancer.type ? 
+                      userResponses.medicalHistory.personalCancer.type : "Cancer type"}
                     {userResponses.medicalHistory.personalCancer.ageAtDiagnosis && 
                       ` (Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})`}
                   </Text>}

@@ -698,6 +698,7 @@ function App() {
         ...prev.medicalHistory,
         personalCancer: {
           ...prev.medicalHistory.personalCancer,
+          diagnosed: true, // Ensure diagnosed is set to true
           type: cancerType,
           ageAtDiagnosis: age
         }
