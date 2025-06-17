@@ -1533,14 +1533,13 @@ function App() {
             <Flex align="center">
               <Icon as={FaNotesMedical} boxSize={7} mr={3} />
               <VStack align="start" spacing={0}>
-                <Heading size="md">Medical Screening Bot</Heading>
+                <Heading size="md">Cancer Screening Bot</Heading>
                 <HStack>
                   <Badge colorScheme="green" px={2} py={0.5} borderRadius="full">Online</Badge>
                   <Icon as={FaHeartbeat} color="red.400" animation="pulse 1.5s infinite" />
                 </HStack>
               </VStack>
             </Flex>
-            <Text fontSize="sm" fontWeight="bold">Medical Screening Bot v1.0</Text>
           </Flex>
         </Box>
         
@@ -1610,7 +1609,7 @@ function App() {
           <div ref={messagesEndRef} />
         </VStack>
         
-        <Divider />
+        <Divider/>
         
         {/* Response Options Area */}
         <Box p={5} bg={bg} borderTopWidth="1px" borderColor={borderColor} boxShadow="0 -2px 10px rgba(0,0,0,0.05)">
@@ -1635,8 +1634,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="teal"
-                    onClick={handleAgeSubmit}
-                  >
+                    onClick={handleAgeSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
