@@ -1,5 +1,13 @@
 .App {
   text-align: center;
+  overflow-x: hidden;
+}
+
+body, html {
+  overflow-x: hidden;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .App-logo {

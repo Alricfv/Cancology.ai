@@ -364,32 +364,77 @@ function App() {
         // Directly call the routeBasedOnSex function
         routeBasedOnSex();
       } else {
-        // Move to the next step in the conversation flow
-        const nextStep = conversationFlow[nextId];
-        
-        if (nextStep) {
-          // Add bot's next question
-          setMessages(prev => [
-            ...prev, 
-            {
-              id: prev.length + 1,
-              text: nextStep.question,
-              sender: 'bot',
-              timestamp: new Date()
+        // Special handling for prostateTest for males under 30
+        if (nextId === "prostateTest" && userSex === "Male" && userResponses.demographics.age < 30) {
+          // Skip prostate test for males under 30
+          // Pre-fill the prostate test data as No and N/A
+          setUserResponses(prev => ({
+            ...prev,
+            sexSpecificInfo: {
+              ...prev.sexSpecificInfo,
+              male: {
+                ...prev.sexSpecificInfo.male,
+                prostateTest: {
+                  had: false,
+                  ageAtLast: "N/A" // Using "N/A" as a string value for age at last test
+                }
+              }
             }
-          ]);
+          }));
           
-          // Update the current step
-          setCurrentStep(nextId);
+          // Directly go to testicularIssues
+          const skipToStep = conversationFlow.testicularIssues;
           
-          toast({
-            title: "Response recorded",
-            description: "Moving to next question",
-            status: "success",
-            duration: 2000,
-            isClosable: true,
-            position: "top-right"
-          });
+          if (skipToStep) {
+            setMessages(prev => [
+              ...prev, 
+              {
+                id: prev.length + 1,
+                text: skipToStep.question,
+                sender: 'bot',
+                timestamp: new Date()
+              }
+            ]);
+            
+            setCurrentStep('testicularIssues');
+            
+            toast({
+              title: "Age verified",
+              description: "Prostate screening not recommended under 30",
+              status: "info",
+              duration: 2000,
+              isClosable: true,
+              position: "top-right"
+            });
+          }
+        } else {
+          // Normal flow - move to the next step in the conversation flow
+          const nextStep = conversationFlow[nextId];
+          
+          if (nextStep) {
+            // Add bot's next question
+            setMessages(prev => [
+              ...prev, 
+              {
+                id: prev.length + 1,
+                text: nextStep.question,
+                sender: 'bot',
+                timestamp: new Date()
+              }
+            ]);
+            
+            // Update the current step
+            setCurrentStep(nextId);
+            
+            toast({
+              title: "Response recorded",
+              description: "Moving to next question",
+              status: "success",
+              duration: 2000,
+              isClosable: true,
+              position: "top-right"
+            });
+          }
         }
       }
     }, 1000);
@@ -645,6 +690,19 @@ function App() {
         timestamp: new Date()
       }
     ]);
+    
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      medicalHistory: {
+        ...prev.medicalHistory,
+        personalCancer: {
+          ...prev.medicalHistory.personalCancer,
+          type: cancerType,
+          ageAtDiagnosis: age
+        }
+      }
+    }));
     
     // Clear inputs
     setCancerType('');
@@ -1455,17 +1513,20 @@ function App() {
   const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
 
   return (
-    <Box w="100vw" h="100vh" overflow="hidden" position="fixed" top="0" left="0">
-      <Flex direction="column" h="100%">
-        {/* Header */}
+    <Box w="100%" h="100vh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
+      <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
+        {/* Header - Hidden when summary is displayed */}
         <Box 
-          py={4} 
+          py={3} 
           px={6} 
           bg={headerBg} 
           color="white" 
           borderBottomWidth="1px" 
           borderColor={borderColor}
           boxShadow="0 4px 12px rgba(0,0,0,0.15)"
+          width="100%"
+          maxW="100vw"
+          display={currentStep === 'summary' ? 'none' : 'flex'}
         >
           <Flex align="center" justify="space-between">
             <Flex align="center">
@@ -1482,15 +1543,18 @@ function App() {
           </Flex>
         </Box>
         
-        {/* Messages Container */}
+        {/* Messages Container - Hidden when summary is displayed */}
         <VStack 
           flex="1"
           overflowY="auto" 
+          overflowX="hidden"
           p={4} 
           spacing={4} 
           bg={useColorModeValue('gray.50', 'gray.900')}
           align="stretch"
           w="100%"
+          maxW="100vw"
+          display={currentStep === 'summary' ? 'none' : 'flex'}
         >
           {messages.map((message) => (
             <Flex
@@ -2142,7 +2206,9 @@ function App() {
               {prostateTestAgeError && <FormErrorMessage>{prostateTestAgeError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'summary' ? (
-            <SummaryComponent userResponses={userResponses} handleOptionSelect={handleOptionSelect} />
+            <Box h="calc(100vh - 50px)" overflowY="auto" pt={2}>
+              <SummaryComponent userResponses={userResponses} handleOptionSelect={handleOptionSelect} />
+            </Box>
           ) : (
             <VStack spacing={3} align="stretch">
               {conversationFlow[currentStep]?.options.map((option, index) => (

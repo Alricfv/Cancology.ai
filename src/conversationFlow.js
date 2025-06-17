@@ -118,14 +118,12 @@ const conversationFlow = {
     question: "Please specify your drug allergies:",
     options: [],
     inputType: "allergies"
-  },
-  maleQuestions: {
+  },  maleQuestions: {
     question: "We have some additional male-specific health questions. Let's continue with those.",
     options: [
       { text: "Continue", nextId: "urinarySymptoms" }
     ]
-  },
-  urinarySymptoms: {
+  },  urinarySymptoms: {
     question: "Have you experienced urinary symptoms (e.g., weak stream, nocturia)?",
     options: [
       { text: "Yes", nextId: "prostateTest" },

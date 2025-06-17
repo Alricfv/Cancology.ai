@@ -25,6 +25,23 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>React App</title>
+    <style>
+      html, body, #root {
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        width: 100%;
+        height: 100%;
+      }
+      /* Hide scrollbar but allow scrolling */
+      body::-webkit-scrollbar {
+        display: none;
+      }
+      body {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
