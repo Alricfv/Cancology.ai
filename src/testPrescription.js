@@ -58,9 +58,12 @@ export const getPrescribedTests = (userResponses) => {
           riskScore += 3;
         }
         break;
+          case 'lung':
+        // Using pack-years for more accurate risk assessment
+        if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 30) riskScore += 5;
+        else if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 20) riskScore += 4;
+        else if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 10) riskScore += 3;
         
-      case 'lung':
-        if (lifestyle.smoking.current && lifestyle.smoking.years >= 20) riskScore += 5;
         if (demographics.age >= 55 && lifestyle.smoking.current) riskScore += 3;
         if (demographics.age >= 50) riskScore += 1;
         break;
@@ -134,15 +137,14 @@ export const getPrescribedTests = (userResponses) => {
       urgency: colorectalRisk >= 4 ? "Schedule within 1 month" : "Schedule within 3 months"
     });
   }
-  
-  // Lung Cancer Screening
+    // Lung Cancer Screening
   const lungRisk = calculateCancerRisk('lung');
   if (lungRisk >= 4) {
     tests.push({
       name: "Low-Dose CT Scan (LDCT)",
       type: "lung",
       priority: "high",
-      reason: `High-risk lung cancer screening due to significant smoking history (${lifestyle.smoking.years} years)`,
+      reason: `High-risk lung cancer screening due to significant smoking history (${lifestyle.smoking.packYears} pack-years)`,
       frequency: "Annual",
       urgency: "Schedule within 2 weeks"
     });
@@ -195,14 +197,13 @@ export const getTestCategories = () => {
 export const getRiskFactorExplanations = (userResponses) => {
   const explanations = [];
   const { demographics, medicalHistory, lifestyle, sexSpecificInfo } = userResponses;
-  
-  // Add explanations for various risk factors
+    // Add explanations for various risk factors
   if (medicalHistory.familyCancer.diagnosed) {
     explanations.push(`Family history of ${medicalHistory.familyCancer.type} increases your cancer risk`);
   }
   
   if (lifestyle.smoking.current) {
-    explanations.push(`Current smoking (${lifestyle.smoking.years} years) significantly increases lung cancer risk`);
+    explanations.push(`Current smoking (${lifestyle.smoking.packYears} pack-years) significantly increases lung cancer risk`);
   }
   
   if (demographics.age >= 50) {

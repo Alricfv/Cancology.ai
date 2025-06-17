@@ -44,11 +44,12 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     
     // Chronic conditions
     riskScore += Math.min(userResponses.medicalHistory.chronicConditions.length, 3);
-    
-    // Smoking
+      // Smoking
     if (userResponses.lifestyle.smoking.current) {riskScore += 3;
-      if (userResponses.lifestyle.smoking.years > 10) riskScore += 1;
-      if (userResponses.lifestyle.smoking.weekly > 70) riskScore += 1;  // 10+ cigarettes daily
+      // Using pack-years as a more accurate measure of smoking history
+      if (userResponses.lifestyle.smoking.packYears >= 30) riskScore += 3;
+      else if (userResponses.lifestyle.smoking.packYears >= 20) riskScore += 2;
+      else if (userResponses.lifestyle.smoking.packYears >= 10) riskScore += 1;
     }
     
     // Transplant
@@ -65,6 +66,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       if (!userResponses.sexSpecificInfo.female.hpvVaccine && userResponses.demographics.age < 45) riskScore += 1;
       if (userResponses.sexSpecificInfo.female.hormoneTreatment) riskScore += 1;
     }
+    
+    // Vaccination status
+    if (!userResponses.vaccinations.hpv && userResponses.demographics.age < 45) riskScore += 1;
+    if (!userResponses.vaccinations.hepB) riskScore += 1;
+    
+    // Cancer screening history
+    if (!userResponses.cancerScreening.hadScreening && userResponses.demographics.age > 40) riskScore += 2;
     
     return riskScore;
   };
@@ -86,10 +94,21 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     
     // General recommendations
     recommendations.push("Schedule a general health check-up annually");
-    
-    if (isSmoker) {
+      if (isSmoker) {
       recommendations.push("Consider tobacco cessation programs or counseling");
-      recommendations.push("Regular lung function testing and chest X-rays");
+      
+      // Recommendations based on pack-years
+      if (userResponses.lifestyle.smoking.packYears >= 30) {
+        recommendations.push("Urgent: Low-dose CT scan for lung cancer screening");
+        recommendations.push("Regular pulmonary function tests every 6 months");
+      } else if (userResponses.lifestyle.smoking.packYears >= 20) {
+        recommendations.push("Low-dose CT scan for lung cancer screening");
+        recommendations.push("Annual pulmonary function tests");
+      } else if (userResponses.lifestyle.smoking.packYears >= 10) {
+        recommendations.push("Regular lung function testing and chest X-rays");
+      } else {
+        recommendations.push("Regular lung function testing");
+      }
     }
     
     if (hasPersonalCancer) {
@@ -130,14 +149,22 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     if (sex === "Female") {
       if (age >= 40) recommendations.push("Annual mammogram");
       if (age >= 21) recommendations.push("Regular Pap smears (every 3-5 years)");
-      if (!userResponses.sexSpecificInfo.female.hpvVaccine && age < 45) {
-        recommendations.push("Consider HPV vaccination if eligible");
-      }
     }
     
-    // Colon cancer screening based on age
-    if (age >= 45) {
-      recommendations.push("Regular colorectal cancer screening (colonoscopy every 10 years or alternative methods)");
+    // Vaccination recommendations
+    if (!userResponses.vaccinations.hpv && age < 45) {
+      recommendations.push("Consider HPV vaccination if eligible");
+    }
+    
+    if (!userResponses.vaccinations.hepB) {
+      recommendations.push("Consider Hepatitis B vaccination");
+    }
+    
+    // Cancer screening recommendations based on screening history
+    if (!userResponses.cancerScreening.hadScreening) {
+      if (age >= 45) {
+        recommendations.push("Discuss appropriate cancer screening tests with your healthcare provider");
+      }
     }
     
     return recommendations;
@@ -281,13 +308,12 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 Smoking Status:
               </Text>
 
-              <Box>
-                {userResponses.lifestyle.smoking.current ? 
+              <Box>                {userResponses.lifestyle.smoking.current ? 
                   <Badge colorScheme="red" ml={1}>Current Smoker</Badge> : 
                   <Badge colorScheme="green" ml={1}>Non-Smoker</Badge>}
                 {userResponses.lifestyle.smoking.current && 
                   <Text as="span" ml={2}>
-                    ({userResponses.lifestyle.smoking.years} years)
+                    ({userResponses.lifestyle.smoking.packYears} pack-years)
                   </Text>}
               </Box>
               
@@ -418,6 +444,42 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 </Badge>
               </Grid>
             )}
+          </Box>
+
+          {/* Vaccination and Screening History */}
+          <Box mb={3}>
+            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200">
+              Vaccinations & Screening History
+            </Heading>
+            <Grid templateColumns="auto 1fr" gap={2} alignItems="center">
+              <Text fontWeight="medium" whiteSpace="nowrap">
+                HPV Vaccine:
+              </Text>
+              <Badge colorScheme={userResponses.vaccinations.hpv ? "green" : "yellow"}>
+                {userResponses.vaccinations.hpv ? "YES" : "NO"}
+              </Badge>
+              
+              <Text fontWeight="medium" whiteSpace="nowrap">
+                Hepatitis B Vaccine:
+              </Text>
+              <Badge colorScheme={userResponses.vaccinations.hepB ? "green" : "yellow"}>
+                {userResponses.vaccinations.hepB ? "YES" : "NO"}
+              </Badge>
+              
+              <Text fontWeight="medium" whiteSpace="nowrap">
+                Cancer Screening History:
+              </Text>
+              <Box>
+                <Badge colorScheme={userResponses.cancerScreening.hadScreening ? "blue" : "gray"}>
+                  {userResponses.cancerScreening.hadScreening ? "YES" : "NO"}
+                </Badge>
+                {userResponses.cancerScreening.hadScreening && userResponses.cancerScreening.details && (
+                  <Text fontSize="sm" mt={1}>
+                    "{userResponses.cancerScreening.details}"
+                  </Text>
+                )}
+              </Box>
+            </Grid>
           </Box>
 
           {/* Risk Assessment */}

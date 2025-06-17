@@ -78,12 +78,21 @@ function App() {
       smoking: {
         current: false,
         years: null,
-        weekly: null
+        packsPerDay: null,
+        packYears: null
       },
       transplant: false
     },
     medications: [],
     allergies: "",
+    cancerScreening: {
+      hadScreening: false,
+      details: ""
+    },
+    vaccinations: {
+      hpv: false,
+      hepB: false
+    },
     sexSpecificInfo: {
       male: {
         urinarySymptoms: false,
@@ -184,10 +193,11 @@ function App() {
   const [familyCancerAgeInput, setFamilyCancerAgeInput] = useState('');
   const [familyCancerAgeError, setFamilyCancerAgeError] = useState('');
   const [familyRelation, setFamilyRelation] = useState('');
+  const [smokingPacksInput, setSmokingPacksInput] = useState('');
+  const [smokingPacksError, setSmokingPacksError] = useState('');
   const [smokingYearsInput, setSmokingYearsInput] = useState('');
   const [smokingYearsError, setSmokingYearsError] = useState('');
-  const [smokingAmountInput, setSmokingAmountInput] = useState('');
-  const [smokingAmountError, setSmokingAmountError] = useState('');
+  const [packYears, setPackYears] = useState(0);
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
   const [menstruationStatus, setMenstruationStatus] = useState('');
@@ -195,6 +205,8 @@ function App() {
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
   const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
   const [prostateTestAgeError, setProstateTestAgeError] = useState('');
+  const [cancerScreeningInput, setCancerScreeningInput] = useState('');
+  // No need for error state for cancer screening as it's free text
   
   // Handle clicking a response option
   const handleOptionSelect = (optionText, nextId) => {
@@ -347,12 +359,17 @@ function App() {
     } else if (currentStep === 'hpvVaccine') {
       setUserResponses(prev => ({
         ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          female: {
-            ...prev.sexSpecificInfo.female,
-            hpvVaccine: optionText === 'Yes'
-          }
+        vaccinations: {
+          ...prev.vaccinations,
+          hpv: optionText === 'Yes'
+        }
+      }));
+    } else if (currentStep === 'hepBVaccine') {
+      setUserResponses(prev => ({
+        ...prev,
+        vaccinations: {
+          ...prev.vaccinations,
+          hepB: optionText === 'Yes'
         }
       }));
     }
@@ -884,6 +901,21 @@ function App() {
       }
     ]);
     
+    // Update consolidated responses with family cancer details
+    setUserResponses(prev => ({
+      ...prev,
+      medicalHistory: {
+        ...prev.medicalHistory,
+        familyCancer: {
+          ...prev.medicalHistory.familyCancer,
+          diagnosed: true, // Ensure diagnosed is set to true
+          relation: familyRelation,
+          type: familyCancerType,
+          ageAtDiagnosis: age
+        }
+      }
+    }));
+    
     // Clear inputs
     setFamilyCancerType('');
     setFamilyRelation('');
@@ -932,6 +964,15 @@ function App() {
         timestamp: new Date()
       }
     ]);
+    
+    // Update user responses with transplant information
+    setUserResponses(prev => ({
+      ...prev,
+      lifestyle: {
+        ...prev.lifestyle,
+        transplant: optionText === 'Yes'
+      }
+    }));
     
     // Move to the medications step
     setTimeout(() => {
@@ -982,6 +1023,22 @@ function App() {
   
   // Clear error
   setPregnancyAgeError('');
+  
+  // Update user responses with pregnancy age
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        pregnancy: {
+          ...prev.sexSpecificInfo.female.pregnancy,
+          hadPregnancy: true,
+          ageAtFirst: age
+        }
+      }
+    }
+  }));
   
   // Add user's pregnancy age as a message
   setMessages(prev => [
@@ -1035,7 +1092,7 @@ function App() {
     setMenarcheAgeError('Age at first period is required');
     return;
   }
-  
+ 
   const age = parseInt(menarcheAgeInput);
   
   if (isNaN(age) || age < 8 || age > 18) {
@@ -1101,6 +1158,74 @@ function App() {
       });
     }
   }, 1000);
+ };
+
+ const handleCancerScreeningDetailsSubmit = () => {
+  // Validate cancer screening input
+   if (!cancerScreeningInput.trim()) {
+     toast({
+       title: "Error",
+       description: "Please enter your cancer screening details",
+       status: "error",
+       duration: 2000,
+       isClosable: true,
+       position: "top-right"
+     });
+     return;
+   }
+  
+   // Update consolidated responses
+   setUserResponses(prev => ({
+     ...prev,
+     cancerScreening: {
+       hadScreening: true,
+       details: cancerScreeningInput
+     }
+   }));
+  
+   // Add user's cancer screening details as a message
+   setMessages(prev => [
+     ...prev, 
+     {
+       id: prev.length + 1,
+       text: `Cancer screening history: ${cancerScreeningInput}`,
+       sender: 'user',
+       timestamp: new Date()
+     }
+   ]);
+  
+  // Clear input
+   setCancerScreeningInput('');
+  
+  // Move to the next step (hpvVaccine)
+   setTimeout(() => {
+     const nextStep = conversationFlow.hpvVaccine;
+    
+     if (nextStep) {
+      // Add bot's next question
+       setMessages(prev => [
+         ...prev, 
+         {
+           id: prev.length + 1,
+           text: nextStep.question,
+           sender: 'bot',
+           timestamp: new Date()
+         }
+       ]);
+      
+       // Update the current step
+       setCurrentStep('hpvVaccine');
+      
+       toast({
+         title: "Screening history recorded",
+         description: "Moving to vaccination questions",
+         status: "success",
+         duration: 2000,
+         isClosable: true,
+         position: "top-right"
+       });
+     }
+   }, 1000);
  };
   
   // Handle submitting medications information
@@ -1246,23 +1371,23 @@ function App() {
     }, 1000);
   };
         
-  // Handle smoking years input
-  const handleSmokingYearsSubmit = () => {
-    // Validate years input
-    if (!smokingYearsInput.trim()) {
-      setSmokingYearsError('Number of years is required');
+  // Handle smoking packs per day input
+  const handleSmokingPacksSubmit = () => {
+    // Validate packs input
+    if (!smokingPacksInput.trim()) {
+      setSmokingPacksError('Number of packs per day is required');
       return;
     }
     
-    const years = parseInt(smokingYearsInput);
+    const packs = parseFloat(smokingPacksInput);
     
-    if (isNaN(years) || years < 0 || years > 100) {
-      setSmokingYearsError('Please enter a valid number between 0 and 100');
+    if (isNaN(packs) || packs < 0 || packs > 10) {
+      setSmokingPacksError('Please enter a valid number between 0 and 10');
       return;
     }
     
     // Clear error
-    setSmokingYearsError('');
+    setSmokingPacksError('');
     
     // Update consolidated responses
     setUserResponses(prev => ({
@@ -1271,26 +1396,26 @@ function App() {
         ...prev.lifestyle,
         smoking: {
           ...prev.lifestyle.smoking,
-          years: years
+          packsPerDay: packs
         }
       }
     }));
     
-    // Add user's smoking years as a message
+    // Add user's smoking packs as a message
     setMessages(prev => [
       ...prev, 
       {
         id: prev.length + 1,
-        text: `${years} years of smoking`,
+        text: `${packs} packs per day`,
         sender: 'user',
         timestamp: new Date()
       }
     ]);
     
     // Clear input
-    setSmokingYearsInput('');
+    setSmokingPacksInput('');
     
-    // Move to the next step (smokingAmount)
+    // Move to the next step (smokingYears)
     setTimeout(() => {
       const nextStep = conversationFlow.smokingAmount;
       
@@ -1310,8 +1435,8 @@ function App() {
         setCurrentStep('smokingAmount');
         
         toast({
-          title: "Smoking years recorded",
-          description: "Moving to smoking amount question",
+          title: "Smoking packs recorded",
+          description: "Moving to smoking years question",
           status: "success",
           duration: 2000,
           isClosable: true,
@@ -1338,6 +1463,22 @@ function App() {
 
     // Clear error
     setProstateTestAgeError('');
+
+    // Update user responses with prostate test age
+    setUserResponses(prev => ({
+      ...prev,
+      sexSpecificInfo: {
+        ...prev.sexSpecificInfo,
+        male: {
+          ...prev.sexSpecificInfo.male,
+          prostateTest: {
+            ...prev.sexSpecificInfo.male.prostateTest,
+            had: true,
+            ageAtLast: age
+          }
+        }
+      }
+    }));
 
     // Add user's prostate test age as a message
     setMessages(prev => [
@@ -1382,23 +1523,27 @@ function App() {
       }
     }, 1000);
   };
-  // Handle smoking amount input
-  const handleSmokingAmountSubmit = () => {
-    // Validate amount input
-    if (!smokingAmountInput.trim()) {
-      setSmokingAmountError('Number of cigarettes is required');
+  // Handle smoking years input and calculate pack-years
+  const handleSmokingYearsSubmit = () => {
+    // Validate years input
+    if (!smokingYearsInput.trim()) {
+      setSmokingYearsError('Number of years is required');
       return;
     }
     
-    const amount = parseInt(smokingAmountInput);
+    const years = parseInt(smokingYearsInput);
     
-    if (isNaN(amount) || amount < 0) {
-      setSmokingAmountError('Please enter a valid number of cigarettes');
+    if (isNaN(years) || years < 0 || years > 100) {
+      setSmokingYearsError('Please enter a valid number between 0 and 100');
       return;
     }
     
     // Clear error
-    setSmokingAmountError('');
+    setSmokingYearsError('');
+    
+    // Calculate pack-years: packs per day × years smoked
+    const packsPerDay = userResponses.lifestyle.smoking.packsPerDay || 0;
+    const calculatedPackYears = Math.round(packsPerDay * years * 10) / 10; // Round to 1 decimal place
     
     // Update consolidated responses
     setUserResponses(prev => ({
@@ -1407,24 +1552,28 @@ function App() {
         ...prev.lifestyle,
         smoking: {
           ...prev.lifestyle.smoking,
-          weekly: amount
+          years: years,
+          packYears: calculatedPackYears
         }
       }
     }));
     
-    // Add user's smoking amount as a message
+    // Set pack-years state
+    setPackYears(calculatedPackYears);
+    
+    // Add user's smoking years and calculated pack-years as a message
     setMessages(prev => [
       ...prev, 
       {
         id: prev.length + 1,
-        text: `${amount} cigarettes per week`,
+        text: `${years} years of smoking (${calculatedPackYears} pack-years total)`,
         sender: 'user',
         timestamp: new Date()
       }
     ]);
     
     // Clear input
-    setSmokingAmountInput('');
+    setSmokingYearsInput('');
     
     // Move to the next step
     setTimeout(() => {
@@ -2032,6 +2181,39 @@ function App() {
               </FormControl>
             </VStack>
           ) : currentStep === 'smokingYears' ? (
+            <FormControl isInvalid={!!smokingPacksError}>
+              <InputGroup size="md">
+                <Input 
+                  type="number"
+                  step="0.1"
+                  placeholder="Enter packs per day (0-10)"
+                  value={smokingPacksInput}
+                  onChange={(e) => setSmokingPacksInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSmokingPacksSubmit();
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="teal.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button 
+                    h="1.75rem" 
+                    size="sm" 
+                    colorScheme="teal"
+                    onClick={handleSmokingYearsSubmit}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              {smokingPacksError && <FormErrorMessage>{smokingPacksError}</FormErrorMessage>}
+              <Text fontSize="xs" color="gray.500" mt={1}>
+                Note: 1 pack = 20 cigarettes. Use decimals for partial packs (e.g., 0.5 for 10 cigarettes)
+              </Text>
+            </FormControl>
+          ) : currentStep === 'smokingAmount' ? (
             <FormControl isInvalid={!!smokingYearsError}>
               <InputGroup size="md">
                 <Input 
@@ -2052,42 +2234,13 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="teal"
-                    onClick={handleSmokingYearsSubmit}
+                    onClick={handleSmokingPacksSubmit}
                   >
                     Submit
                   </Button>
                 </InputRightElement>
               </InputGroup>
               {smokingYearsError && <FormErrorMessage>{smokingYearsError}</FormErrorMessage>}
-            </FormControl>
-          ) : currentStep === 'smokingAmount' ? (
-            <FormControl isInvalid={!!smokingAmountError}>
-              <InputGroup size="md">
-                <Input 
-                  type="number"
-                  placeholder="Enter cigarettes per week"
-                  value={smokingAmountInput}
-                  onChange={(e) => setSmokingAmountInput(e.target.value)}
-                  onKeyPress={(e) => {
-                    if (e.key === 'Enter') {
-                      handleSmokingAmountSubmit();
-                    }
-                  }}
-                  borderRadius="md"
-                  focusBorderColor="teal.400"
-                />
-                <InputRightElement width="4.5rem">
-                  <Button 
-                    h="1.75rem" 
-                    size="sm" 
-                    colorScheme="teal"
-                    onClick={handleSmokingAmountSubmit}
-                  >
-                    Submit
-                  </Button>
-                </InputRightElement>
-              </InputGroup>
-              {smokingAmountError && <FormErrorMessage>{smokingAmountError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'allergyDetails' ? (
             <FormControl>
@@ -2163,7 +2316,6 @@ function App() {
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
-                    
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="teal"
@@ -2180,7 +2332,7 @@ function App() {
               <InputGroup size="md">
                 <Input 
                   type="number"
-                  placeholder="Enter age at last PSA test (30-120)"
+                  placeholder="Enter age at last test"
                   value={prostateTestAgeInput}
                   onChange={(e) => setProstateTestAgeInput(e.target.value)}
                   onKeyPress={(e) => {
@@ -2203,6 +2355,34 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {prostateTestAgeError && <FormErrorMessage>{prostateTestAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'pastCancerScreeningDetails' ? (
+            <FormControl>
+              <InputGroup size="md">
+                <Input 
+                  type="text"
+                  placeholder="Enter cancer screening type and date"
+                  value={cancerScreeningInput}
+                  onChange={(e) => setCancerScreeningInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleCancerScreeningDetailsSubmit();
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="teal.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button 
+                    h="1.75rem" 
+                    size="sm" 
+                    colorScheme="teal"
+                    onClick={handleCancerScreeningDetailsSubmit}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
             </FormControl>
           ) : currentStep === 'summary' ? (
             <Box h="calc(100vh - 50px)" overflowY="auto" pt={2}>

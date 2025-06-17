@@ -71,16 +71,15 @@ const conversationFlow = {
       { text: "Yes", nextId: "smokingYears" },
       { text: "No", nextId: "transplant" }
     ]
+  },  smokingYears: {
+    question: "How many packs of cigarettes do/did you smoke per day on average? (A pack contains 20 cigarettes)",
+    options: [],
+    inputType: "smokingPacks"
   },
-  smokingYears: {
+  smokingAmount: {
     question: "How many years have you smoked?",
     options: [],
     inputType: "smokingYears"
-  },
-  smokingAmount: {
-    question: "How many cigarettes a week on average?",
-    options: [],
-    inputType: "smokingAmount"
   },
   transplant: {
     question: "Have you had organ transplants or immunosuppressive therapy?",
@@ -141,12 +140,11 @@ const conversationFlow = {
     question: "What age were you when you took your last prostate antigen test?",
     options: [],
     inputType: "prostateTestAge"
-  },
-  testicularIssues: {
+  },  testicularIssues: {
     question: "Have you had testicular pain, swelling, or history of undescended testis?",
     options: [
-      { text: "Yes", nextId: "summary" },
-      { text: "No", nextId: "summary" }
+      { text: "Yes", nextId: "pastCancerScreening" },
+      { text: "No", nextId: "pastCancerScreening" }
     ]
   },
   femaleQuestions: {
@@ -185,9 +183,27 @@ const conversationFlow = {
       { text: "Yes", nextId: "hpvVaccine" },
       { text: "No", nextId: "hpvVaccine" }
     ]
-  },
-  hpvVaccine: {
+  },  hpvVaccine: {
     question: "Have you received the HPV vaccine?",
+    options: [
+      { text: "Yes", nextId: "hepBVaccine" },
+      { text: "No", nextId: "hepBVaccine" }
+    ]
+  },
+  pastCancerScreening: {
+    question: "Have you ever been screened for any cancer before?",
+    options: [
+      { text: "Yes", nextId: "pastCancerScreeningDetails" },
+      { text: "No", nextId: "hpvVaccine" }
+    ]
+  },
+  pastCancerScreeningDetails: {
+    question: "What type of cancer screening did you have and when?",
+    options: [],
+    inputType: "cancerScreeningDetails"
+  },
+  hepBVaccine: {
+    question: "Have you received the Hepatitis B vaccine?",
     options: [
       { text: "Yes", nextId: "summary" },
       { text: "No", nextId: "summary" }
