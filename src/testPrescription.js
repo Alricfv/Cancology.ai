@@ -6,178 +6,203 @@
 
 export const getPrescribedTests = (userResponses) => {
   const tests = [];
-  const { demographics, medicalHistory, lifestyle, sexSpecificInfo } = userResponses;
+  const { demographics, sexSpecificInfo } = userResponses;
   
-  // Helper function to calculate risk score for specific cancers
-  const calculateCancerRisk = (cancerType) => {
+  // Helper function to calculate risk score for cervical cancer
+  const calculateCervicalCancerRisk = () => {
     let riskScore = 0;
     
-    switch (cancerType) {
-      case 'breast':
-        if (demographics.sex === 'Female') {
-          if (demographics.age >= 50) riskScore += 3;
-          else if (demographics.age >= 40) riskScore += 2;
-          
-          if (medicalHistory.familyCancer.diagnosed && 
-              medicalHistory.familyCancer.type?.toLowerCase().includes('breast')) {
-            riskScore += 4;
-          }
-          
-          if (sexSpecificInfo.female.hormoneTreatment) riskScore += 2;
-          if (!sexSpecificInfo.female.pregnancy.hadPregnancy) riskScore += 1;
-          if (sexSpecificInfo.female.menarcheAge < 12) riskScore += 1;
-        }
-        break;
-        
-      case 'prostate':
-        if (demographics.sex === 'Male') {
-          if (demographics.age >= 50) riskScore += 3;
-          else if (demographics.age >= 45) riskScore += 2;
-          
-          if (medicalHistory.familyCancer.diagnosed && 
-              medicalHistory.familyCancer.type?.toLowerCase().includes('prostate')) {
-            riskScore += 4;
-          }
-          
-          if (sexSpecificInfo.male.urinarySymptoms) riskScore += 2;
-          if (demographics.ethnicity === 'Black or African American') riskScore += 2;
-        }
-        break;
-        
-      case 'colorectal':
-        if (demographics.age >= 50) riskScore += 3;
-        else if (demographics.age >= 45) riskScore += 2;
-        
-        if (medicalHistory.familyCancer.diagnosed && 
-            (medicalHistory.familyCancer.type?.toLowerCase().includes('colorectal') ||
-             medicalHistory.familyCancer.type?.toLowerCase().includes('colon'))) {
-          riskScore += 4;
-        }
-        
-        if (medicalHistory.chronicConditions.includes('Inflammatory Bowel Disease')) {
-          riskScore += 3;
-        }
-        break;
-          case 'lung':
-        // Using pack-years for more accurate risk assessment
-        if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 30) riskScore += 5;
-        else if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 20) riskScore += 4;
-        else if (lifestyle.smoking.current && lifestyle.smoking.packYears >= 10) riskScore += 3;
-        
-        if (demographics.age >= 55 && lifestyle.smoking.current) riskScore += 3;
-        if (demographics.age >= 50) riskScore += 1;
-        break;
-        
-      case 'cervical':
-        if (demographics.sex === 'Female') {
-          if (demographics.age >= 21 && demographics.age <= 65) riskScore += 3;
-          if (!sexSpecificInfo.female.hpvVaccine) riskScore += 2;
-          if (sexSpecificInfo.female.pregnancy.hadPregnancy && 
-              sexSpecificInfo.female.pregnancy.ageAtFirst < 20) riskScore += 1;
-        }
-        break;
+    if (demographics.sex === 'Female') {
+      if (demographics.age >= 21 && demographics.age <= 65) riskScore += 3;
+      if (!sexSpecificInfo.female.hpvVaccine) riskScore += 2;
+      if (sexSpecificInfo.female.pregnancy.hadPregnancy && 
+          sexSpecificInfo.female.pregnancy.ageAtFirst < 20) riskScore += 1;
     }
     
     return riskScore;
-  };
-  
-  // Breast Cancer Screening
+  };    // Cancer Screening recommendations for females
+
   if (demographics.sex === 'Female') {
-    const breastRisk = calculateCancerRisk('breast');
+    // Calculate risk score (for future use/expansion)
+    calculateCervicalCancerRisk();
     
-    if (breastRisk >= 3 || demographics.age >= 50) {
-      tests.push({
-        name: "Mammography",
-        type: "breast",
-        priority: breastRisk >= 5 ? "high" : breastRisk >= 3 ? "medium" : "standard",
-        reason: `Recommended for breast cancer screening. Risk level: ${breastRisk >= 5 ? 'High' : breastRisk >= 3 ? 'Medium' : 'Standard'}`,
-        frequency: demographics.age >= 50 ? "Annual" : "Every 2 years",
-        urgency: breastRisk >= 5 ? "Schedule within 1 month" : "Schedule within 3 months"
-      });
-    }
-    
-    if (breastRisk >= 5 || (medicalHistory.familyCancer.diagnosed && 
-        medicalHistory.familyCancer.type?.toLowerCase().includes('breast'))) {
-      tests.push({
-        name: "Breast MRI",
-        type: "breast",
-        priority: "high",
-        reason: "High-risk breast cancer screening due to family history or multiple risk factors",
-        frequency: "Annual (in addition to mammography)",
-        urgency: "Schedule within 2 weeks"
-      });
-    }
-  }
-  
-  // Prostate Cancer Screening
-  if (demographics.sex === 'Male' && demographics.age >= 45) {
-    const prostateRisk = calculateCancerRisk('prostate');
-    
-    if (prostateRisk >= 2 || demographics.age >= 50) {
-      tests.push({
-        name: "Prostate-Specific Antigen (PSA) Test",
-        type: "prostate",
-        priority: prostateRisk >= 4 ? "high" : "standard",
-        reason: `Prostate cancer screening recommended. ${sexSpecificInfo.male.urinarySymptoms ? 'Urinary symptoms present.' : ''}`,
-        frequency: "Annual",
-        urgency: prostateRisk >= 4 ? "Schedule within 2 weeks" : "Schedule within 6 weeks"
-      });
-    }
-  }
-  
-  // Colorectal Cancer Screening
-  const colorectalRisk = calculateCancerRisk('colorectal');
-  if (colorectalRisk >= 2 || demographics.age >= 45) {
-    tests.push({
-      name: "Colonoscopy",
-      type: "colorectal",
-      priority: colorectalRisk >= 4 ? "high" : "standard",
-      reason: `Colorectal cancer screening. ${medicalHistory.chronicConditions.includes('Inflammatory Bowel Disease') ? 'IBD increases risk.' : ''}`,
-      frequency: "Every 10 years (if normal)",
-      urgency: colorectalRisk >= 4 ? "Schedule within 1 month" : "Schedule within 3 months"
-    });
-  }
-    // Lung Cancer Screening
-  const lungRisk = calculateCancerRisk('lung');
-  if (lungRisk >= 4) {
-    tests.push({
-      name: "Low-Dose CT Scan (LDCT)",
-      type: "lung",
-      priority: "high",
-      reason: `High-risk lung cancer screening due to significant smoking history (${lifestyle.smoking.packYears} pack-years)`,
-      frequency: "Annual",
-      urgency: "Schedule within 2 weeks"
-    });
-  }
-  
-  // Cervical Cancer Screening
-  if (demographics.sex === 'Female') {
-    const cervicalRisk = calculateCancerRisk('cervical');
-    
-    if (demographics.age >= 21 && demographics.age <= 65) {
+    // Cervical Cancer Screening
+    if (demographics.age >= 21 && demographics.age <= 29) {
       tests.push({
         name: "Pap Smear",
         type: "cervical",
         priority: !sexSpecificInfo.female.hpvVaccine ? "medium" : "standard",
-        reason: `Routine cervical cancer screening. ${!sexSpecificInfo.female.hpvVaccine ? 'No HPV vaccination history.' : ''}`,
-        frequency: demographics.age < 30 ? "Every 3 years" : "Every 3-5 years (with HPV co-testing)",
+        reason: "Routine cervical cancer screening for women 21-29 years old",
+        frequency: "Every 3 years",
         urgency: "Schedule within 2 months"
+      });
+    }
+
+    else if (demographics.age >= 30 && demographics.age <= 65) {
+      tests.push({
+        name: "HPV DNA Test",
+        type: "cervical",
+        priority: !sexSpecificInfo.female.hpvVaccine ? "medium" : "standard",
+        reason: "Routine cervical cancer screening for women 30+ years old",
+        frequency: "Every 5 years",
+        urgency: "Schedule within 2 months"
+      });
+    }
+
+      // Breast Cancer Screening (Mammogram)
+    if (demographics.age >= 40) {
+      tests.push({
+        name: "Mammogram",
+        type: "breast",
+        priority: "standard",
+        reason: "Routine breast cancer screening for women 40+ years old",
+        frequency: "Every 1-2 years",
+        urgency: "Schedule within 3 months"
       });
     }
   }
   
-  // Skin Cancer Screening (general recommendation)
-  if (demographics.age >= 40 || (demographics.ethnicity === 'White or Caucasian' && demographics.age >= 30)) {
+    // Colorectal Cancer Screening for both males and females starting at age 45
+  if (demographics.age >= 45) {
     tests.push({
-      name: "Full-Body Skin Examination",
-      type: "skin",
+      name: "Colonoscopy",
+      type: "colorectal",
       priority: "standard",
-      reason: "Routine skin cancer screening",
-      frequency: "Annual",
-      urgency: "Schedule within 6 months"
+      reason: "Routine colorectal cancer screening for adults 45+ years old",
+      frequency: "Every 10 years",
+      urgency: "Schedule within 3 months"
+    });
+    
+    tests.push({
+      name: "Fecal Immunochemical Test (FIT)",
+      type: "colorectal",
+      priority: "standard",
+      reason: "Alternative to colonoscopy for colorectal cancer screening",
+      frequency: "Yearly",
+      urgency: "Schedule within 2 months"
     });
   }
-  
+    // Prostate Cancer Screening for men
+  if (demographics.sex === 'Male') {
+    // Define high risk - comprehensive assessment of multiple risk factors
+    const highRiskFactors = [];
+    let isHighRisk = false;
+    
+    // 1. Family history of prostate cancer
+    if (userResponses.medicalHistory && 
+       userResponses.medicalHistory.familyCancer && 
+       userResponses.medicalHistory.familyCancer.diagnosed && 
+       userResponses.medicalHistory.familyCancer.type && 
+       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('prostate')) {
+      highRiskFactors.push("family history of prostate cancer");
+      isHighRisk = true;
+      
+      // Check for multiple first-degree relatives (stronger family history)
+      if (userResponses.medicalHistory.familyCancer.multipleRelatives) {
+        highRiskFactors.push("multiple family members with prostate cancer");
+      }
+    }
+    
+    // 2. African American ethnicity
+    if (userResponses.demographics.ethnicity && 
+       userResponses.demographics.ethnicity.toLowerCase().includes('black')) {
+      highRiskFactors.push("African American ethnicity");
+      isHighRisk = true;
+    }
+    
+    // 3. Urinary symptoms
+    if (userResponses.sexSpecificInfo.male.urinarySymptoms) {
+      highRiskFactors.push("urinary symptoms");
+      isHighRisk = true;
+    }
+    
+    // 4. Genetic mutations
+    if (userResponses.medicalHistory.geneticMutations && 
+        (userResponses.medicalHistory.geneticMutations.includes('BRCA1') || 
+         userResponses.medicalHistory.geneticMutations.includes('BRCA2') || 
+         userResponses.medicalHistory.geneticMutations.includes('Lynch'))) {
+      highRiskFactors.push("genetic mutations associated with increased cancer risk");
+      isHighRisk = true;
+    }
+    
+    // 5. Previous abnormal PSA test
+    if (userResponses.sexSpecificInfo.male.prostateTest && 
+        userResponses.sexSpecificInfo.male.prostateTest.had && 
+        userResponses.sexSpecificInfo.male.prostateTest.abnormalResult) {
+      highRiskFactors.push("previous abnormal PSA result");
+      isHighRisk = true;
+    }
+    
+    // 6. Chemical exposure
+    if (userResponses.lifestyle && 
+        userResponses.lifestyle.chemicalExposure && 
+        (userResponses.lifestyle.chemicalExposure.agentOrange || 
+         userResponses.lifestyle.chemicalExposure.pesticides)) {
+      highRiskFactors.push("exposure to chemicals linked to prostate cancer");
+      isHighRisk = true;
+    }
+    
+    // 7. Obesity
+    if (userResponses.lifestyle && 
+        userResponses.lifestyle.bmi && 
+        userResponses.lifestyle.bmi >= 30) {
+      highRiskFactors.push("obesity");
+      // Not setting isHighRisk to true just for obesity alone
+      // but including it as a contributing factor
+    }
+    
+    // Age threshold based on risk level
+    const ageThreshold = isHighRisk ? 45 : 50;
+    
+    if (demographics.age >= ageThreshold) {
+      // Create risk reason message
+      let riskReason = isHighRisk 
+        ? `Prostate cancer screening for high-risk men (${highRiskFactors.join(", ")})`
+        : "Routine prostate cancer screening for men 50+ years old";
+        
+      // Set priority based on number of risk factors
+      let priority = "standard";
+      if (highRiskFactors.length >= 3) {
+        priority = "high";
+      } else if (highRiskFactors.length >= 1) {
+        priority = "medium";
+      }
+      
+      tests.push({
+        name: "Prostate Specific Antigen (PSA) Test",
+        type: "prostate",
+        priority: priority,
+        reason: riskReason,
+        frequency: isHighRisk ? "Yearly" : "Every 1-2 years",
+        urgency: priority === "high" ? "Schedule within 1 month" : "Schedule within 3 months"
+      });
+      
+      // Add note about DRE as an accompanying test
+      tests.push({
+        name: "Digital Rectal Examination (DRE)",
+        type: "prostate",
+        priority: priority,
+        reason: "Often performed along with PSA test for more comprehensive prostate screening",
+        frequency: isHighRisk ? "Yearly" : "Every 1-2 years",
+        urgency: "Schedule with PSA test"
+      });
+    }
+  }
+    // Lung Cancer Screening with Low-dose CT Scan
+  if (demographics.age >= 50 && 
+      userResponses.lifestyle && 
+      userResponses.lifestyle.smoking && 
+      userResponses.lifestyle.smoking.packYears >= 20) {
+    tests.push({
+      name: "Low-dose CT Scan",
+      type: "lung",
+      priority: "high",
+      reason: "Lung cancer screening for individuals with 20+ pack-years of smoking history",
+      frequency: "Yearly",
+      urgency: "Schedule within 1 month"
+    });
+  }
+
   // Sort tests by priority (high -> medium -> standard)
   const priorityOrder = { high: 1, medium: 2, standard: 3 };
   tests.sort((a, b) => priorityOrder[a.priority] - priorityOrder[b.priority]);
@@ -196,20 +221,9 @@ export const getTestCategories = () => {
 
 export const getRiskFactorExplanations = (userResponses) => {
   const explanations = [];
-  const { demographics, medicalHistory, lifestyle, sexSpecificInfo } = userResponses;
-    // Add explanations for various risk factors
-  if (medicalHistory.familyCancer.diagnosed) {
-    explanations.push(`Family history of ${medicalHistory.familyCancer.type} increases your cancer risk`);
-  }
+  const { demographics, sexSpecificInfo } = userResponses;
   
-  if (lifestyle.smoking.current) {
-    explanations.push(`Current smoking (${lifestyle.smoking.packYears} pack-years) significantly increases lung cancer risk`);
-  }
-  
-  if (demographics.age >= 50) {
-    explanations.push("Age 50+ increases risk for most cancer types");
-  }
-  
+  // Keep only cervical cancer risk explanations
   if (demographics.sex === 'Female' && !sexSpecificInfo.female.hpvVaccine) {
     explanations.push("No HPV vaccination increases cervical cancer risk");
   }

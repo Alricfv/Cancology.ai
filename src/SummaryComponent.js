@@ -3,18 +3,12 @@ import {
   Box,
   Text,
   Button,
-  VStack,
-  HStack,
   Icon,
   Heading,
   useColorModeValue,
   useToast,
   Divider,
   Badge,
-  Stat,
-  StatLabel,
-  StatNumber,
-  StatGroup,
   List,
   ListItem,
   ListIcon,
@@ -22,7 +16,8 @@ import {
   Grid,
   GridItem
 } from '@chakra-ui/react';
-import { FaDownload, FaExclamationCircle, FaCheckCircle, FaInfoCircle, FaChartLine } from 'react-icons/fa';
+import { FaDownload, FaCheckCircle } from 'react-icons/fa';
+import { getPrescribedTests } from './testPrescription';
 
 // Create a SummaryComponent to show at the end
 const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
@@ -87,56 +82,29 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   const getRecommendations = () => {
     const age = userResponses.demographics.age;
     const sex = userResponses.demographics.sex;
-    const hasPersonalCancer = userResponses.medicalHistory.personalCancer.diagnosed;
     const hasFamilyCancer = userResponses.medicalHistory.familyCancer.diagnosed;
-    const isSmoker = userResponses.lifestyle.smoking.current;
     const recommendations = [];
     
-    // General recommendations
-    recommendations.push("Schedule a general health check-up annually");
-      if (isSmoker) {
-      recommendations.push("Consider tobacco cessation programs or counseling");
-      
-      // Recommendations based on pack-years
-      if (userResponses.lifestyle.smoking.packYears >= 30) {
-        recommendations.push("Urgent: Low-dose CT scan for lung cancer screening");
-        recommendations.push("Regular pulmonary function tests every 6 months");
-      } else if (userResponses.lifestyle.smoking.packYears >= 20) {
-        recommendations.push("Low-dose CT scan for lung cancer screening");
-        recommendations.push("Annual pulmonary function tests");
-      } else if (userResponses.lifestyle.smoking.packYears >= 10) {
-        recommendations.push("Regular lung function testing and chest X-rays");
-      } else {
-        recommendations.push("Regular lung function testing");
+    // Get prescribed tests from testPrescription.js
+    const prescribedTests = getPrescribedTests(userResponses);
+    
+    // Add cancer screening recommendations from prescribed tests
+    prescribedTests.forEach(test => {
+      if (test.type === "cervical" || test.type === "breast" || test.type === "colorectal" || test.type === "prostate" || test.type === "lung") {
+        recommendations.push(`${test.name} (${test.frequency})`);
       }
-    }
+    });
     
-    if (hasPersonalCancer) {
-      recommendations.push("Follow specialized cancer survivorship plan");
-      recommendations.push("More frequent cancer screening based on personal history");
-    }
-    
+    // General recommendations
     if (hasFamilyCancer) {
       recommendations.push("Consider genetic counseling for inherited cancer risk");
     }
 
     if (userResponses.medicalHistory.chronicConditions.includes("Diabetes")) {
-    recommendations.push("Regular HbA1c monitoring");
+      recommendations.push("Regular HbA1c monitoring");
     }
     
     if (sex === "Male") {
-      // Prostate recommendations based on age
-      if (age >= 45) recommendations.push("Consider annual prostate examination");
-
-      if (age >= 50 && !userResponses.sexSpecificInfo.male.prostateTest.had) {
-        recommendations.push("Schedule PSA blood test");
-      } 
-      
-      else if (age >= 30 && age < 50 && !userResponses.sexSpecificInfo.male.prostateTest.had) {
-        recommendations.push("Discuss prostate health with your doctor at your next visit");
-      }
-      // No prostate recommendations for men under 30
-      
       if (userResponses.sexSpecificInfo.male.urinarySymptoms) {
         recommendations.push("Urological evaluation recommended");
       }
@@ -144,11 +112,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       if (userResponses.sexSpecificInfo.male.testicularIssues) {
         recommendations.push("Testicular self-examinations and specialist consultation");
       }
-    }
-    
-    if (sex === "Female") {
-      if (age >= 40) recommendations.push("Annual mammogram");
-      if (age >= 21) recommendations.push("Regular Pap smears (every 3-5 years)");
     }
     
     // Vaccination recommendations
@@ -191,8 +154,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       document.getElementById('root').style.width = '';
       document.getElementById('root').style.position = '';
     };
-  }, 
-  []);
+  }, []);
+
   return (
     <Box width="100%" mx="auto" p={0} overflowX="hidden" maxW="85vw" mt={0}>
       {/* Main title */}      
@@ -372,15 +335,17 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 <Text fontWeight="medium" whiteSpace="nowrap">
                   Urinary Symptoms:
                 </Text>
-                <Badge colorScheme={userResponses.sexSpecificInfo.male.urinarySymptoms ? "orange" : "green"}>
-                  {userResponses.sexSpecificInfo.male.urinarySymptoms ? "YES" : "NO"}
-                </Badge>
+                <Box>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.male.urinarySymptoms ? "orange" : "green"}>
+                    {userResponses.sexSpecificInfo.male.urinarySymptoms ? "YES" : "NO"}
+                  </Badge>
+                </Box>
                 
                 <Text fontWeight="medium" whiteSpace="nowrap">
                   Prostate Test:
                 </Text>
                 <Box>
-                  <Badge colorScheme={userResponses.sexSpecificInfo.male.prostateTest.had ? "green" : "yellow"}>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.male.prostateTest.had ? "green" : "yellow"}>
                     {userResponses.sexSpecificInfo.male.prostateTest.had ? "YES" : "NO"}
                   </Badge>
                   {userResponses.sexSpecificInfo.male.prostateTest.had ? 
@@ -392,12 +357,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                       N/A (Not recommended under 30)
                     </Text> : null}
                 </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap">
-                    Testicular Issues:
-                  </Text>
-                <Badge colorScheme={userResponses.sexSpecificInfo.male.testicularIssues ? "orange" : "green"}>
-                  {userResponses.sexSpecificInfo.male.testicularIssues ? "YES" : "NO"}
-                </Badge>
+                
+                <Text fontWeight="medium" whiteSpace="nowrap">
+                  Testicular Issues:
+                </Text>
+                <Box>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.male.testicularIssues ? "orange" : "green"}>
+                    {userResponses.sexSpecificInfo.male.testicularIssues ? "YES" : "NO"}
+                  </Badge>
+                </Box>
               </Grid>
             )}
             
@@ -420,7 +388,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   Pregnancy History:
                 </Text>
                 <Box>
-                  <Badge colorScheme={userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "blue" : "gray"}>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "blue" : "gray"}>
                     {userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "YES" : "NO"}
                   </Badge>
                   {userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy && 
@@ -432,16 +400,20 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 <Text fontWeight="medium" whiteSpace="nowrap">
                   Hormone Treatment:
                 </Text>
-                <Badge colorScheme={userResponses.sexSpecificInfo.female.hormoneTreatment ? "purple" : "gray"}>
-                  {userResponses.sexSpecificInfo.female.hormoneTreatment ? "YES" : "NO"}
-                </Badge>
+                <Box>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.female.hormoneTreatment ? "purple" : "gray"}>
+                    {userResponses.sexSpecificInfo.female.hormoneTreatment ? "YES" : "NO"}
+                  </Badge>
+                </Box>
                 
                 <Text fontWeight="medium" whiteSpace="nowrap">
                   HPV Vaccine:
                 </Text>                
-                <Badge colorScheme={userResponses.sexSpecificInfo.female.hpvVaccine ? "green" : "yellow"}>
-                  {userResponses.sexSpecificInfo.female.hpvVaccine ? "YES" : "NO"}
-                </Badge>
+                <Box>
+                  <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.sexSpecificInfo.female.hpvVaccine ? "green" : "yellow"}>
+                    {userResponses.sexSpecificInfo.female.hpvVaccine ? "YES" : "NO"}
+                  </Badge>
+                </Box>
               </Grid>
             )}
           </Box>
@@ -451,26 +423,30 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200">
               Vaccinations & Screening History
             </Heading>
-            <Grid templateColumns="auto 1fr" gap={2} alignItems="center">
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
               <Text fontWeight="medium" whiteSpace="nowrap">
                 HPV Vaccine:
               </Text>
-              <Badge colorScheme={userResponses.vaccinations.hpv ? "green" : "yellow"}>
-                {userResponses.vaccinations.hpv ? "YES" : "NO"}
-              </Badge>
+              <Box>
+                <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.vaccinations.hpv ? "green" : "yellow"}>
+                  {userResponses.vaccinations.hpv ? "YES" : "NO"}
+                </Badge>
+              </Box>
               
               <Text fontWeight="medium" whiteSpace="nowrap">
                 Hepatitis B Vaccine:
               </Text>
-              <Badge colorScheme={userResponses.vaccinations.hepB ? "green" : "yellow"}>
-                {userResponses.vaccinations.hepB ? "YES" : "NO"}
-              </Badge>
+              <Box>
+                <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.vaccinations.hepB ? "green" : "yellow"}>
+                  {userResponses.vaccinations.hepB ? "YES" : "NO"}
+                </Badge>
+              </Box>
               
               <Text fontWeight="medium" whiteSpace="nowrap">
                 Cancer Screening History:
               </Text>
               <Box>
-                <Badge colorScheme={userResponses.cancerScreening.hadScreening ? "blue" : "gray"}>
+                <Badge maxW="100%" fontSize="sm" colorScheme={userResponses.cancerScreening.hadScreening ? "blue" : "gray"}>
                   {userResponses.cancerScreening.hadScreening ? "YES" : "NO"}
                 </Badge>
                 {userResponses.cancerScreening.hadScreening && userResponses.cancerScreening.details && (
@@ -519,10 +495,30 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           {/* Recommendations */}
           <Box mb={2}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200">
-              Recommendations
+              Recommended Cancer Screening Tests
             </Heading>
             <List spacing={1}>
-              {recommendations.slice(0, 4).map((rec, index) => (
+              {getPrescribedTests(userResponses).map((test, index) => (
+                <ListItem key={`test-${index}`} display="flex" alignItems="center" mb={2}>
+                  <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} />
+                  <Box>
+                    <Text fontWeight="semibold" fontSize="sm">{test.name}</Text>
+                    <Text fontSize="xs" color="gray.600">Frequency: {test.frequency}</Text>
+                    <Text fontSize="xs" color="gray.600">{test.reason}</Text>
+                    <Badge colorScheme={test.priority === "high" ? "red" : test.priority === "medium" ? "orange" : "green"} 
+                           fontSize="xs" mt={1}>
+                      {test.urgency}
+                    </Badge>
+                  </Box>
+                </ListItem>
+              ))}
+            </List>
+            
+            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" mt={4}>
+              Other Health Recommendations
+            </Heading>
+            <List spacing={1}>
+              {recommendations.map((rec, index) => (
                 <ListItem key={index} display="flex">
                   <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} />
                   <Text overflowWrap="break-word" maxW="100%" fontSize="sm">
@@ -530,11 +526,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   </Text>
                 </ListItem>
               ))}
-              {recommendations.length > 4 && (
-                <Text color="gray.600" fontSize="sm" mt={1}>
-                  Plus {recommendations.length - 4} more recommendations...
-                </Text>
-              )}
             </List>
           </Box>
         </Box>     
