@@ -75,11 +75,28 @@ const conversationFlow = {
     question: "How many packs of cigarettes do/did you smoke per day on average? (A pack contains 20 cigarettes)",
     options: [],
     inputType: "smokingPacks"
-  },
-  smokingAmount: {
+  },  smokingAmount: {
     question: "How many years have you smoked?",
     options: [],
     inputType: "smokingYears"
+  },
+  alcoholConsumption: {
+    question: "Do you drink alcohol?",
+    options: [
+      { text: "Yes", nextId: "alcoholAmount" },
+      { text: "No", nextId: "transplant" }
+    ]
+  },  alcoholAmount: {
+    question: "How many alcoholic drinks do you consume per week on average?",
+    options: [],
+    inputType: "alcoholAmount"
+  },
+  sexualHealth: {
+    question: "Have you had unprotected sex or been diagnosed with HPV or HIV?",
+    options: [
+      { text: "Yes", nextId: "transplant" },
+      { text: "No", nextId: "transplant" }
+    ]
   },
   transplant: {
     question: "Have you had organ transplants or immunosuppressive therapy?",

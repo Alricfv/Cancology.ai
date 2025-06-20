@@ -7,20 +7,22 @@
 export const getPrescribedTests = (userResponses) => {
   const tests = [];
   const { demographics, sexSpecificInfo } = userResponses;
-  
-  // Helper function to calculate risk score for cervical cancer
+    // Helper function to calculate risk score for cervical cancer
   const calculateCervicalCancerRisk = () => {
     let riskScore = 0;
     
     if (demographics.sex === 'Female') {
       if (demographics.age >= 21 && demographics.age <= 65) riskScore += 3;
       if (!sexSpecificInfo.female.hpvVaccine) riskScore += 2;
+      if (userResponses.lifestyle && 
+          userResponses.lifestyle.sexualHealth && 
+          userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) riskScore += 3;
       if (sexSpecificInfo.female.pregnancy.hadPregnancy && 
           sexSpecificInfo.female.pregnancy.ageAtFirst < 20) riskScore += 1;
     }
     
     return riskScore;
-  };    // Cancer Screening recommendations for females
+  };// Cancer Screening recommendations for females
 
   if (demographics.sex === 'Female') {
     // Calculate risk score (for future use/expansion)
@@ -61,7 +63,7 @@ export const getPrescribedTests = (userResponses) => {
       });
     }
   }
-  
+
     // Colorectal Cancer Screening for both males and females starting at age 45
   if (demographics.age >= 45) {
     tests.push({
@@ -188,7 +190,7 @@ export const getPrescribedTests = (userResponses) => {
       });
     }
   }
-    // Lung Cancer Screening with Low-dose CT Scan
+  // Lung Cancer Screening with Low-dose CT Scan
   if (demographics.age >= 50 && 
       userResponses.lifestyle && 
       userResponses.lifestyle.smoking && 
@@ -201,6 +203,248 @@ export const getPrescribedTests = (userResponses) => {
       frequency: "Yearly",
       urgency: "Schedule within 1 month"
     });
+  }
+  
+  // Skin Cancer Screening with Clinical Skin Examination for high-risk individuals
+  // Evaluate skin cancer risk factors
+  const skinCancerRiskFactors = [];
+  let isHighRiskForSkinCancer = false;
+  
+  // 1. Family history of skin cancer
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.familyCancer && 
+      userResponses.medicalHistory.familyCancer.diagnosed && 
+      userResponses.medicalHistory.familyCancer.type && 
+      (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('skin') ||
+       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('melanoma'))) {
+    skinCancerRiskFactors.push("family history of skin cancer");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 2. Personal history of skin cancer
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.personalCancer && 
+      userResponses.medicalHistory.personalCancer.diagnosed && 
+      userResponses.medicalHistory.personalCancer.type && 
+      (userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('skin') ||
+       userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('melanoma'))) {
+    skinCancerRiskFactors.push("personal history of skin cancer");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 3. Fair skin, light hair, or light eye color
+  if (userResponses.demographics && 
+      userResponses.demographics.skinType && 
+      (userResponses.demographics.skinType.toLowerCase().includes('fair') || 
+       userResponses.demographics.skinType.toLowerCase().includes('light'))) {
+    skinCancerRiskFactors.push("fair skin type");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 4. History of sunburns or excessive sun exposure
+  if (userResponses.lifestyle && 
+      userResponses.lifestyle.sunExposure && 
+      (userResponses.lifestyle.sunExposure.frequentBurns || 
+       userResponses.lifestyle.sunExposure.highExposure)) {
+    skinCancerRiskFactors.push("history of sunburns or high sun exposure");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 5. Presence of abnormal moles
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.skinConditions && 
+      userResponses.medicalHistory.skinConditions.abnormalMoles) {
+    skinCancerRiskFactors.push("presence of abnormal moles");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 6. Immunosuppression
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.chronicConditions && 
+      userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
+    skinCancerRiskFactors.push("immunosuppression");
+    isHighRiskForSkinCancer = true;
+  }
+  
+  // 7. Exposure to radiation
+  if (userResponses.lifestyle && 
+      userResponses.lifestyle.radiationExposure) {
+    skinCancerRiskFactors.push("history of radiation exposure");
+    isHighRiskForSkinCancer = true;
+  }
+    // Add skin cancer screening if high risk is determined
+  if (isHighRiskForSkinCancer) {
+    // Create risk reason message
+    let riskReason = `Skin cancer screening recommended due to risk factors: ${skinCancerRiskFactors.join(", ")}`;
+    
+    // Set priority based on number of risk factors
+    let priority = "standard";
+    if (skinCancerRiskFactors.length >= 3) {
+      priority = "high";
+    } else if (skinCancerRiskFactors.length >= 1) {
+      priority = "medium";
+    }
+    
+    tests.push({
+      name: "Clinical Skin Examination",
+      type: "skin",
+      priority: priority,
+      reason: riskReason,
+      frequency: skinCancerRiskFactors.length >= 3 ? "Every 6 months" : "Yearly",
+      urgency: priority === "high" ? "Schedule within 1 month" : "Schedule within 3 months"
+    });
+    
+    // Add recommendation for self-examination
+    tests.push({
+      name: "Monthly Skin Self-Examination",
+      type: "skin",
+      priority: priority,
+      reason: "Regular self-checks for changes in skin appearance",
+      frequency: "Monthly",
+      urgency: "Ongoing"
+    });
+  }
+    // Oral/Throat Cancer Screening (HPV-related) for high-risk individuals ages 30-65
+  // Evaluate oral/throat cancer risk factors
+  const oralCancerRiskFactors = [];
+  let isHighRiskForOralCancer = false;
+  
+  // 1. HPV status (no vaccination, known infection or high-risk sexual behavior)
+  if ((userResponses.vaccinations && !userResponses.vaccinations.hpv) || 
+      (sexSpecificInfo.female && !sexSpecificInfo.female.hpvVaccine) ||
+      (userResponses.lifestyle && userResponses.lifestyle.sexualHealth && 
+       userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv)) {
+    oralCancerRiskFactors.push(userResponses.lifestyle?.sexualHealth?.unprotectedSexOrHpvHiv ? 
+      "unprotected sex or HPV/HIV diagnosis" : "no HPV vaccination");
+    isHighRiskForOralCancer = true;
+  }
+  
+  // 2. Tobacco use (current or former)
+  if (userResponses.lifestyle && 
+      userResponses.lifestyle.smoking &&
+      (userResponses.lifestyle.smoking.current || userResponses.lifestyle.smoking.former)) {
+    oralCancerRiskFactors.push("tobacco use");
+    isHighRiskForOralCancer = true;
+  }
+  
+  // 3. Excessive alcohol consumption
+  if (userResponses.lifestyle && 
+      userResponses.lifestyle.alcohol && 
+      userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
+    oralCancerRiskFactors.push("high alcohol consumption");
+    isHighRiskForOralCancer = true;
+  }
+  
+  // 4. Family history of oral/throat cancer
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.familyCancer && 
+      userResponses.medicalHistory.familyCancer.diagnosed && 
+      userResponses.medicalHistory.familyCancer.type && 
+      (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('oral') ||
+       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat') ||
+       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('head and neck'))) {
+    oralCancerRiskFactors.push("family history of oral/throat cancer");
+    isHighRiskForOralCancer = true;
+  }
+  
+  // 5. Immunosuppression
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.chronicConditions && 
+      userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
+    oralCancerRiskFactors.push("immunosuppression");
+    isHighRiskForOralCancer = true;
+  }
+  
+  // 6. Previous oral lesions
+  if (userResponses.medicalHistory && 
+      userResponses.medicalHistory.oralHealth && 
+      userResponses.medicalHistory.oralHealth.lesions) {
+    oralCancerRiskFactors.push("history of oral lesions");
+    isHighRiskForOralCancer = true;
+  }
+    // Add oral/throat cancer screening if high risk is determined and age is between 30-65
+  if (isHighRiskForOralCancer && demographics.age >= 30 && demographics.age <= 65) {
+    // Create risk reason message
+    let riskReason = `Oral/throat cancer screening recommended due to risk factors: ${oralCancerRiskFactors.join(", ")}`;
+    
+    // Set priority based on number of risk factors
+    let priority = "standard";
+    if (oralCancerRiskFactors.length >= 3) {
+      priority = "high";
+    } else if (oralCancerRiskFactors.length >= 1) {
+      priority = "medium";
+    }
+    
+    tests.push({
+      name: "Comprehensive Oral Examination with Cytology",
+      type: "oral",
+      priority: priority,
+      reason: riskReason,
+      frequency: oralCancerRiskFactors.length >= 3 ? "Every year" : "Every 2 years",
+      urgency: priority === "high" ? "Schedule within 1 month" : "Schedule within 3 months"
+    });
+  }
+    // Liver Cancer Screening for individuals with Hepatitis B, Hepatitis C, or cirrhosis who are 40+
+  // Also include individuals with organ transplants who have Hepatitis B or Hepatitis C
+  if (demographics.age >= 40 && 
+      userResponses.medicalHistory && 
+      userResponses.medicalHistory.chronicConditions && 
+      (userResponses.medicalHistory.chronicConditions.includes('Hepatitis B') || 
+       userResponses.medicalHistory.chronicConditions.includes('Hepatitis C') ||
+       userResponses.medicalHistory.chronicConditions.includes('Cirrhosis') ||
+       (userResponses.lifestyle && 
+        userResponses.lifestyle.transplant && 
+        (userResponses.medicalHistory.chronicConditions.includes('Hepatitis B') || 
+         userResponses.medicalHistory.chronicConditions.includes('Hepatitis C'))))) {
+      // Create array of liver conditions for the reason message
+    const liverConditions = [];
+    if (userResponses.medicalHistory.chronicConditions.includes('Hepatitis B')) {
+      liverConditions.push("Hepatitis B");
+    }
+    if (userResponses.medicalHistory.chronicConditions.includes('Hepatitis C')) {
+      liverConditions.push("Hepatitis C");
+    }
+    if (userResponses.medicalHistory.chronicConditions.includes('Cirrhosis')) {
+      liverConditions.push("Cirrhosis");
+    }
+    
+    // Check for transplant status
+    const hasTransplant = userResponses.lifestyle && userResponses.lifestyle.transplant;
+    const reasonMessage = hasTransplant 
+      ? `Liver cancer screening due to ${liverConditions.join(", ")} in transplant patient 40+ years old` 
+      : `Liver cancer screening due to ${liverConditions.join(", ")} in patient 40+ years old`;
+    
+    // Always recommend ultrasound
+    tests.push({
+      name: "Liver Ultrasound",
+      type: "liver",
+      priority: "high",
+      reason: reasonMessage,
+      frequency: "Every 6 months",
+      urgency: "Schedule within 1 month"
+    });
+    
+    // Recommend AFP test only if not pregnant
+    const isPregnant = demographics.sex === 'Female' && 
+                       sexSpecificInfo && 
+                       sexSpecificInfo.female && 
+                       sexSpecificInfo.female.pregnancy && 
+                       sexSpecificInfo.female.pregnancy.current;
+      if (!isPregnant) {
+      // Use the same transplant-aware reason message
+      const afpReasonMessage = hasTransplant 
+        ? `Complementary liver cancer screening for ${liverConditions.join(", ")} in transplant patient 40+ years old` 
+        : `Complementary liver cancer screening for ${liverConditions.join(", ")} in patient 40+ years old`;
+      
+      tests.push({
+        name: "Alpha-Fetoprotein (AFP) Test",
+        type: "liver",
+        priority: "high",
+        reason: afpReasonMessage,
+        frequency: "Every 6 months",
+        urgency: "Schedule with liver ultrasound"
+      });
+    }
   }
 
   // Sort tests by priority (high -> medium -> standard)
@@ -223,9 +467,16 @@ export const getRiskFactorExplanations = (userResponses) => {
   const explanations = [];
   const { demographics, sexSpecificInfo } = userResponses;
   
-  // Keep only cervical cancer risk explanations
+  // Cervical cancer risk explanations
   if (demographics.sex === 'Female' && !sexSpecificInfo.female.hpvVaccine) {
     explanations.push("No HPV vaccination increases cervical cancer risk");
+  }
+  
+  // Sexual health risk explanations
+  if (userResponses.lifestyle && 
+      userResponses.lifestyle.sexualHealth && 
+      userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
+    explanations.push("Unprotected sex or HPV/HIV diagnosis increases risk for HPV-related cancers");
   }
   
   return explanations;

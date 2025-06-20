@@ -22,7 +22,7 @@ import { getPrescribedTests } from './testPrescription';
 // Create a SummaryComponent to show at the end
 const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   const toast = useToast();
-  const accentColor = useColorModeValue('teal.500', 'teal.300');
+  const accentColor = useColorModeValue('blue.500', 'blue.300');
   
   // Calculate risk factors
   const calculateRiskScore = () => {
@@ -38,13 +38,25 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     if (userResponses.medicalHistory.familyCancer.diagnosed) riskScore += 3;
     
     // Chronic conditions
-    riskScore += Math.min(userResponses.medicalHistory.chronicConditions.length, 3);
-      // Smoking
+    riskScore += Math.min(userResponses.medicalHistory.chronicConditions.length, 3);    // Smoking
     if (userResponses.lifestyle.smoking.current) {riskScore += 3;
       // Using pack-years as a more accurate measure of smoking history
       if (userResponses.lifestyle.smoking.packYears >= 30) riskScore += 3;
       else if (userResponses.lifestyle.smoking.packYears >= 20) riskScore += 2;
       else if (userResponses.lifestyle.smoking.packYears >= 10) riskScore += 1;
+    }
+      // Alcohol consumption
+    if (userResponses.lifestyle.alcohol?.consumes && userResponses.lifestyle.alcohol?.drinksPerWeek > 5) {
+      // +1 risk score for every 3 drinks above 5 drinks per week
+      const excessDrinks = userResponses.lifestyle.alcohol.drinksPerWeek - 5;
+      const additionalRiskScore = Math.floor(excessDrinks / 3);
+      riskScore += additionalRiskScore;
+    }
+    
+    // Sexual health risk
+    if (userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv) {
+      // High risk sexual behavior or HPV/HIV diagnosis increases risk score
+      riskScore += 2;
     }
     
     // Transplant
@@ -71,7 +83,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     
     return riskScore;
   };
-  
   const getHealthCategory = (score) => {
     if (score <= 3) return { category: "Low Risk", color: "green" };
     if (score <= 7) return { category: "Moderate Risk", color: "yellow" };
@@ -86,11 +97,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     const recommendations = [];
     
     // Get prescribed tests from testPrescription.js
-    const prescribedTests = getPrescribedTests(userResponses);
-    
-    // Add cancer screening recommendations from prescribed tests
+    const prescribedTests = getPrescribedTests(userResponses);    // Add cancer screening recommendations from prescribed tests
     prescribedTests.forEach(test => {
-      if (test.type === "cervical" || test.type === "breast" || test.type === "colorectal" || test.type === "prostate" || test.type === "lung") {
+      if (test.type === "cervical" || test.type === "breast" || test.type === "colorectal" || test.type === "prostate" || test.type === "lung" || test.type === "skin" || test.type === "oral" || test.type === "liver") {
         recommendations.push(`${test.name} (${test.frequency})`);
       }
     });
@@ -113,14 +122,20 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
         recommendations.push("Testicular self-examinations and specialist consultation");
       }
     }
-    
-    // Vaccination recommendations
+      // Vaccination recommendations
     if (!userResponses.vaccinations.hpv && age < 45) {
       recommendations.push("Consider HPV vaccination if eligible");
     }
     
     if (!userResponses.vaccinations.hepB) {
       recommendations.push("Consider Hepatitis B vaccination");
+    }
+    
+    // Sexual health recommendations
+    if (userResponses.lifestyle && userResponses.lifestyle.sexualHealth && 
+        userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
+      recommendations.push("Consider STI testing including HPV and HIV");
+      recommendations.push("Practice safe sex to reduce cancer risk");
     }
     
     // Cancer screening recommendations based on screening history
@@ -265,9 +280,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200">
               Lifestyle Factors
             </Heading>
-            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
-
-              <Text fontWeight="medium" whiteSpace="nowrap">
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              <Text fontWeight="medium" whiteSpace="nowrap">
                 Smoking Status:
               </Text>
 
@@ -278,6 +291,27 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   <Text as="span" ml={2}>
                     ({userResponses.lifestyle.smoking.packYears} pack-years)
                   </Text>}
+              </Box>
+              
+              <Text fontWeight="medium" whiteSpace="nowrap">
+                Alcohol Consumption:
+              </Text>
+
+              <Box>                
+                {userResponses.lifestyle.alcohol?.consumes ? 
+                  <Badge colorScheme={userResponses.lifestyle.alcohol.drinksPerWeek > 14 ? "red" : userResponses.lifestyle.alcohol.drinksPerWeek > 7 ? "orange" : "yellow"} ml={1}>
+                    Yes ({userResponses.lifestyle.alcohol.drinksPerWeek} drinks/week)
+                  </Badge> : 
+                  <Badge colorScheme="green" ml={1}>No</Badge>}
+              </Box>
+                <Text fontWeight="medium" whiteSpace="nowrap">
+                Sexual Health Risk:
+              </Text>
+
+              <Box>                
+                {userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv ? 
+                  <Badge colorScheme="red" ml={1}>High Risk</Badge> : 
+                  <Badge colorScheme="green" ml={1}>Standard Risk</Badge>}
               </Box>
               
               <Text fontWeight="medium" whiteSpace="nowrap">
@@ -499,8 +533,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             </Heading>
             <List spacing={1}>
               {getPrescribedTests(userResponses).map((test, index) => (
-                <ListItem key={`test-${index}`} display="flex" alignItems="center" mb={2}>
-                  <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} />
+                <ListItem key={`test-${index}`} display="flex" alignItems="center" mb={2}>                  <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} />
                   <Box>
                     <Text fontWeight="semibold" fontSize="sm">{test.name}</Text>
                     <Text fontSize="xs" color="gray.600">Frequency: {test.frequency}</Text>
@@ -517,8 +550,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" mt={4}>
               Other Health Recommendations
             </Heading>
-            <List spacing={1}>
-              {recommendations.map((rec, index) => (
+            <List spacing={1}>              {recommendations.map((rec, index) => (
                 <ListItem key={index} display="flex">
                   <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} />
                   <Text overflowWrap="break-word" maxW="100%" fontSize="sm">
@@ -529,12 +561,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             </List>
           </Box>
         </Box>     
-      </Flex>
-      
-      {/* Action Buttons */}
-      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>
-        <Button
-          colorScheme="teal"
+      </Flex>      {/* Action Buttons */}
+      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>        <Button
+          colorScheme="blue"
           leftIcon={<Icon as={FaDownload} />}
           size="md"
           onClick={() => {

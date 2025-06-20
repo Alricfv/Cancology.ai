@@ -49,6 +49,8 @@ function App() {
   ]);
   
   const [currentStep, setCurrentStep] = useState('start');
+  const [isProcessingSelection, setIsProcessingSelection] = useState(false); // Add loading state
+  const [selectedOption, setSelectedOption] = useState(''); // Track the selected option
   const messagesEndRef = useRef(null);
   const toast = useToast();
   
@@ -80,6 +82,13 @@ function App() {
         years: null,
         packsPerDay: null,
         packYears: null
+      },
+      alcohol: {
+        consumes: false,
+        drinksPerWeek: null
+      },
+      sexualHealth: {
+        unprotectedSexOrHpvHiv: false
       },
       transplant: false
     },
@@ -197,6 +206,8 @@ function App() {
   const [smokingPacksError, setSmokingPacksError] = useState('');
   const [smokingYearsInput, setSmokingYearsInput] = useState('');
   const [smokingYearsError, setSmokingYearsError] = useState('');
+  const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
+  const [alcoholAmountError, setAlcoholAmountError] = useState('');
   const [packYears, setPackYears] = useState(0);
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
@@ -210,6 +221,15 @@ function App() {
   
   // Handle clicking a response option
   const handleOptionSelect = (optionText, nextId) => {
+    // Prevent multiple clicks by setting processing state
+    if (isProcessingSelection) return;
+    
+    // Set processing state to true to disable all buttons
+    setIsProcessingSelection(true);
+    
+    // Set the selected option
+    setSelectedOption(optionText);
+    
     // Add user's response as a message
     setMessages(prev => [
       ...prev, 
@@ -376,6 +396,9 @@ function App() {
     
     // Move to the next step after a short delay
     setTimeout(() => {
+      // Reset processing state after UI updates are complete
+      setIsProcessingSelection(false);
+      
       // Special handling for routeBasedOnSex
       if (nextId === "routeBasedOnSex") {
         // Directly call the routeBasedOnSex function
@@ -598,6 +621,7 @@ function App() {
     }, 1000);
   };
   
+
   // Handle submitting the country selection
   const handleCountrySubmit = () => {
     // Validate country input
@@ -951,9 +975,116 @@ function App() {
       }
     }, 1000);
   };
-
+   
+  // Handle alcohol consumption response 
+ const handleAlcoholResponse = (optionText, nextId) => {
+   // Prevent multiple clicks by setting processing state
+   if (isProcessingSelection) return;
+  
+   // Set processing state to true to disable all buttons
+   setIsProcessingSelection(true);
+  
+   // Set the selected option
+   setSelectedOption(optionText);
+  
+   // Add user's alcohol response as a message
+   setMessages(prev => [
+     ...prev,
+     {
+       id: prev.length + 1,
+       text: optionText,
+       sender: 'user',
+       timestamp: new Date()
+     }
+   ]);
+  
+   // Update user responses with alcohol consumption information
+   setUserResponses(prev => ({
+     ...prev,
+      lifestyle: {
+       ...prev.lifestyle,
+       alcohol: {
+         ...prev.lifestyle.alcohol,
+         consumes: optionText === 'Yes'
+       }
+     }
+   }));
+  
+   // Move to the next step based on response
+   setTimeout(() => {
+     // Reset processing state after UI updates are complete
+     setIsProcessingSelection(false);
+    
+     // If user drinks alcohol, go to alcoholAmount step, otherwise skip to transplant
+     if (optionText === 'Yes') {
+       const nextStep = conversationFlow.alcoholAmount;
+      
+       if (nextStep) {
+         // Add bot's next question
+         setMessages(prev => [
+           ...prev, 
+           {
+             id: prev.length + 1,
+             text: nextStep.question,
+             sender: 'bot',
+             timestamp: new Date()
+           }
+         ]);
+        
+         // Update the current step
+         setCurrentStep('alcoholAmount');
+        
+         toast({
+           title: "Response recorded",
+           description: "Please specify how much you drink",
+           status: "success",
+           duration: 2000,
+           isClosable: true,
+           position: "top-right"
+         }); 
+       }
+     } else {
+       // Skip directly to sexual health question for non-drinkers
+       const skipToStep = conversationFlow.sexualHealth;
+      
+       if (skipToStep) {
+         // Add bot's next question
+         setMessages(prev => [
+           ...prev, 
+           {
+             id: prev.length + 1,
+             text: skipToStep.question,
+             sender: 'bot',
+             timestamp: new Date()
+           }
+         ]);
+        
+         // Update the current step
+         setCurrentStep('sexualHealth');
+        
+         toast({
+           title: "Alcohol information recorded",
+           description: "Moving to next question",
+           status: "success",
+           duration: 2000,
+           isClosable: true,
+           position: "top-right"
+         });
+       }
+     }
+   }, 1000);
+ };
   // Handle submitting the transplant response
   const handleTransplantResponse = (optionText, nextId) => {
+    // Prevent multiple clicks by setting processing state
+    if (isProcessingSelection) return;
+    
+    // Set processing state to true to disable all buttons
+    setIsProcessingSelection(true);
+    
+    // Set the selected option
+    setSelectedOption(optionText);
+    
     // Add user's transplant response as a message
     setMessages(prev => [
       ...prev,
@@ -976,6 +1107,9 @@ function App() {
     
     // Move to the medications step
     setTimeout(() => {
+      // Reset processing state after UI updates are complete
+      setIsProcessingSelection(false);
+      
       const nextStep = conversationFlow.medications;
       
       if (nextStep) {
@@ -1577,7 +1711,7 @@ function App() {
     
     // Move to the next step
     setTimeout(() => {
-      const nextStep = conversationFlow.transplant;
+      const nextStep = conversationFlow.alcoholConsumption;
       
       if (nextStep) {
         // Add bot's next question
@@ -1592,10 +1726,85 @@ function App() {
         ]);
         
         // Update the current step
-        setCurrentStep('transplant');
+        setCurrentStep('alcoholConsumption');
         
         toast({
           title: "Smoking information recorded",
+          description: "Moving to next question",
+          status: "success",
+          duration: 2000,
+          isClosable: true,
+          position: "top-right"
+        });
+      }
+    }, 1000);
+  };
+  
+  // Handle alcohol amount input
+  const handleAlcoholAmountSubmit = () => {
+    // Validate alcohol amount input
+    if (!alcoholAmountInput.trim()) {
+      setAlcoholAmountError('Number of drinks per week is required');
+      return;
+    }
+    
+    const drinksPerWeek = parseInt(alcoholAmountInput);
+    
+    if (isNaN(drinksPerWeek) || drinksPerWeek < 0 || drinksPerWeek > 100) {
+      setAlcoholAmountError('Please enter a valid number between 0 and 100');
+      return;
+    }
+
+    // Clear error
+    setAlcoholAmountError('');
+    
+    // Update consolidated responses
+    setUserResponses(prev => ({
+      ...prev,
+      lifestyle: {
+        ...prev.lifestyle,
+        alcohol: {
+          ...prev.lifestyle.alcohol,
+          drinksPerWeek: drinksPerWeek
+        }
+      }
+    }));
+    
+    // Add user's alcohol amount as a message
+    setMessages(prev => [
+      ...prev, 
+      {
+        id: prev.length + 1,
+        text: `${drinksPerWeek} drinks per week`,
+        sender: 'user',
+        timestamp: new Date()
+      }
+    ]);
+    
+    // Clear input
+    setAlcoholAmountInput('');
+    
+    // Move to the next step
+    setTimeout(() => {
+      const nextStep = conversationFlow.sexualHealth;
+      
+      if (nextStep) {
+        // Add bot's next question
+        setMessages(prev => [
+          ...prev, 
+          {
+            id: prev.length + 1,
+            text: nextStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        
+        // Update the current step
+        setCurrentStep('sexualHealth');
+        
+        toast({
+          title: "Alcohol consumption recorded",
           description: "Moving to next question",
           status: "success",
           duration: 2000,
@@ -1659,7 +1868,7 @@ function App() {
 
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const headerBg = useColorModeValue('teal.500', 'teal.400');
+  const headerBg = useColorModeValue('blue.800', 'blue.700');
   const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
 
   return (
@@ -1716,7 +1925,7 @@ function App() {
                 p={4}
                 borderRadius={message.sender === 'user' ? "2xl 2xl 0 2xl" : "2xl 2xl 2xl 0"}
                 borderWidth="1px"
-                borderColor={message.sender === 'user' ? 'blue.200' : 'teal.100'}
+                borderColor={message.sender === 'user' ? 'blue.200' : 'blue.100'}
                 boxShadow="md"
                 spacing={3}
                 position="relative"
@@ -1739,7 +1948,7 @@ function App() {
                 {message.sender === 'bot' && (
                   <Avatar 
                     size="sm" 
-                    bg="teal.500" 
+                    bg="blue.700" 
                     icon={<Icon as={FaUserMd} color="white" />} 
                   />
                 )}
@@ -1776,13 +1985,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handleAgeSubmit}>
                     Submit
                   </Button>
@@ -1797,7 +2006,7 @@ function App() {
                 value={ethnicityInput}
                 onChange={(e) => setEthnicityInput(e.target.value)}
                 borderRadius="md"
-                focusBorderColor="teal.400"
+                focusBorderColor="blue.400"
                 mb={3}
               >
                 {ethnicities.map((ethnicity, index) => (
@@ -1807,7 +2016,7 @@ function App() {
                 ))}
               </Select>
               <Button
-                colorScheme="teal"
+                colorScheme="blue"
                 onClick={handleEthnicitySubmit}
                 isFullWidth
                 borderRadius="full"
@@ -1822,7 +2031,7 @@ function App() {
                 value={countryInput}
                 onChange={(e) => setCountryInput(e.target.value)}
                 borderRadius="md"
-                focusBorderColor="teal.400"
+                focusBorderColor="blue.400"
                 mb={3}
               >
                 {countries.map((country, index) => (
@@ -1832,7 +2041,7 @@ function App() {
                 ))}
               </Select>
               <Button
-                colorScheme="teal"
+                colorScheme="blue"
                 onClick={handleCountrySubmit}
                 isFullWidth
                 borderRadius="full"
@@ -1848,7 +2057,7 @@ function App() {
                   value={cancerType}
                   onChange={(e) => setCancerType(e.target.value)}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                   mb={3}
                 >
                   {(userSex === 'Male' ? maleCancerTypes : femaleCancerTypes).map((type, index) => (
@@ -1871,13 +2080,13 @@ function App() {
                       }
                     }}
                     borderRadius="md"
-                    focusBorderColor="teal.400"
+                    focusBorderColor="blue.400"
                   />
                   <InputRightElement width="4.5rem">
                     <Button 
                       h="1.75rem" 
                       size="sm" 
-                      colorScheme="teal"
+                      colorScheme="blue"
                       onClick={handleCancerDetailsSubmit}
                     >
                       Submit
@@ -1891,7 +2100,7 @@ function App() {
             <VStack spacing={3} align="stretch">
               <HStack spacing={4} w="100%">
                 <Button
-                  colorScheme={chronicConditions.diabetes ? "teal" : "gray"}
+                  colorScheme={chronicConditions.diabetes ? "blue" : "gray"}
                   variant={chronicConditions.diabetes ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1902,7 +2111,7 @@ function App() {
                   Diabetes
                 </Button>
                 <Button
-                  colorScheme={chronicConditions.hiv ? "teal" : "gray"}
+                  colorScheme={chronicConditions.hiv ? "blue" : "gray"}
                   variant={chronicConditions.hiv ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1915,7 +2124,7 @@ function App() {
               </HStack>
               <HStack spacing={4} w="100%">
                 <Button
-                  colorScheme={chronicConditions.ibd ? "teal" : "gray"}
+                  colorScheme={chronicConditions.ibd ? "blue" : "gray"}
                   variant={chronicConditions.ibd ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1926,7 +2135,7 @@ function App() {
                   Inflammatory Bowel Disease (IBD)
                 </Button>
                 <Button
-                  colorScheme={chronicConditions.hepatitisB ? "teal" : "gray"}
+                  colorScheme={chronicConditions.hepatitisB ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisB ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1939,7 +2148,7 @@ function App() {
               </HStack>
               <HStack spacing={4} w="100%">
                 <Button
-                  colorScheme={chronicConditions.hepatitisC ? "teal" : "gray"}
+                  colorScheme={chronicConditions.hepatitisC ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisC ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1950,7 +2159,7 @@ function App() {
                   Hepatitis C
                 </Button>
                 <Button
-                  colorScheme={chronicConditions.none ? "teal" : "gray"}
+                  colorScheme={chronicConditions.none ? "blue" : "gray"}
                   variant={chronicConditions.none ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -1962,7 +2171,7 @@ function App() {
                 </Button>
               </HStack>
               <Button
-                colorScheme="teal"
+                colorScheme="blue"
                 onClick={handleChronicConditionsSubmit}
                 isFullWidth
                 borderRadius="full"
@@ -1975,17 +2184,24 @@ function App() {
               {conversationFlow[currentStep]?.options.map((option, index) => (
                 <Button
                   key={index}
-                  colorScheme="teal"
+                  colorScheme="blue"
                   variant="outline"
                   size="md"
                   borderRadius="full"
-                  _hover={{ bg: 'teal.50', borderColor: 'teal.400' }}
+                  _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
                   onClick={() => handleTransplantResponse(option.text, option.nextId)}
                   transition="all 0.2s"
                   justifyContent="flex-start"
                   textAlign="left"
+                  isDisabled={isProcessingSelection}
+                  _disabled={{
+                    opacity: 0.7,
+                    cursor: "not-allowed",
+                    _hover: { bg: "initial", borderColor: "inherit" }
+                  }}
                 >
                   {option.text}
+                  {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
                 </Button>
               ))}
             </VStack>
@@ -1993,7 +2209,7 @@ function App() {
             <VStack spacing={3} align="stretch">
               <HStack spacing={4} w="100%" wrap="wrap">
                 <Button
-                  colorScheme={medications.anticoagulants ? "teal" : "gray"}
+                  colorScheme={medications.anticoagulants ? "blue" : "gray"}
                   variant={medications.anticoagulants ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2006,7 +2222,7 @@ function App() {
                   Blood Thinners
                 </Button>
                 <Button
-                  colorScheme={medications.statins ? "teal" : "gray"}
+                  colorScheme={medications.statins ? "blue" : "gray"}
                   variant={medications.statins ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2022,7 +2238,7 @@ function App() {
               
               <HStack spacing={4} w="100%" wrap="wrap">
                 <Button
-                  colorScheme={medications.antihypertensives ? "teal" : "gray"}
+                  colorScheme={medications.antihypertensives ? "blue" : "gray"}
                   variant={medications.antihypertensives ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2035,7 +2251,7 @@ function App() {
                   Blood Pressure Meds
                 </Button>
                 <Button
-                  colorScheme={medications.antidepressants ? "teal" : "gray"}
+                  colorScheme={medications.antidepressants ? "blue" : "gray"}
                   variant={medications.antidepressants ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2051,7 +2267,7 @@ function App() {
               
               <HStack spacing={4} w="100%" wrap="wrap">
                 <Button
-                  colorScheme={medications.opioids ? "teal" : "gray"}
+                  colorScheme={medications.opioids ? "blue" : "gray"}
                   variant={medications.opioids ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2064,7 +2280,7 @@ function App() {
                   Pain Medications
                 </Button>
                 <Button
-                  colorScheme={medications.steroids ? "teal" : "gray"}
+                  colorScheme={medications.steroids ? "blue" : "gray"}
                   variant={medications.steroids ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2080,7 +2296,7 @@ function App() {
               
               <HStack spacing={4} w="100%" wrap="wrap">
                 <Button
-                  colorScheme={medications.antibiotics ? "teal" : "gray"}
+                  colorScheme={medications.antibiotics ? "blue" : "gray"}
                   variant={medications.antibiotics ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2093,7 +2309,7 @@ function App() {
                   Antibiotics
                 </Button>
                 <Button
-                  colorScheme={medications.none ? "teal" : "gray"}
+                  colorScheme={medications.none ? "blue" : "gray"}
                   variant={medications.none ? "solid" : "outline"}
                   size="md"
                   borderRadius="full"
@@ -2108,7 +2324,7 @@ function App() {
               </HStack>
               
               <Button
-                colorScheme="teal"
+                colorScheme="blue"
                 onClick={handleMedicationsSubmit}
                 isFullWidth
                 borderRadius="full"
@@ -2125,7 +2341,7 @@ function App() {
                   value={familyRelation}
                   onChange={(e) => setFamilyRelation(e.target.value)}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                   mb={3}
                 >
                   <option value="Parent">Parent</option>
@@ -2140,7 +2356,7 @@ function App() {
                   value={familyCancerType}
                   onChange={(e) => setFamilyCancerType(e.target.value)}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                   mb={3}
                 >
                   {[...new Set([...maleCancerTypes, ...femaleCancerTypes])].map((type, index) => (
@@ -2164,13 +2380,13 @@ function App() {
                       }
                     }}
                     borderRadius="md"
-                    focusBorderColor="teal.400"
+                    focusBorderColor="blue.400"
                   />
                   <InputRightElement width="4.5rem">
                     <Button 
                       h="1.75rem" 
                       size="sm" 
-                      colorScheme="teal"
+                      colorScheme="blue"
                       onClick={handleFamilyCancerDetailsSubmit}
                     >
                       Submit
@@ -2195,14 +2411,14 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
-                    onClick={handleSmokingYearsSubmit}
+                    colorScheme="blue"
+                    onClick={handleSmokingPacksSubmit}
                   >
                     Submit
                   </Button>
@@ -2227,20 +2443,77 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
-                    onClick={handleSmokingPacksSubmit}
+                    colorScheme="blue"
+                    onClick={handleSmokingYearsSubmit}
                   >
                     Submit
                   </Button>
                 </InputRightElement>
               </InputGroup>
               {smokingYearsError && <FormErrorMessage>{smokingYearsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'alcoholConsumption' ? (
+            <VStack spacing={3} align="stretch">
+              {conversationFlow[currentStep]?.options.map((option, index) => (
+                <Button
+                  key={index}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="md"
+                  borderRadius="full"
+                  _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                  onClick={() => handleAlcoholResponse(option.text, option.nextId)}
+                  transition="all 0.2s"
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  isDisabled={isProcessingSelection}
+                  _disabled={{
+                    opacity: 0.7,
+                    cursor: "not-allowed",
+                    _hover: { bg: "initial", borderColor: "inherit" }
+                  }}
+                  bg={selectedOption === option.text ? 'blue.50' : 'transparent'}
+                  borderColor={selectedOption === option.text ? 'blue.400' : 'gray.200'}
+                >
+                  {option.text}
+                  {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
+                </Button>
+              ))}
+            </VStack>
+          ) : currentStep === 'alcoholAmount' ? (
+            <FormControl isInvalid={!!alcoholAmountError}>
+              <InputGroup size="md">
+                <Input 
+                  type="number"
+                  placeholder="Enter drinks per week (0-100)"
+                  value={alcoholAmountInput}
+                  onChange={(e) => setAlcoholAmountInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleAlcoholAmountSubmit();
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="blue.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button 
+                    h="1.75rem" 
+                    size="sm" 
+                    colorScheme="blue"
+                    onClick={handleAlcoholAmountSubmit}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              {alcoholAmountError && <FormErrorMessage>{alcoholAmountError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'allergyDetails' ? (
             <FormControl>
@@ -2255,13 +2528,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handleAllergySubmit}
                   >
                     Submit
@@ -2283,13 +2556,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handleMenarcheAgeSubmit}
                   >
                     Submit
@@ -2312,13 +2585,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handlePregnancyAgeSubmit}
                   >
                     Submit
@@ -2341,13 +2614,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handleProstateTestAgeSubmit}
                   >
                     Submit
@@ -2370,13 +2643,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="teal.400"
+                  focusBorderColor="blue.400"
                 />
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
-                    colorScheme="teal"
+                    colorScheme="blue"
                     onClick={handleCancerScreeningDetailsSubmit}
                   >
                     Submit
@@ -2393,17 +2666,24 @@ function App() {
               {conversationFlow[currentStep]?.options.map((option, index) => (
                 <Button
                   key={index}
-                  colorScheme="teal"
+                  colorScheme="blue"
                   variant="outline"
                   size="md"
                   borderRadius="full"
-                  _hover={{ bg: 'teal.50', borderColor: 'teal.400' }}
+                  _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
                   onClick={() => handleOptionSelect(option.text, option.nextId)}
                   transition="all 0.2s"
                   justifyContent="flex-start"
                   textAlign="left"
+                  isDisabled={isProcessingSelection}
+                  _disabled={{
+                    opacity: 0.7,
+                    cursor: "not-allowed",
+                    _hover: { bg: "initial", borderColor: "inherit" }
+                  }}
                 >
                   {option.text}
+                  {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
                 </Button>
               ))}
             </VStack>
