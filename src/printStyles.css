@@ -1,0 +1,39 @@
+/* Print-specific styles */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  
+  .print-section, .print-section * {
+    visibility: visible;
+  }
+  
+  .print-section {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm;
+    height: auto;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  button {
+    display: none !important;
+  }
+  
+  /* Fix badge alignment */
+  .chakra-badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    vertical-align: middle !important;
+  }
+  
+  /* A4 page settings */
+  @page {
+    size: A4 portrait;
+    margin: 10mm;
+  }
+}
