@@ -24,7 +24,9 @@ import {
   SimpleGrid,
   UnorderedList,
   ListItem,
-  useToast} from '@chakra-ui/react';
+  useToast,
+  Progress,
+  Tooltip} from '@chakra-ui/react';
 
 import { 
   FaUserMd, 
@@ -1866,6 +1868,97 @@ function App() {
     }
   };
 
+  // Helper function to calculate progress percentage based on current step
+  const calculateProgress = () => {
+    // Define the main path through the questionnaire
+    const totalSteps = 14; // Total number of major step categories
+    
+    // Map steps to their progress points (0-100%)
+    const stepProgressMap = {
+      'start': 0,
+      'info': 0,
+      'age': 5,
+      'sex': 10,
+      'ethnicity': 15, 
+      'location': 20,
+      'cancer': 25,
+      'cancerDetails': 30,
+      'familyHistory': 35,
+      'familyHistoryDetails': 40,
+      'chronicConditions': 45,
+      'smokingStatus': 50,
+      'alcoholConsumption': 55,
+      'sexualHealth': 60,
+      'transplant': 65,
+      'medications': 70,
+      'allergies': 75,
+      // Gender specific questions branch
+      'maleQuestions': 80,
+      'urinarySymptoms': 82,
+      'prostateTest': 85,
+      'testicularIssues': 88,
+      'femaleQuestions': 80,
+      'menarcheAge': 82,
+      'menstruationStatus': 85,
+      'pregnancy': 88,
+      'hormoneTreatment': 90,
+      // Rejoin common path
+      'pastCancerScreening': 90,
+      'hpvVaccine': 93,
+      'hepBVaccine': 96,
+      'summary': 100,
+      'end': 100
+    };
+    
+    return stepProgressMap[currentStep] || 0;
+  };
+
+  // Helper function to get the current section name
+  const getCurrentSectionName = () => {
+    const sectionNames = {
+      'start': 'Welcome',
+      'info': 'Information',
+      'age': 'Demographics',
+      'sex': 'Demographics',
+      'ethnicity': 'Demographics', 
+      'location': 'Demographics',
+      'cancer': 'Medical History',
+      'cancerDetails': 'Medical History',
+      'familyHistory': 'Family History',
+      'familyHistoryDetails': 'Family History',
+      'chronicConditions': 'Medical Conditions',
+      'smokingStatus': 'Lifestyle',
+      'smokingYears': 'Lifestyle',
+      'smokingAmount': 'Lifestyle',
+      'alcoholConsumption': 'Lifestyle',
+      'alcoholAmount': 'Lifestyle',
+      'sexualHealth': 'Lifestyle',
+      'transplant': 'Medical History',
+      'medications': 'Medications',
+      'allergies': 'Allergies',
+      'allergyDetails': 'Allergies',
+      'maleQuestions': 'Men\'s Health',
+      'urinarySymptoms': 'Men\'s Health',
+      'prostateTest': 'Men\'s Health',
+      'prostateTestAge': 'Men\'s Health',
+      'testicularIssues': 'Men\'s Health',
+      'femaleQuestions': 'Women\'s Health',
+      'menarcheAge': 'Women\'s Health',
+      'menstruationStatus': 'Women\'s Health',
+      'pregnancy': 'Women\'s Health',
+      'firstPregnancyAge': 'Women\'s Health',
+      'hormoneTreatment': 'Women\'s Health',
+      'pastCancerScreening': 'Screening History',
+      'pastCancerScreeningDetails': 'Screening History',
+      'hpvVaccine': 'Vaccinations',
+      'hepBVaccine': 'Vaccinations',
+      'summary': 'Results',
+      'end': 'Complete'
+    };
+    
+    return sectionNames[currentStep] || 'Screening';
+  };
+
   const bg = useColorModeValue('white', 'gray.800');
   const borderColor = useColorModeValue('gray.200', 'gray.700');
   const headerBg = useColorModeValue('blue.800', 'blue.700');
@@ -1885,9 +1978,9 @@ function App() {
           boxShadow="0 4px 12px rgba(0,0,0,0.15)"
           width="100%"
           maxW="100vw"
-          display={currentStep === 'summary' ? 'none' : 'flex'}
+          display={currentStep === 'summary' ? 'none' : 'block'}
         >
-          <Flex align="center" justify="space-between">
+          <Flex align="center" justify="space-between" mb={2}>
             <Flex align="center">
               <Icon as={FaNotesMedical} boxSize={7} mr={3} />
               <VStack align="start" spacing={0}>
@@ -1898,6 +1991,34 @@ function App() {
                 </HStack>
               </VStack>
             </Flex>
+            {/* Progress percentage */}
+            <Tooltip label="Screening progress" placement="bottom">
+              <Text fontSize="sm" fontWeight="bold">
+                {calculateProgress()}% Complete
+              </Text>
+            </Tooltip>
+          </Flex>
+          
+          {/* Section name and Progress Bar */}
+          <Flex direction="column" width="100%" mt={1}>
+            <Flex justify="space-between" mb={1}>
+              <Text fontSize="xs" fontWeight="medium" color="white">
+                Section: {getCurrentSectionName()}
+              </Text>
+              <Text fontSize="xs" fontWeight="medium" color="white">
+                {calculateProgress()}%
+              </Text>
+            </Flex>
+            <Tooltip label={`${calculateProgress()}% complete`}>
+              <Progress 
+                value={calculateProgress()} 
+                size="sm" 
+                colorScheme="green" 
+                borderRadius="full"
+                hasStripe
+                isAnimated
+              />
+            </Tooltip>
           </Flex>
         </Box>
         
