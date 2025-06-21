@@ -150,190 +150,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   const riskScore = calculateRiskScore();
   const healthStatus = getHealthCategory(riskScore);
   const recommendations = getRecommendations();
-  
-  // Function to generate and download PDF from the summary
-  const generatePDF = async () => {
-    if (!summaryRef.current) return;
-    
-    // Show loading toast
-    toast({
-      title: "Preparing PDF",
-      description: "Please wait while we generate your summary...",
-      status: "info",
-      duration: 3000,
-      isClosable: true,
-      position: "top-right"
-    });
-    
-    try {
-      // Create PDF document - A4 size
-      const pdf = new jsPDF('p', 'mm', 'a4');
-      const pageWidth = 210; // A4 width in mm
-      const pageHeight = 297; // A4 height in mm
-      const margin = 10; // 10mm margin
-      const contentWidth = pageWidth - (2 * margin);
-      const contentHeight = pageHeight - (2 * margin);
-      
-      // Prepare the document for optimal PDF rendering - pre-processing step
-      const prepareForPDFRendering = () => {
-        // Clone the node to avoid modifying the original
-        const pdfContent = summaryRef.current.cloneNode(true);
-        document.body.appendChild(pdfContent);
-        
-        // Hide buttons in the PDF
-        const buttons = pdfContent.querySelectorAll('button');
-        buttons.forEach(button => {
-          button.style.display = 'none';
-        });
-        
-        // Fix badge display
-        const badges = pdfContent.querySelectorAll('.chakra-badge');
-        badges.forEach(badge => {
-          badge.style.display = 'inline-flex';
-          badge.style.alignItems = 'center';
-          badge.style.justifyContent = 'center';
-          badge.style.height = '18px';
-          badge.style.lineHeight = '1';
-          badge.style.position = 'relative';
-          badge.style.verticalAlign = 'middle';
-        });
-        
-        // Style adjustments for PDF generation
-        pdfContent.style.width = `${contentWidth}mm`;
-        pdfContent.style.height = 'auto';
-        pdfContent.style.padding = '10mm';
-        pdfContent.style.position = 'absolute';
-        pdfContent.style.left = '-9999px';
-        pdfContent.style.top = '0';
-        pdfContent.style.overflow = 'visible';
-        pdfContent.style.backgroundColor = '#ffffff';
-        pdfContent.style.fontSize = '10pt';
-        
-        return pdfContent;
-      };
-      
-      // Add professional footer text to the PDF
-      const addFooter = (pdf) => {
-        const totalPages = pdf.internal.getNumberOfPages();
-        for (let i = 1; i <= totalPages; i++) {
-          pdf.setPage(i);
-          pdf.setFontSize(8);
-          pdf.setTextColor(100, 100, 100);
-          
-          // Current date
-          const currentDate = new Date().toLocaleDateString('en-US', {
-            year: 'numeric', month: 'long', day: 'numeric'
-          });
-          
-          // Add footer text - more professional layout
-          const footerText = `Cancer Screening Test Summary | For medical reference only | ${currentDate}`;
-          const pageNumberText = `Page ${i} of ${totalPages}`;
-          const generatedText = "Generated with Dr. Frempong's Cancer Screening Tool";
-          
-          // Position footer elements
-          pdf.text(footerText, margin, pageHeight - 7);
-          pdf.text(pageNumberText, pageWidth - margin - pdf.getTextWidth(pageNumberText), pageHeight - 7);
-          pdf.text(generatedText, margin, pageHeight - 4);
-          
-          // Add horizontal line above footer
-          pdf.setDrawColor(200, 200, 200);
-          pdf.line(margin, pageHeight - 10, pageWidth - margin, pageHeight - 10);
-        }
-      };
-      
-      // Prepare content for PDF rendering
-      const pdfContent = prepareForPDFRendering();
-      
-      // Generate canvas with optimized settings
-      const canvas = await html2canvas(pdfContent, {
-        scale: 2, // Higher scale for better quality
-        useCORS: true, 
-        allowTaint: false,
-        logging: false,
-        backgroundColor: '#ffffff',
-        windowWidth: pdfContent.scrollWidth,
-        windowHeight: pdfContent.scrollHeight,
-        onclone: (clonedDoc) => {
-          // Additional fixes in the cloned document
-          const clonedBadges = clonedDoc.querySelectorAll('.chakra-badge');
-          clonedBadges.forEach(badge => {
-            badge.style.display = 'inline-flex';
-            badge.style.alignItems = 'center';
-          });
-        }
-      });
-      
-      // Remove the temporary element
-      if (pdfContent.parentNode) {
-        pdfContent.parentNode.removeChild(pdfContent);
-      }
-      
-      // Calculate dimensions to maintain aspect ratio
-      const imgData = canvas.toDataURL('image/png', 1.0);
-      const imgWidth = contentWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      // Handle multi-page content with improved positioning
-      const pagesNeeded = Math.ceil(imgHeight / contentHeight);
-      
-      // For proper multi-page handling
-      if (pagesNeeded > 1) {
-        // First page
-        pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, Math.min(imgHeight, contentHeight));
-        
-        // Add additional pages if needed
-        for (let i = 1; i < pagesNeeded; i++) {
-          pdf.addPage();
-          // Calculate position to show next slice of the image
-          const sourceY = contentHeight * i;
-          const sourceHeight = Math.min(contentHeight, imgHeight - sourceY);
-          
-          pdf.addImage(
-            imgData, 
-            'PNG', 
-            margin, // x position
-            margin, // y position on new page
-            imgWidth, // width
-            sourceHeight, // height of this slice
-            null, // alias
-            'FAST', // compression
-            -sourceY // vertical offset to show correct portion
-          );
-        }
-      } else {
-        // Single page - simpler case
-        pdf.addImage(imgData, 'PNG', margin, margin, imgWidth, imgHeight);
-      }
-      
-      // Add footer with page numbers to all pages
-      addFooter(pdf);
-      
-      // Save the PDF with date in filename
-      const formattedDate = new Date().toISOString().split('T')[0]; // YYYY-MM-DD format
-      const fileName = `Medical_Screening_Summary_${formattedDate}.pdf`;
-      pdf.save(fileName);
-      
-      // Success message
-      toast({
-        title: "Download complete",
-        description: "Your medical summary has been downloaded as a PDF",
-        status: "success",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right"
-      });
-    } catch (error) {
-      console.error("PDF generation error:", error);
-      toast({
-        title: "Download failed",
-        description: "There was an issue creating your PDF. Please try again.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-        position: "top-right"
-      });
-    }
-  };  // Function to print the summary using browser's print API
+    // PDF generation function removed - using print functionality only// Function to print the summary using browser's print API
   const printSummary = () => {
     // Show loading toast
     toast({
@@ -406,80 +223,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
         position: "top-right"
       });
     }
-  };
-  // Apply styling and prepare for optimal PDF generation
+  };  // Apply styling for badge alignment in the UI (these styles will apply to the printed version through printStyles.css)
   React.useEffect(() => {
-    // Apply style to body to remove scrollbars and set proper container
-    document.body.style.overflowX = 'hidden';
-    document.documentElement.style.overflowX = 'hidden';
-    document.documentElement.style.height = 'auto';
-    
-    if (document.getElementById('root')) {
-      document.getElementById('root').style.overflowX = 'hidden';
-      document.getElementById('root').style.width = '100vw';
-      document.getElementById('root').style.position = 'relative';
-    }
-      // Add print-specific CSS and badge fixes for PDF generation
-    const style = document.createElement('style');
-    style.id = 'pdf-print-style';
-    style.textContent = `
-      @media print {
-        body, html {
-          width: 210mm;
-          height: 297mm;
-          margin: 0;
-          padding: 0;
-        }
-        
-        .a4-page {
-          page-break-after: always;
-          page-break-inside: avoid;
-          break-inside: avoid;
-        }
-        
-        .chakra-badge {
-          display: inline-flex !important;
-          align-items: center !important;
-          justify-content: center !important;
-          vertical-align: middle !important;
-          height: 18px !important;
-          line-height: 1 !important;
-          white-space: nowrap !important;
-          position: relative !important;
-        }
-        
-        @page {
-          size: A4 portrait;
-          margin: 10mm;
-        }
-      }
-      
-      /* Fix badge alignment in HTML rendered view */
-      .chakra-badge {
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        vertical-align: middle !important;
-        height: 18px !important;
-        white-space: nowrap !important;
-      }
-    `;
-    document.head.appendChild(style);
-      // Prepare for PDF generation by fixing badge and image elements
-    const prepareForPDF = () => {
-      const images = summaryRef.current?.querySelectorAll('img') || [];
+    // Fix badges in the UI
+    const fixBadges = () => {
       const badges = summaryRef.current?.querySelectorAll('.chakra-badge') || [];
-      const boxContainers = summaryRef.current?.querySelectorAll('box') || [];
       
-      // Ensure all images have crossOrigin attribute set and are loaded
-      images.forEach(img => {
-        if (img.src && !img.src.startsWith('data:')) {
-          img.crossOrigin = 'anonymous';
-          img.loading = 'eager'; // Force eager loading
-        }
-      });
-      
-      // Fix badge styling directly for better PDF rendering
+      // Fix badge styling directly
       badges.forEach(badge => {
         // Apply critical styles directly to badge elements
         badge.style.display = 'inline-flex';
@@ -489,13 +239,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
         badge.style.height = '18px';
         badge.style.lineHeight = '1';
         badge.style.maxWidth = '100%';
-        badge.style.overflow = 'hidden';
-        badge.style.textOverflow = 'ellipsis';
         badge.style.whiteSpace = 'nowrap';
         badge.style.position = 'relative';
       });
       
-      // Fix ALL box elements to properly align content
+      // Fix box elements containing badges to properly align content
       const allBoxes = summaryRef.current?.querySelectorAll('.chakra-box') || [];
       allBoxes.forEach(box => {
         const badgesInBox = box.querySelectorAll('.chakra-badge');
@@ -507,26 +255,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       });
     };
     
-    // Wait for component to render fully before applying PDF-specific styles
-    setTimeout(prepareForPDF, 500);
-    
-    // Cleanup function to restore original styles when component unmounts
-    return () => {
-      document.body.style.overflowX = '';
-      document.documentElement.style.overflowX = '';
-      document.documentElement.style.height = '';
-      
-      if (document.getElementById('root')) {
-        document.getElementById('root').style.overflowX = '';
-        document.getElementById('root').style.width = '';
-        document.getElementById('root').style.position = '';
-      }
-      
-      const styleElement = document.getElementById('pdf-print-style');
-      if (styleElement) {
-        styleElement.remove();
-      }
-    };
+    // Fix badges after component renders
+    setTimeout(fixBadges, 500);
   }, []);return (
     <Box 
       width="210mm" 
@@ -910,14 +640,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             </List>
           </Box>
         </Box>     
-      </Flex>      {/* Action Buttons */}      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>        <Button
-          colorScheme="blue"
-          leftIcon={<Icon as={FaDownload} />}
-          size="md"
-          onClick={generatePDF}>
-          Download as PDF
-        </Button>
-          <Button
+      </Flex>      {/* Action Buttons */}      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>
+        <Button
           colorScheme="teal"
           leftIcon={<Icon as={FaPrint} />}
           size="md"

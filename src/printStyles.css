@@ -1,39 +1,57 @@
-/* Print-specific styles */
 @media print {
-  body * {
-    visibility: hidden;
+  /* General print styles */
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 10pt !important;
   }
-  
-  .print-section, .print-section * {
-    visibility: visible;
-  }
-  
+
   .print-section {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 210mm;
-    height: auto;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 15mm !important;
+    background: white !important;
+    box-shadow: none !important;
   }
-  
+
+  /* Hide non-printable elements */
   .no-print {
     display: none !important;
   }
-  
-  button {
-    display: none !important;
-  }
-  
-  /* Fix badge alignment */
+
+  /* Fix badge display */
   .chakra-badge {
     display: inline-flex !important;
     align-items: center !important;
+    justify-content: center !important;
     vertical-align: middle !important;
+    height: 18px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+    position: relative !important;
   }
-  
-  /* A4 page settings */
-  @page {
-    size: A4 portrait;
-    margin: 10mm;
+
+  /* Ensure proper page breaks */
+  .page-break-before {
+    page-break-before: always !important;
+  }
+
+  .page-break-after {
+    page-break-after: always !important;
+  }
+
+  /* Remove background colors from sections */
+  .chakra-box, div {
+    background-color: white !important;
+  }
+
+  /* Adjust spacing for print */
+  h1, h2, h3, h4 {
+    margin-top: 10pt !important;
+    margin-bottom: 5pt !important;
+  }
+
+  p, ul, ol {
+    margin-bottom: 5pt !important;
   }
 }
