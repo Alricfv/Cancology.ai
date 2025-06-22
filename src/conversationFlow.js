@@ -64,14 +64,13 @@ const conversationFlow = {
     question: "Do you have any of the following chronic conditions?",
     options: [],
     inputType: "chronic"
-  },
-  smokingStatus: {
+  },  smokingStatus: {
     question: "Do you currently smoke or have you smoked in the past?",
     options: [
       { text: "Yes", nextId: "smokingYears" },
-      { text: "No", nextId: "transplant" }
+      { text: "No", nextId: "alcoholConsumption" }
     ]
-  },  smokingYears: {
+  },smokingYears: {
     question: "How many packs of cigarettes do/did you smoke per day on average? (A pack contains 20 cigarettes)",
     options: [],
     inputType: "smokingPacks"
