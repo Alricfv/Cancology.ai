@@ -259,16 +259,17 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           breakInside: 'avoid-page',
           breakBefore: 'page'
         }
-      }}
-    >{/* Main title */}      
+      }}>
+        
+      {/* Main title */}      
       <Box 
         textAlign="center" 
         mb={4} 
         width="100%"
         borderBottom="2px solid"
         borderColor={accentColor}
-        pb={3}
-      >
+        pb={3}>
+
         <Heading size="lg" color={accentColor} fontSize="22pt">Cancer Screening Test</Heading>
         <Heading size="md" mt={1} fontSize="16pt">Summary Report</Heading>
         <Text fontSize="10pt" color="gray.500" mt={1}>Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</Text>
@@ -280,14 +281,16 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
         justifyContent="space-between" 
         mb={3} 
         overflowX="hidden"
-        fontSize="10pt" 
-      >
+        fontSize="10pt" >
+
         {/* Left column */}        
         <Box width="48%" pr={3}>
           {/* Demographics section */}
-          <Box mb={3}>            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+          <Box mb={3}>            
+            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Personal Information
-            </Heading>            <Grid templateColumns="repeat(2, 1fr)" gap={2} width="100%">
+            </Heading>            
+            <Grid templateColumns="repeat(2, 1fr)" gap={2} width="100%">
               <GridItem>
                 <Text fontWeight="medium" fontSize="10pt">
                   Age:
@@ -314,7 +317,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   {userResponses.demographics.ethnicity || 'Not specified'}
                 </Text>
 
-              </GridItem>              
+              </GridItem>    
+
               <GridItem>
                 <Text fontWeight="medium" fontSize="10pt">
                   Location:
@@ -325,14 +329,17 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               </GridItem>
             </Grid>
           </Box>
-            {/* Medical History */}
+
+          {/* Medical History */}
           <Box mb={4}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medical History
-            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
+            </Heading>            
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Personal Cancer:
-              </Text>              <Box display="flex" alignItems="center" flexWrap="wrap">
+              </Text>              
+              <Box display="flex" alignItems="center" flexWrap="wrap">
                 {userResponses.medicalHistory.personalCancer.diagnosed ? 
                   <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Yes</Badge> : 
                   <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
@@ -358,7 +365,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                     {userResponses.medicalHistory.familyCancer.ageAtDiagnosis && 
                       ` (Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})`}
                   </Text>}
-              </Box>              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+              </Box>              
+              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Chronic Conditions:
               </Text>              
               <Text fontSize="9pt">
@@ -367,14 +375,17 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               </Text>
             </Grid>
           </Box>
-            {/* Lifestyle */}
+
+          {/* Lifestyle */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Lifestyle Factors
-            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
+            </Heading>            
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Smoking Status:
-              </Text>              <Box display="flex" alignItems="center" flexWrap="wrap">                
+              </Text>             
+              <Box display="flex" alignItems="center" flexWrap="wrap">                
                 {userResponses.lifestyle.smoking.current ? 
                   <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Current Smoker</Badge> : 
                   <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Non-Smoker</Badge>}
@@ -385,22 +396,28 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               </Box>
                 <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Alcohol Consumption:
-              </Text>              <Box display="flex" alignItems="center" flexWrap="wrap">                
+              </Text>              
+              <Box display="flex" alignItems="center" flexWrap="wrap">                
                 {userResponses.lifestyle.alcohol?.consumes ? 
                   <Badge colorScheme={userResponses.lifestyle.alcohol.drinksPerWeek > 14 ? "red" : userResponses.lifestyle.alcohol.drinksPerWeek > 7 ? "orange" : "yellow"} ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">
                     Yes ({userResponses.lifestyle.alcohol.drinksPerWeek} drinks/week)
                   </Badge> : 
-                  <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
-              </Box><Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                  <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">
+                    No
+                  </Badge>}
+              </Box>
+              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Sexual Health Risk:
-              </Text>              <Box display="flex" alignItems="center" flexWrap="wrap">                
+              </Text>              
+              <Box display="flex" alignItems="center" flexWrap="wrap">                
                 {userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv ? 
                   <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">High Risk</Badge> : 
                   <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Standard Risk</Badge>}
               </Box>
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Organ Transplant:
-              </Text>              <Box display="flex" alignItems="center" flexWrap="wrap">                
+              </Text>              
+              <Box display="flex" alignItems="center" flexWrap="wrap">                
                 {userResponses.lifestyle.transplant ? 
                   <Badge colorScheme="orange" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Yes</Badge> : 
                   <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
@@ -412,7 +429,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medications & Allergies
-            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
+            </Heading>            
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Current Medications:
               </Text>
@@ -430,13 +448,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 {userResponses.allergies && userResponses.allergies !== "None" ? 
                 userResponses.allergies : 'None reported'}
               </Text>
-            </Grid>          </Box>
+            </Grid>          
+          </Box>
           
           {/* Medications & Allergies */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medications & Allergies
-            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
+            </Heading>            
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Current Medications:
               </Text>
@@ -466,14 +486,16 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
                 <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Urinary Symptoms:
-                </Text>                <Box display="flex" alignItems="center">
+                </Text>                
+                <Box display="flex" alignItems="center">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.urinarySymptoms ? "orange" : "green"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.male.urinarySymptoms ? "YES" : "NO"}
                   </Badge>
                 </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Prostate Test:
-                </Text>                <Box display="flex" alignItems="center" flexWrap="wrap">
+                </Text>                
+                <Box display="flex" alignItems="center" flexWrap="wrap">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.prostateTest.had ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.male.prostateTest.had ? "YES" : "NO"}
                   </Badge>
@@ -486,9 +508,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                       N/A (Not recommended under 30)
                     </Text> : null}
                 </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Testicular Issues:
-                </Text>                <Box display="flex" alignItems="center">
+                </Text>               
+                <Box display="flex" alignItems="center">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.testicularIssues ? "orange" : "green"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.male.testicularIssues ? "YES" : "NO"}
                   </Badge>
@@ -502,7 +525,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 </Text>
                 <Text fontSize="9pt">
                   {userResponses.sexSpecificInfo.female.menarcheAge || 'Not specified'}
-                </Text>                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                </Text>                
+                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Menstruation Status:
                 </Text>
                 <Text fontSize="9pt">
@@ -511,7 +535,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 
                 <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Pregnancy History:
-                </Text>                <Box display="flex" alignItems="center" flexWrap="wrap">
+                </Text>                
+                <Box display="flex" alignItems="center" flexWrap="wrap">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "blue" : "gray"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "YES" : "NO"}
                   </Badge>
@@ -520,9 +545,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                       (First at age {userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})
                     </Text>}
                 </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   Hormone Treatment:
-                </Text>                <Box display="flex" alignItems="center">
+                </Text>                
+                <Box display="flex" alignItems="center">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hormoneTreatment ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.female.hormoneTreatment ? "YES" : "NO"}
                   </Badge>
@@ -530,25 +556,31 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 
                 <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                   HPV Vaccine:
-                </Text>                  <Box display="flex" alignItems="center">
+                </Text>                  
+                <Box display="flex" alignItems="center">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hpvVaccine ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.female.hpvVaccine ? "YES" : "NO"}
                   </Badge>
-                </Box>              </Grid>
+                </Box>              
+              </Grid>
             )}
           </Box>
         </Box>        {/* Center divider */}
         <Divider orientation="vertical" height="auto" mx={2} />
         
         {/* Right column */}
-        <Box width="48%" pl={3}>          {/* Vaccination and Screening History - Moved to top of right column */}
+        <Box width="48%" pl={3}>          
+          
+          {/* Vaccination and Screening History - Moved to top of right column */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Vaccinations & Screening History
-            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
+            </Heading>            
+            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 HPV Vaccine:
-              </Text>              <Box display="flex" alignItems="center">
+              </Text>              
+              <Box display="flex" alignItems="center">
                 <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.vaccinations.hpv ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
                   {userResponses.vaccinations.hpv ? "YES" : "NO"}
                 </Badge>
@@ -556,14 +588,16 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               
               <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Hepatitis B Vaccine:
-              </Text>              <Box display="flex" alignItems="center">
+              </Text>              
+              <Box display="flex" alignItems="center">
                 <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.vaccinations.hepB ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
                   {userResponses.vaccinations.hepB ? "YES" : "NO"}
                 </Badge>
               </Box>
                 <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
                 Cancer Screening History:
-              </Text>              <Box>
+              </Text>              
+              <Box>
                 <Box display="flex" alignItems="center">
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.cancerScreening.hadScreening ? "blue" : "gray"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.cancerScreening.hadScreening ? "YES" : "NO"}
@@ -580,11 +614,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Health Risk Assessment
-            </Heading>            <Flex justify="space-between" align="center" mb={2}>
+            </Heading>            
+            <Flex justify="space-between" align="center" mb={2}>
               <Box>
                 <Text fontWeight="medium" fontSize="10pt">
                   Risk Level:
-                </Text>                <Badge 
+                </Text>                
+                <Badge 
                   colorScheme={healthStatus.color} 
                   fontSize="9pt"
                   py={1} 
@@ -613,23 +649,27 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           <Box mb={2}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Recommended Cancer Screening Tests
-            </Heading>            <List spacing={1}>
+            </Heading>            
+            <List spacing={1}>
               {getPrescribedTests(userResponses).map((test, index) => (
                 <ListItem key={`test-${index}`} display="flex" alignItems="flex-start" mb={2}>
                   <ListIcon as={FaCheckCircle} color="green.500" mt={1} flexShrink={0} fontSize="9pt" />
                   <Box>
                     <Text fontWeight="semibold" fontSize="10pt">{test.name}</Text>
                     <Text fontSize="8pt" color="gray.600">Frequency: {test.frequency}</Text>
-                    <Text fontSize="8pt" color="gray.600">{test.reason}</Text>                    <Badge colorScheme={test.priority === "high" ? "red" : test.priority === "medium" ? "orange" : "green"} 
+                    <Text fontSize="8pt" color="gray.600">{test.reason}</Text>                    
+                    <Badge colorScheme={test.priority === "high" ? "red" : test.priority === "medium" ? "orange" : "green"} 
                            fontSize="7pt" mt={1} display="inline-flex" alignItems="center" height="16px">
                       {test.urgency}
                     </Badge>
                   </Box>
                 </ListItem>
-              ))}            </List>
+              ))}            
+            </List>
           </Box>
         </Box>     
-      </Flex>      {/* Action Buttons */}      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>
+      </Flex>      {/* Action Buttons */}      
+      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>
         <Button
           colorScheme="teal"
           leftIcon={<Icon as={FaPrint} />}
