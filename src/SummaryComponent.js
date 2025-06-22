@@ -406,8 +406,33 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
               </Box>
             </Grid>
-          </Box>
-            {/* Medications & Allergies */}
+          </Box>            
+          
+          {/* Medications & Allergies */}
+          <Box mb={3}>
+            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              Medications & Allergies
+            </Heading>            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
+              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                Current Medications:
+              </Text>
+
+              <Text fontSize="9pt">
+                {userResponses.medications.length > 0 ? 
+                userResponses.medications.join(', ') : 'None reported'}
+              </Text>
+
+              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                Known Allergies:
+              </Text>
+
+              <Text fontSize="9pt">
+                {userResponses.allergies && userResponses.allergies !== "None" ? 
+                userResponses.allergies : 'None reported'}
+              </Text>
+            </Grid>          </Box>
+          
+          {/* Medications & Allergies */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medications & Allergies
@@ -431,11 +456,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               </Text>
             </Grid>
           </Box>
-        </Box>        {/* Center divider */}
-        <Divider orientation="vertical" height="auto" mx={2} />
-        
-        {/* Right column */}
-        <Box width="48%" pl={3}>          {/* Gender-specific Information */}
+
+          {/* Gender-specific Information - Moved below Medications & Allergies in left column */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               {userResponses.demographics.sex === "Male" ? "Male" : "Female"}-Specific Screening
@@ -512,10 +534,14 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hpvVaccine ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
                     {userResponses.sexSpecificInfo.female.hpvVaccine ? "YES" : "NO"}
                   </Badge>
-                </Box>
-              </Grid>
+                </Box>              </Grid>
             )}
-          </Box>          {/* Vaccination and Screening History */}
+          </Box>
+        </Box>        {/* Center divider */}
+        <Divider orientation="vertical" height="auto" mx={2} />
+        
+        {/* Right column */}
+        <Box width="48%" pl={3}>          {/* Vaccination and Screening History - Moved to top of right column */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Vaccinations & Screening History
@@ -550,7 +576,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                 )}
               </Box>
             </Grid>
-          </Box>          {/* Risk Assessment */}
+          </Box>{/* Risk Assessment */}
           <Box mb={3}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Health Risk Assessment
