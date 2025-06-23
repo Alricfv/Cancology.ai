@@ -1,3 +1,12 @@
+/**
+ This file handles all of the UI components, rendering, and user interactions for the medical screening application.
+ It uses React hooks for state management and Chakra UI for styling.
+ It includes components for user input, displaying messages, and managing the conversation flow.
+ It also includes logic for handling user responses, displaying summaries, and managing the conversation state.
+ The application is designed to guide users through a series of questions related to their medical history, lifestyle, and demographics,
+ ultimately providing a summary of their responses and recommendations for cancer screening based on their inputs
+
+**/
 import { useState, useRef, useEffect } from 'react';
 
 import {
@@ -20,10 +29,6 @@ import {
   FormControl,
   FormErrorMessage,
   Select,
-  Checkbox,
-  SimpleGrid,
-  UnorderedList,
-  ListItem,
   useToast,
   Progress,
   Tooltip} from '@chakra-ui/react';
@@ -32,8 +37,7 @@ import {
   FaUserMd, 
   FaHeartbeat, 
   FaNotesMedical,
-  FaCheck,
-  FaDownload} from 'react-icons/fa';
+ } from 'react-icons/fa';
 
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
 import SummaryComponent from './SummaryComponent';
@@ -2034,8 +2038,7 @@ function App() {
                 onChange={(e) => setCountryInput(e.target.value)}
                 borderRadius="md"
                 focusBorderColor="blue.400"
-                mb={3}
-              >
+                mb={3}>
                 {countries.map((country, index) => (
                   <option key={index} value={country}>
                     {country}
@@ -2046,8 +2049,7 @@ function App() {
                 colorScheme="blue"
                 onClick={handleCountrySubmit}
                 isFullWidth
-                borderRadius="full"
-              >
+                borderRadius="full">
                 Submit
               </Button>
             </FormControl>
@@ -2060,8 +2062,7 @@ function App() {
                   onChange={(e) => setCancerType(e.target.value)}
                   borderRadius="md"
                   focusBorderColor="blue.400"
-                  mb={3}
-                >
+                  mb={3}>
                   {(userSex === 'Male' ? maleCancerTypes : femaleCancerTypes).map((type, index) => (
                     <option key={index} value={type}>
                       {type}
@@ -2108,8 +2109,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, diabetes: !prev.diabetes }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Diabetes
                 </Button>
                 <Button
@@ -2119,8 +2119,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, hiv: !prev.hiv }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   HIV
                 </Button>
               </HStack>
@@ -2132,8 +2131,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, ibd: !prev.ibd }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Inflammatory Bowel Disease (IBD)
                 </Button>
                 <Button
@@ -2143,8 +2141,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, hepatitisB: !prev.hepatitisB }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Hepatitis B
                 </Button>
               </HStack>
@@ -2156,8 +2153,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, hepatitisC: !prev.hepatitisC }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Hepatitis C
                 </Button>
                 <Button
@@ -2167,8 +2163,7 @@ function App() {
                   borderRadius="full"
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, none: !prev.none }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   None
                 </Button>
               </HStack>
@@ -2176,8 +2171,7 @@ function App() {
                 colorScheme="blue"
                 onClick={handleChronicConditionsSubmit}
                 isFullWidth
-                borderRadius="full"
-              >
+                borderRadius="full">
                 Submit
               </Button>
             </VStack>
@@ -2200,8 +2194,7 @@ function App() {
                     opacity: 0.7,
                     cursor: "not-allowed",
                     _hover: { bg: "initial", borderColor: "inherit" }
-                  }}
-                >
+                  }}>
                   {option.text}
                   {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
                 </Button>
@@ -2219,8 +2212,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, anticoagulants: !prev.anticoagulants }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Blood Thinners
                 </Button>
                 <Button
@@ -2232,8 +2224,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, statins: !prev.statins }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Cholesterol Meds
                 </Button>
               </HStack>
@@ -2248,8 +2239,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, antihypertensives: !prev.antihypertensives }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Blood Pressure Meds
                 </Button>
                 <Button
@@ -2261,8 +2251,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, antidepressants: !prev.antidepressants }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Antidepressants
                 </Button>
               </HStack>
@@ -2277,8 +2266,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, opioids: !prev.opioids }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Pain Medications
                 </Button>
                 <Button
@@ -2290,8 +2278,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, steroids: !prev.steroids }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Steroids
                 </Button>
               </HStack>
@@ -2306,8 +2293,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, antibiotics: !prev.antibiotics }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   Antibiotics
                 </Button>
                 <Button
@@ -2319,8 +2305,7 @@ function App() {
                   minW="200px"
                   mb={2}
                   onClick={() => setMedications(prev => ({ ...prev, none: !prev.none }))}
-                  transition="all 0.2s"
-                >
+                  transition="all 0.2s">
                   None
                 </Button>
               </HStack>
@@ -2330,8 +2315,7 @@ function App() {
                 onClick={handleMedicationsSubmit}
                 isFullWidth
                 borderRadius="full"
-                mt={2}
-              >
+                mt={2}>
                 Submit
               </Button>
             </VStack>
@@ -2344,8 +2328,7 @@ function App() {
                   onChange={(e) => setFamilyRelation(e.target.value)}
                   borderRadius="md"
                   focusBorderColor="blue.400"
-                  mb={3}
-                >
+                  mb={3}>
                   <option value="Parent">Parent</option>
                   <option value="Sibling">Sibling</option>
                   <option value="Child">Child</option>
@@ -2359,8 +2342,7 @@ function App() {
                   onChange={(e) => setFamilyCancerType(e.target.value)}
                   borderRadius="md"
                   focusBorderColor="blue.400"
-                  mb={3}
-                >
+                  mb={3}>
                   {[...new Set([...maleCancerTypes, ...femaleCancerTypes])].map((type, index) => (
                     <option key={index} value={type}>
                       {type}
@@ -2382,15 +2364,13 @@ function App() {
                       }
                     }}
                     borderRadius="md"
-                    focusBorderColor="blue.400"
-                  />
+                    focusBorderColor="blue.400"/>
                   <InputRightElement width="4.5rem">
                     <Button 
                       h="1.75rem" 
                       size="sm" 
                       colorScheme="blue"
-                      onClick={handleFamilyCancerDetailsSubmit}
-                    >
+                      onClick={handleFamilyCancerDetailsSubmit}>
                       Submit
                     </Button>
                   </InputRightElement>
@@ -2413,15 +2393,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleSmokingPacksSubmit}
-                  >
+                    onClick={handleSmokingPacksSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2445,15 +2423,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleSmokingYearsSubmit}
-                  >
+                    onClick={handleSmokingYearsSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2481,8 +2457,7 @@ function App() {
                     _hover: { bg: "initial", borderColor: "inherit" }
                   }}
                   bg={selectedOption === option.text ? 'blue.50' : 'transparent'}
-                  borderColor={selectedOption === option.text ? 'blue.400' : 'gray.200'}
-                >
+                  borderColor={selectedOption === option.text ? 'blue.400' : 'gray.200'}>
                   {option.text}
                   {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
                 </Button>
@@ -2502,15 +2477,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleAlcoholAmountSubmit}
-                  >
+                    onClick={handleAlcoholAmountSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2530,15 +2503,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleAllergySubmit}
-                  >
+                    onClick={handleAllergySubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2558,15 +2529,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleMenarcheAgeSubmit}
-                  >
+                    onClick={handleMenarcheAgeSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2587,15 +2556,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handlePregnancyAgeSubmit}
-                  >
+                    onClick={handlePregnancyAgeSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2616,15 +2583,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleProstateTestAgeSubmit}
-                  >
+                    onClick={handleProstateTestAgeSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2645,15 +2610,13 @@ function App() {
                     }
                   }}
                   borderRadius="md"
-                  focusBorderColor="blue.400"
-                />
+                  focusBorderColor="blue.400"/>
                 <InputRightElement width="4.5rem">
                   <Button 
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleCancerScreeningDetailsSubmit}
-                  >
+                    onClick={handleCancerScreeningDetailsSubmit}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2682,8 +2645,7 @@ function App() {
                     opacity: 0.7,
                     cursor: "not-allowed",
                     _hover: { bg: "initial", borderColor: "inherit" }
-                  }}
-                >
+                  }}>
                   {option.text}
                   {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
                 </Button>
@@ -2699,8 +2661,6 @@ function App() {
     </Box>
   );
 }
-
-// Create a SummaryComponent to show at the end
 
 
 export default App;
