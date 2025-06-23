@@ -14,7 +14,6 @@ import {
   Flex,
   Text,
   Button,
-  ButtonGroup,
   VStack,
   HStack,
   Avatar,
@@ -229,10 +228,10 @@ function App() {
   const [smokingYearsError, setSmokingYearsError] = useState('');
   const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
   const [alcoholAmountError, setAlcoholAmountError] = useState('');
-  const [packYears, setPackYears] = useState(0);
+  const [setPackYears] = useState(0);
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
-  const [menstruationStatus, setMenstruationStatus] = useState('');
+  const [setMenstruationStatus] = useState('');
   const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
   const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
@@ -1756,7 +1755,6 @@ function App() {
   // Helper function to calculate progress percentage based on current step
   const calculateProgress = () => {
     // Define the main path through the questionnaire
-    const totalSteps = 14; // Total number of major step categories
     
     // Map steps to their progress points (0-100%)
     const stepProgressMap = {
