@@ -63,63 +63,78 @@ function App() {
       sex: "",
       ethnicity: "",
       country: ""
-    },
+    }
+    ,
     medicalHistory: {
       personalCancer: {
         diagnosed: false,
         type: "",
         ageAtDiagnosis: null
-      },
+        }
+        ,
+
       familyCancer: {
         diagnosed: false,
         relation: "",
         type: "",
         ageAtDiagnosis: null
-      },
+        }
+        ,
+
       chronicConditions: []
-    },
+    }
+    ,
     lifestyle: {
       smoking: {
         current: false,
         years: null,
         packsPerDay: null,
         packYears: null
-      },
+      }
+      ,
       alcohol: {
         consumes: false,
         drinksPerWeek: null
-      },
+      }
+      ,
       sexualHealth: {
         unprotectedSexOrHpvHiv: false
-      },
+      }
+      ,
       transplant: false
-    },
+    }
+    ,
     medications: [],
     allergies: "",
     cancerScreening: {
       hadScreening: false,
       details: ""
-    },
+    }
+    ,
     vaccinations: {
       hpv: false,
       hepB: false
-    },
+    }
+    ,
     sexSpecificInfo: {
       male: {
         urinarySymptoms: false,
         prostateTest: {
           had: false,
           ageAtLast: null
-        },
+        }
+        ,
         testicularIssues: false
-      },
+      }
+      ,
       female: {
         menarcheAge: null,
         menstruationStatus: "",
         pregnancy: {
           hadPregnancy: false,
           ageAtFirst: null
-        },
+        }
+        ,
         hormoneTreatment: false,
         hpvVaccine: false
       }
@@ -253,7 +268,9 @@ function App() {
         }
       }));
       setUserSex(optionText);
-    } else if (currentStep === 'cancer') {
+    } 
+    
+    else if (currentStep === 'cancer') {
       setUserResponses(prev => ({
         ...prev,
         medicalHistory: {
@@ -264,7 +281,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'familyHistory') {
+    } 
+    
+    else if (currentStep === 'familyHistory') {
       setUserResponses(prev => ({
         ...prev,
         medicalHistory: {
@@ -275,7 +294,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'smokingStatus') {
+    } 
+    
+    else if (currentStep === 'smokingStatus') {
       setUserResponses(prev => ({
         ...prev,
         lifestyle: {
@@ -286,7 +307,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'transplant') {
+    } 
+    
+    else if (currentStep === 'transplant') {
       setUserResponses(prev => ({
         ...prev,
         lifestyle: {
@@ -294,18 +317,24 @@ function App() {
           transplant: optionText === 'Yes'
         }
       }));
-    } else if (currentStep === 'allergies') {
+    } 
+    
+    else if (currentStep === 'allergies') {
       if (optionText === 'No') {
         setUserResponses(prev => ({
           ...prev,
           allergies: "None"
         }));
       }
-    } else if (currentStep === 'checkSex') {
+    } 
+    
+    else if (currentStep === 'checkSex') {
       // This case is kept for backward compatibility, but should no longer be used
       // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
       routeBasedOnSex();
-    } else if (currentStep === 'urinarySymptoms') {
+    } 
+    
+    else if (currentStep === 'urinarySymptoms') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -316,7 +345,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'prostateTest') {
+    } 
+    
+    else if (currentStep === 'prostateTest') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -330,7 +361,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'testicularIssues') {
+    } 
+    
+    else if (currentStep === 'testicularIssues') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -341,7 +374,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'menstruationStatus') {
+    } 
+    
+    else if (currentStep === 'menstruationStatus') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -353,7 +388,9 @@ function App() {
         }
       }));
       setMenstruationStatus(optionText);
-    } else if (currentStep === 'pregnancy') {
+    } 
+    
+    else if (currentStep === 'pregnancy') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -367,7 +404,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'hormoneTreatment') {
+    } 
+    
+    else if (currentStep === 'hormoneTreatment') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
@@ -378,7 +417,9 @@ function App() {
           }
         }
       }));
-    } else if (currentStep === 'hpvVaccine') {
+    } 
+    
+    else if (currentStep === 'hpvVaccine') {
       setUserResponses(prev => ({
         ...prev,
         vaccinations: {
@@ -386,7 +427,9 @@ function App() {
           hpv: optionText === 'Yes'
         }
       }));
-    } else if (currentStep === 'hepBVaccine') {
+    } 
+    
+    else if (currentStep === 'hepBVaccine') {
       setUserResponses(prev => ({
         ...prev,
         vaccinations: {
@@ -405,7 +448,9 @@ function App() {
       if (nextId === "routeBasedOnSex") {
         // Directly call the routeBasedOnSex function
         routeBasedOnSex();
-      } else {
+      } 
+      
+      else {
         // Special handling for prostateTest for males under 30
         if (nextId === "prostateTest" && userSex === "Male" && userResponses.demographics.age < 30) {
           // Skip prostate test for males under 30
@@ -440,16 +485,11 @@ function App() {
             
             setCurrentStep('testicularIssues');
             
-            toast({
-              title: "Age verified",
-              description: "Prostate screening not recommended under 30",
-              status: "info",
-              duration: 2000,
-              isClosable: true,
-              position: "top-right"
-            });
+            
           }
-        } else {
+        } 
+        
+        else {
           // Normal flow - move to the next step in the conversation flow
           const nextStep = conversationFlow[nextId];
           
@@ -468,14 +508,6 @@ function App() {
             // Update the current step
             setCurrentStep(nextId);
             
-            toast({
-              title: "Response recorded",
-              description: "Moving to next question",
-              status: "success",
-              duration: 2000,
-              isClosable: true,
-              position: "top-right"
-            });
           }
         }
       }
@@ -542,14 +574,6 @@ function App() {
         // Update the current step
         setCurrentStep('sex');
         
-        toast({
-          title: "Age recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -611,14 +635,6 @@ function App() {
         // Update the current step
         setCurrentStep('location');
         
-        toast({
-          title: "Ethnicity recorded",
-          description: "Moving to location information",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -681,14 +697,6 @@ function App() {
         // Update the current step
         setCurrentStep('cancer');
         
-        toast({
-          title: "Location recorded",
-          description: "Moving to medical history questions",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -771,14 +779,6 @@ function App() {
         // Update the current step
         setCurrentStep('familyHistory');
         
-        toast({
-          title: "Cancer details recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -862,14 +862,6 @@ function App() {
         // Update the current step
         setCurrentStep('smokingStatus');
         
-        toast({
-          title: "Chronic conditions recorded",
-          description: "Moving to smoking questions",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -966,14 +958,6 @@ function App() {
         // Update the current step
         setCurrentStep('chronicConditions');
         
-        toast({
-          title: "Family cancer history recorded",
-          description: "Moving to chronic conditions questions",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1036,14 +1020,7 @@ function App() {
          // Update the current step
          setCurrentStep('alcoholAmount');
         
-         toast({
-           title: "Response recorded",
-           description: "Please specify how much you drink",
-           status: "success",
-           duration: 2000,
-           isClosable: true,
-           position: "top-right"
-         }); 
+         
        }
      } else {
        // Skip directly to sexual health question for non-drinkers
@@ -1064,14 +1041,6 @@ function App() {
          // Update the current step
          setCurrentStep('sexualHealth');
         
-         toast({
-           title: "Alcohol information recorded",
-           description: "Moving to next question",
-           status: "success",
-           duration: 2000,
-           isClosable: true,
-           position: "top-right"
-         });
        }
      }
    }, 1000);
@@ -1129,14 +1098,6 @@ function App() {
         // Update the current step
         setCurrentStep('medications');
         
-        toast({
-          title: "Transplant info recorded",
-          description: "Moving to medication history",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1208,15 +1169,7 @@ function App() {
       
       // Update the current step
       setCurrentStep('hormoneTreatment');
-      
-      toast({
-        title: "Pregnancy information recorded",
-        description: "Moving to hormone treatment question",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
+
     }
   }, 1000);
  };
@@ -1284,14 +1237,6 @@ function App() {
       // Update the current step
       setCurrentStep('menstruationStatus');
       
-      toast({
-        title: "Menarche information recorded",
-        description: "Moving to next question",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
     }
   }, 1000);
  };
@@ -1352,14 +1297,6 @@ function App() {
        // Update the current step
        setCurrentStep('hpvVaccine');
       
-       toast({
-         title: "Screening history recorded",
-         description: "Moving to vaccination questions",
-         status: "success",
-         duration: 2000,
-         isClosable: true,
-         position: "top-right"
-       });
      }
    }, 1000);
  };
@@ -1444,14 +1381,6 @@ function App() {
         // Update the current step
         setCurrentStep('allergies');
         
-        toast({
-          title: "Medications recorded",
-          description: "Moving to allergy questions",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1493,16 +1422,7 @@ function App() {
     
     // Directly route based on sex instead of going to checkSex step
     setTimeout(() => {
-      toast({
-        title: "Allergy information recorded",
-        description: "Moving to gender-specific questions",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
       
-      // Call routeBasedOnSex directly
       routeBasedOnSex();
     }, 1000);
   };
@@ -1570,14 +1490,6 @@ function App() {
         // Update the current step
         setCurrentStep('smokingAmount');
         
-        toast({
-          title: "Smoking packs recorded",
-          description: "Moving to smoking years question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1648,14 +1560,6 @@ function App() {
         // Update the current step
         setCurrentStep('testicularIssues');
         
-        toast({
-          title: "Prostate test information recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1730,14 +1634,6 @@ function App() {
         // Update the current step
         setCurrentStep('alcoholConsumption');
         
-        toast({
-          title: "Smoking information recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1805,14 +1701,6 @@ function App() {
         // Update the current step
         setCurrentStep('sexualHealth');
         
-        toast({
-          title: "Alcohol consumption recorded",
-          description: "Moving to next question",
-          status: "success",
-          duration: 2000,
-          isClosable: true,
-          position: "top-right"
-        });
       }
     }, 1000);
   };
@@ -1836,17 +1724,10 @@ function App() {
       
       // Update the current step
       setCurrentStep(nextId);
-      
-      toast({
-        title: "Medical information recorded",
-        description: userSex === "Female" ? "Moving to female health questions" : 
-                    "Moving to male health questions",
-        status: "success",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-    } else {
+
+    } 
+    
+    else {
       // Fallback in case something goes wrong
       console.error("Could not find next step for " + (userSex === "Female" ? "femaleQuestions" : "maleQuestions"));
       
