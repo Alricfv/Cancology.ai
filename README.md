@@ -64,6 +64,35 @@ Your app is ready to be deployed!
 
 See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
 
+### `npm run deploy`
+
+Deploys the application to GitHub Pages. This command runs the build process and then publishes the build folder to the gh-pages branch in your GitHub repository.
+
+## Deploying to GitHub Pages
+
+This project is configured for easy deployment to GitHub Pages. Follow these steps:
+
+1. Create a GitHub repository for your project if you haven't already.
+
+2. Update the `homepage` field in `package.json` with your GitHub username:
+   ```json
+   "homepage": "https://alricfv.github.io/drfrempong"
+   ```
+
+3. Connect your local repository to GitHub (if not already connected):
+   ```bash
+   git remote add origin https://github.com/alricfv/drfrempong.git
+   git branch -M main
+   git push -u origin main
+   ```
+
+4. Deploy the application:
+   ```bash
+   npm run deploy
+   ```
+
+5. Your application will be available at `https://alricfv.github.io/drfrempong`
+
 ## Cancer Types Covered
 
 The application provides screening recommendations for several types of cancer:
