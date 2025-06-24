@@ -1,4 +1,3 @@
-
 # Cancology.ai Guide 
 
 This interactive medical screening application guides users through a personalized cancer risk assessment and provides customized screening recommendations based on their demographic information, medical history, and lifestyle factors.
@@ -19,10 +18,6 @@ The Cancology.ai Guide aims to help individuals understand their potential cance
 - **Custom Recommendations**: Provides tailored cancer screening recommendations with appropriate frequencies and urgency levels
 - **Comprehensive Health Information**: Collects relevant health data while maintaining user privacy
 - **Printable Summary**: Generates a summary that can be printed or saved for future reference
-
-## Getting Started
-
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ### Prerequisites
 
@@ -81,7 +76,7 @@ This project is configured for easy deployment to GitHub Pages. Follow these ste
 
 3. Connect your local repository to GitHub (if not already connected):
    ```bash
-   git remote add origin https://github.com/alricfv/drfrempong.git
+   git remote add origin https://github.com/alricfv/Cancology.ai.git
    git branch -M main
    git push -u origin main
    ```
@@ -91,7 +86,7 @@ This project is configured for easy deployment to GitHub Pages. Follow these ste
    npm run deploy
    ```
 
-5. Your application will be available at `https://alricfv.github.io/drfrempong`
+5. Your application will be available at `https://alricfv.github.io/Cancology.ai`
 
 ## Cancer Types Covered
 
@@ -175,8 +170,6 @@ Contributions to improve the application are welcome. Please follow these steps:
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
-
 
 ## Additional Resources
 
