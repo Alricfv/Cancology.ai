@@ -1,0 +1,2 @@
+*{box-sizing:border-box}#root,*,body,html{margin:0;padding:0}#root,body,html{height:100%;overflow-x:hidden;overflow-y:auto;position:relative;width:100%}body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Oxygen,Ubuntu,Cantarell,Fira Sans,Droid Sans,Helvetica Neue,sans-serif}code{font-family:source-code-pro,Menlo,Monaco,Consolas,Courier New,monospace}@keyframes pulse{0%{transform:scale(1)}50%{transform:scale(1.2)}to{transform:scale(1)}}
+/*# sourceMappingURL=main.77b3383f.css.map*/

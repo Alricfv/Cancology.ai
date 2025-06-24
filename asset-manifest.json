@@ -1,0 +1,15 @@
+{
+  "files": {
+    "main.css": "/drfrempong/static/css/main.77b3383f.css",
+    "main.js": "/drfrempong/static/js/main.893987bd.js",
+    "static/js/453.d85a2596.chunk.js": "/drfrempong/static/js/453.d85a2596.chunk.js",
+    "index.html": "/drfrempong/index.html",
+    "main.77b3383f.css.map": "/drfrempong/static/css/main.77b3383f.css.map",
+    "main.893987bd.js.map": "/drfrempong/static/js/main.893987bd.js.map",
+    "453.d85a2596.chunk.js.map": "/drfrempong/static/js/453.d85a2596.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.77b3383f.css",
+    "static/js/main.893987bd.js"
+  ]
+}
