@@ -1,5 +1,5 @@
 
-# Dr. Frempong - Cancer Screening Guide Application
+# Cancology.ai Guide 
 
 This interactive medical screening application guides users through a personalized cancer risk assessment and provides customized screening recommendations based on their demographic information, medical history, and lifestyle factors.
 
