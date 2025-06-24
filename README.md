@@ -5,7 +5,7 @@ This interactive medical screening application guides users through a personaliz
 
 ## Overview
 
-The Dr. Frempong Cancer Screening Guide aims to help individuals understand their potential cancer risks and the appropriate cancer screening tests they should consider based on factors such as:
+The Cancology.ai Guide aims to help individuals understand their potential cancer risks and the appropriate cancer screening tests they should consider based on factors such as:
 - Age
 - Sex 
 - Family and personal history of cancer
