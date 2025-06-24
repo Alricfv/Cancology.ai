@@ -228,10 +228,10 @@ function App() {
   const [smokingYearsError, setSmokingYearsError] = useState('');
   const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
   const [alcoholAmountError, setAlcoholAmountError] = useState('');
-  const [setPackYears] = useState(0);
+  const [PackYears, setPackYears] = useState(0);
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
-  const [setMenstruationStatus] = useState('');
+  const [menstruationStatus, setMenstruationStatus] = useState('');
   const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
   const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
