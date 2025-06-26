@@ -1848,7 +1848,7 @@ function App() {
   const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
 
   return (
-    <Box w="100%" h="100vh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
+    <Box w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
       <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
         {/* Header - Hidden when summary is displayed */}
         <Box 
