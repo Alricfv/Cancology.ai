@@ -1,7 +1,7 @@
 // Defines the flowchart of conversation for the medical screening chatbot
 const conversationFlow = {
   start: {
-    question: "Hello, I'm your medical screening assistant. I'd like to ask you a few questions about your health and medical history. Would you like to proceed?",
+    question: "Hello, I'm your cancer screening assistant. I'd like to ask you a few questions about your health and medical history. Would you like to proceed?",
     options: [
       { text: "Yes, let's begin", nextId: "age" },
       { text: "What information will you collect?", nextId: "info" }

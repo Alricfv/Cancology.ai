@@ -43,7 +43,6 @@ import SummaryComponent from './SummaryComponent';
 import conversationFlow from './conversationFlow';
 
 function App() {
-
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -1848,7 +1847,7 @@ function App() {
   const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
 
   return (
-    <Box w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
+    <Box id="app-container" w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
       <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
         {/* Header - Hidden when summary is displayed */}
         <Box 
@@ -2621,7 +2620,7 @@ function App() {
               </InputGroup>
             </FormControl>
           ) : currentStep === 'summary' ? (
-            <Box h="calc(100vh - 50px)" overflowY="auto" pt={2}>
+            <Box id="summary-scroll-container" h="calc(100vh - 50px)" overflowY="auto" pt={2}>
               <SummaryComponent userResponses={userResponses} handleOptionSelect={handleOptionSelect} />
             </Box>
           ) : (

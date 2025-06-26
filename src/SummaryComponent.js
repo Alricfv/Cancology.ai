@@ -143,48 +143,60 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
   const recommendations = getRecommendations();
     // PDF generation function removed - using print functionality only// Function to print the summary using browser's print API
   const printSummary = () => {
-    // Show loading toast
-    
     try {
-      // Import print styles
+      // Find all containers that might clip the content
+      const appContainer = document.getElementById('app-container');
+      const scrollContainer = document.getElementById('summary-scroll-container');
+      
+      // Store original styles to restore them later
+      const originalStyles = { app: {}, scroll: {} };
+
+      // Temporarily make the main app container visible to un-clip content
+      if (appContainer) {
+        originalStyles.app.overflow = appContainer.style.overflow;
+        appContainer.style.overflow = 'visible';
+      }
+
+      // Temporarily make the summary scroll container full-height
+      if (scrollContainer) {
+        originalStyles.scroll.height = scrollContainer.style.height;
+        originalStyles.scroll.overflowY = scrollContainer.style.overflowY;
+        scrollContainer.style.height = 'auto';
+        scrollContainer.style.overflowY = 'visible';
+      }
+
+      // Add print-specific stylesheet
       const linkElement = document.createElement('link');
       linkElement.rel = 'stylesheet';
-      linkElement.href = '/printStyles.css'; // Make sure this path is correct
+      linkElement.href = '/printStyles.css';
       linkElement.id = 'print-styles';
       document.head.appendChild(linkElement);
       
-      // Add print class to the summary
       if (summaryRef.current) {
         summaryRef.current.classList.add('print-section');
         
-        // Hide action buttons temporarily
-        const actionButtons = summaryRef.current.querySelectorAll('button');
-        actionButtons.forEach(button => {
-          button.classList.add('no-print');
-        });
-        
-        // Wait a moment for styles to apply
         setTimeout(() => {
-          // Trigger browser print
           window.print();
           
-          // Clean up after printing dialog closes
+          // Clean up styles after printing
           setTimeout(() => {
-            // Remove print class
-            summaryRef.current.classList.remove('print-section');
+            if (summaryRef.current) {
+              summaryRef.current.classList.remove('print-section');
+            }
             
-            // Remove temporary style
             const styleElement = document.getElementById('print-styles');
             if (styleElement) {
               styleElement.remove();
             }
             
-            // Restore action buttons
-            actionButtons.forEach(button => {
-              button.classList.remove('no-print');
-            });
-            
-          
+            // Restore original styles to prevent breaking the app layout
+            if (appContainer) {
+              appContainer.style.overflow = originalStyles.app.overflow;
+            }
+            if (scrollContainer) {
+              scrollContainer.style.height = originalStyles.scroll.height;
+              scrollContainer.style.overflowY = originalStyles.scroll.overflowY;
+            }
           }, 1000);
         }, 500);
       }
@@ -235,8 +247,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     setTimeout(fixBadges, 500);
   }, []);return (
     <Box 
-      width="210mm" 
-      minHeight="297mm" 
+      width={['100%', '100%', '210mm']} 
+      minHeight={['auto', 'auto', '297mm']} 
       mx="auto" 
       p={5} 
       bg="white" 
@@ -246,18 +258,21 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       ref={summaryRef}
       className="a4-page"
       sx={{
-        // A4 proportions and styling
-        aspectRatio: '1 / 1.414',  // A4 aspect ratio
+        // A4 proportions and styling for desktop
+        '@media (min-width: 768px)': {
+          aspectRatio: '1 / 1.414',
+        },
         pageBreakAfter: 'always',
         position: 'relative',
         overflow: 'hidden',
         '@media print': {
-          margin: 0,
-          padding: '10mm 15mm',
+          overflow: 'visible', // Allow content to overflow for printing
+          height: 'auto',
+          minHeight: 'auto',
+          width: '100%',
           boxShadow: 'none',
+          padding: '10mm 15mm',
           fontSize: '11pt',
-          breakInside: 'avoid-page',
-          breakBefore: 'page'
         }
       }}>
         
@@ -276,17 +291,22 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
       </Box>
         {/* Two-column layout with central divider - optimized for A4 */}
       <Flex 
-        direction="row" 
+        direction={['column', 'column', 'row']} 
         width="100%" 
         justifyContent="space-between" 
         mb={3} 
         overflowX="hidden"
-        fontSize="10pt" >
+        fontSize="10pt"
+        sx={{
+          '@media print': {
+            overflow: 'visible !important',
+          }
+        }} >
 
         {/* Left column */}        
-        <Box width="48%" pr={3}>
+        <Box width={['100%', '100%', '48%']} pr={[0, 0, 3]} mb={[4, 4, 0]}>
           {/* Demographics section */}
-          <Box mb={3}>            
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>            
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Personal Information
             </Heading>            
@@ -331,7 +351,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           </Box>
 
           {/* Medical History */}
-          <Box mb={4}>
+          <Box mb={4} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medical History
             </Heading>            
@@ -377,7 +397,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           </Box>
 
           {/* Lifestyle */}
-          <Box mb={3}>
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Lifestyle Factors
             </Heading>            
@@ -426,7 +446,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           </Box>            
           
           {/* Medications & Allergies */}
-          <Box mb={3}>
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Medications & Allergies
             </Heading>            
@@ -451,34 +471,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             </Grid>          
           </Box>
           
-          {/* Medications & Allergies */}
-          <Box mb={3}>
-            <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-              Medications & Allergies
-            </Heading>            
-            <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
-              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                Current Medications:
-              </Text>
-
-              <Text fontSize="9pt">
-                {userResponses.medications.length > 0 ? 
-                userResponses.medications.join(', ') : 'None reported'}
-              </Text>
-
-              <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                Known Allergies:
-              </Text>
-
-              <Text fontSize="9pt">
-                {userResponses.allergies && userResponses.allergies !== "None" ? 
-                userResponses.allergies : 'None reported'}
-              </Text>
-            </Grid>
-          </Box>
-
-          {/* Gender-specific Information - Moved below Medications & Allergies in left column */}
-          <Box mb={3}>
+          {/* Gender-specific Information */}
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               {userResponses.demographics.sex === "Male" ? "Male" : "Female"}-Specific Screening
             </Heading>
@@ -566,13 +560,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             )}
           </Box>
         </Box>        {/* Center divider */}
-        <Divider orientation="vertical" height="auto" mx={2} />
+        <Divider display={{ base: 'none', md: 'block' }} orientation='vertical' height="auto" mx={2} />
+        {/* Horizontal Divider for mobile */}
+        <Divider display={{ base: 'block', md: 'none' }} orientation='horizontal' my={4} />
         
         {/* Right column */}
-        <Box width="48%" pl={3}>          
+        <Box width={['100%', '100%', '48%']} pl={[0, 0, 3]}>          
           
-          {/* Vaccination and Screening History - Moved to top of right column */}
-          <Box mb={3}>
+          {/* Vaccination and Screening History */}
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Vaccinations & Screening History
             </Heading>            
@@ -611,7 +607,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
               </Box>
             </Grid>
           </Box>{/* Risk Assessment */}
-          <Box mb={3}>
+          <Box mb={3} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Health Risk Assessment
             </Heading>            
@@ -646,7 +642,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
             </Flex>
           </Box>
             {/* Recommendations */}
-          <Box mb={2}>
+          <Box mb={2} sx={{ '@media print': { pageBreakInside: 'avoid' } }}>
             <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
               Recommended Cancer Screening Tests
             </Heading>            
@@ -669,7 +665,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           </Box>
         </Box>     
       </Flex>      {/* Action Buttons */}      
-      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2}>
+      <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2} className="no-print">
         <Button
           colorScheme="teal"
           leftIcon={<Icon as={FaPrint} />}
