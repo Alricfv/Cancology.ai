@@ -38,11 +38,13 @@ import {
   FaNotesMedical,
  } from 'react-icons/fa';
 
+import LandingPage from './components/LandingPage';
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
 import SummaryComponent from './SummaryComponent';
 import conversationFlow from './conversationFlow';
 
 function App() {
+  const [appState, setAppState] = useState('landing'); // State to track app state
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -57,6 +59,11 @@ function App() {
   const [selectedOption, setSelectedOption] = useState(''); // Track the selected option
   const messagesEndRef = useRef(null);
   const toast = useToast();
+  const bg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const headerBg = useColorModeValue('blue.800', 'blue.700');
+  const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
+  const messagesBg = useColorModeValue('gray.50', 'gray.900');
   
   // State to track all user responses in a consolidated format
   const [userResponses, setUserResponses] = useState({
@@ -1841,10 +1848,9 @@ function App() {
     return sectionNames[currentStep] || 'Screening';
   };
 
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const headerBg = useColorModeValue('blue.800', 'blue.700');
-  const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
+  if (appState === 'landing') {
+    return <LandingPage onStart={() => setAppState('chatbot')} />;
+  }
 
   return (
     <Box id="app-container" w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
@@ -1911,7 +1917,7 @@ function App() {
           overflowX="hidden"
           p={4} 
           spacing={4} 
-          bg={useColorModeValue('gray.50', 'gray.900')}
+          bg={messagesBg}
           align="stretch"
           w="100%"
           maxW="100vw"
