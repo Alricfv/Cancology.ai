@@ -20,7 +20,7 @@ import { FaCheckCircle, FaPrint } from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
 
 // Create a SummaryComponent to show at the end
-const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
+const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
   const toast = useToast();
   const accentColor = useColorModeValue('blue.500', 'blue.300');
   const summaryRef = useRef(null);
@@ -71,7 +71,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
     }
     
     if (userResponses.demographics.sex === 'Female') {
-      if (!userResponses.sexSpecificInfo.female.hpvVaccine && userResponses.demographics.age < 45) riskScore += 1;
+      // Female-specific risk factors
       if (userResponses.sexSpecificInfo.female.hormoneTreatment) riskScore += 1;
     }
     
@@ -534,14 +534,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
                   </Badge>
                 </Box>
                 
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  HPV Vaccine:
-                </Text>                  
-                <Box display="flex" alignItems="center">
-                  <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hpvVaccine ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
-                    {userResponses.sexSpecificInfo.female.hpvVaccine ? "YES" : "NO"}
-                  </Badge>
-                </Box>              
+                {/* HPV Vaccine question removed from female section */}              
               </Grid>
             )}
           </Box>
@@ -662,7 +655,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
           colorScheme="blue"
           variant="outline"
           size="md"
-          onClick={() => handleOptionSelect("Start a new screening", "start")}>
+          onClick={() => handleOptionSelectCall("Start a new screening", "start")}>
           Start New Screening
         </Button>
       </Flex>

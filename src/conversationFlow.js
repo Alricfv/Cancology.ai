@@ -196,14 +196,8 @@ const conversationFlow = {
   hormoneTreatment: {
     question: "Have you ever taken birth control or hormone replacement therapy (HRT)?",
     options: [
-      { text: "Yes", nextId: "hpvVaccine" },
-      { text: "No", nextId: "hpvVaccine" }
-    ]
-  },  hpvVaccine: {
-    question: "Have you received the HPV vaccine?",
-    options: [
-      { text: "Yes", nextId: "hepBVaccine" },
-      { text: "No", nextId: "hepBVaccine" }
+      { text: "Yes", nextId: "pastCancerScreening" },
+      { text: "No", nextId: "pastCancerScreening" }
     ]
   },
   pastCancerScreening: {
@@ -217,6 +211,13 @@ const conversationFlow = {
     question: "What type of cancer screening did you have and when?",
     options: [],
     inputType: "cancerScreeningDetails"
+  },
+  hpvVaccine: {
+    question: "Have you received the HPV vaccine?",
+    options: [
+      { text: "Yes", nextId: "hepBVaccine" },
+      { text: "No", nextId: "hepBVaccine" }
+    ]
   },
   hepBVaccine: {
     question: "Have you received the Hepatitis B vaccine?",
