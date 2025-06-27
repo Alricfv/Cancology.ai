@@ -1866,7 +1866,7 @@ function App() {
             <Flex align="center">
               <Icon as={FaNotesMedical} boxSize={7} mr={3} />
               <VStack align="start" spacing={0}>
-                <Heading size="md">Cancer Screening Bot</Heading>
+                <Heading size="md">Cancer Screening Assistant</Heading>
                 <HStack>
                   <Badge colorScheme="green" px={2} py={0.5} borderRadius="full">Online</Badge>
                   <Icon as={FaHeartbeat} color="red.400" animation="pulse 1.5s infinite" />

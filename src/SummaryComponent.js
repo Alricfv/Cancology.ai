@@ -276,8 +276,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelect }) => {
         borderColor={accentColor}
         pb={3}>
 
-        <Heading size="lg" color={accentColor} fontSize="22pt">Cancer Screening Test</Heading>
-        <Heading size="md" mt={1} fontSize="16pt">Summary Report</Heading>
+        <Heading size="lg" color={accentColor} fontSize="22pt">Sky Premium Hospital</Heading>
+        <Heading size="md" mt={1} fontSize="16pt">Cancer Screening Test</Heading>
         <Text fontSize="10pt" color="gray.500" mt={1}>Generated on {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</Text>
       </Box>
         {/* Two-column layout with central divider - optimized for A4 */}
