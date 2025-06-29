@@ -40,7 +40,7 @@ import {
 
 import LandingPage from './components/LandingPage';
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
-import SummaryComponent from './SummaryComponent';
+import SummaryComponentWrapper from './components/SummaryComponentWrapper';
 import conversationFlow from './conversationFlow';
 
 import {
@@ -1409,7 +1409,7 @@ function App() {
             </FormControl>
           ) : currentStep === 'summary' ? (
             <Box id="summary-scroll-container" h="calc(100vh - 50px)" overflowY="auto" pt={2}>
-              <SummaryComponent userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
+              <SummaryComponentWrapper userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
             </Box>
           ) : (
             <VStack spacing={3} align="stretch">
