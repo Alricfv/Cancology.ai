@@ -3,6 +3,50 @@
   overflow-x: hidden;
 }
 
+/* New badge color styles */
+.chakra-badge[data-status="red"] {
+  background-color: #FEDED2 !important;
+  color: #9B2C2C !important;
+}
+
+.chakra-badge[data-status="green"] {
+  background-color: #C6F6D5 !important;
+  color: #22543D !important;
+}
+
+.chakra-badge[data-status="yellow"] {
+  background-color: #FEFCBF !important;
+  color: #744210 !important;
+}
+
+.chakra-badge[data-status="orange"] {
+  background-color: #FEEBC8 !important;
+  color: #7B341E !important;
+}
+
+.chakra-badge[data-status="blue"] {
+  background-color: #BEE3F8 !important;
+  color: #2A4365 !important;
+}
+
+.chakra-badge[data-status="purple"] {
+  background-color: #E9D8FD !important;
+  color: #44337A !important;
+}
+
+.chakra-badge[data-status="gray"] {
+  background-color: #E2E8F0 !important;
+  color: #1A202C !important;
+}
+
+/* Very High Risk specific styling */
+.chakra-badge.very-high-risk {
+  background-color: #FEDED2 !important;
+  color: #9B2C2C !important;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
 body, html {
   overflow-x: hidden;
   max-width: 100%;
@@ -43,4 +87,38 @@ body, html {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Test screen scrolling styles */
+.a4-page {
+  scrollbar-width: thin;
+  scrollbar-color: #CBD5E0 #F7FAFC;
+}
+
+.a4-page::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.a4-page::-webkit-scrollbar-track {
+  background: #F7FAFC;
+  border-radius: 4px;
+}
+
+.a4-page::-webkit-scrollbar-thumb {
+  background-color: #CBD5E0;
+  border-radius: 4px;
+  border: 2px solid #F7FAFC;
+}
+
+/* Ensure tests are fully displayed */
+@media screen and (max-height: 900px) {
+  .a4-page {
+    max-height: 80vh !important;
+  }
+}
+
+/* Recommended tests container */
+.tests-container {
+  padding-bottom: 60px; /* Give space for bottom buttons */
 }

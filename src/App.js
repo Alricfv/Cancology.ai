@@ -40,8 +40,29 @@ import {
 
 import LandingPage from './components/LandingPage';
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
-import SummaryComponent from './SummaryComponent';
+import SummaryComponentWrapper from './components/SummaryComponentWrapper';
 import conversationFlow from './conversationFlow';
+
+import {
+handleAgeSubmit,
+handleEthnicitySubmit,
+handleCountrySubmit,
+handleCancerDetailsSubmit,
+handleChronicConditionsSubmit,
+handleFamilyCancerDetailsSubmit,
+handleAlcoholResponse,
+handleTransplantResponse,
+handlePregnancyAgeSubmit,
+handleMenarcheAgeSubmit,
+handleCancerScreeningDetailsSubmit,
+handleMedicationsSubmit,
+handleAllergySubmit,
+handleSmokingPacksSubmit,
+handleProstateTestAgeSubmit,
+handleSmokingYearsSubmit,
+handleAlcoholAmountSubmit,
+handleOptionSelect
+} from './components/HandlerFunctions'
 
 function App() {
   const [appState, setAppState] = useState('landing'); // State to track app state
@@ -71,23 +92,20 @@ function App() {
       age: null,
       sex: "",
       ethnicity: "",
-      country: ""
-    }
+      country: ""}
     ,
     medicalHistory: {
       personalCancer: {
         diagnosed: false,
         type: "",
-        ageAtDiagnosis: null
-        }
+        ageAtDiagnosis: null}
         ,
 
       familyCancer: {
         diagnosed: false,
         relation: "",
         type: "",
-        ageAtDiagnosis: null
-        }
+        ageAtDiagnosis: null}
         ,
 
       chronicConditions: []
@@ -98,55 +116,44 @@ function App() {
         current: false,
         years: null,
         packsPerDay: null,
-        packYears: null
-      }
+        packYears: null}
       ,
       alcohol: {
         consumes: false,
-        drinksPerWeek: null
-      }
+        drinksPerWeek: null}
       ,
       sexualHealth: {
-        unprotectedSexOrHpvHiv: false
-      }
+        unprotectedSexOrHpvHiv: false}
       ,
-      transplant: false
-    }
+      transplant: false}
     ,
     medications: [],
     allergies: "",
     cancerScreening: {
       hadScreening: false,
-      details: ""
-    }
+      details: ""}
     ,
     vaccinations: {
       hpv: false,
-      hepB: false
-    }
+      hepB: false}
     ,
     sexSpecificInfo: {
       male: {
         urinarySymptoms: false,
         prostateTest: {
           had: false,
-          ageAtLast: null
-        }
+          ageAtLast: null}
         ,
-        testicularIssues: false
-      }
+        testicularIssues: false}
       ,
       female: {
         menarcheAge: null,
         menstruationStatus: "",
         pregnancy: {
           hadPregnancy: false,
-          ageAtFirst: null
-        }
+          ageAtFirst: null}
         ,
-        hormoneTreatment: false,
-        hpvVaccine: false
-      }
+        hormoneTreatment: false}
     }
   });
   
@@ -245,1474 +252,215 @@ function App() {
   const [cancerScreeningInput, setCancerScreeningInput] = useState('');
   // No need for error state for cancer screening as it's free text
   
-  // Handle clicking a response option
-  const handleOptionSelect = (optionText, nextId) => {
-    // Prevent multiple clicks by setting processing state
-    if (isProcessingSelection) return;
-    
-    // Set processing state to true to disable all buttons
-    setIsProcessingSelection(true);
-    
-    // Set the selected option
-    setSelectedOption(optionText);
-    
-    // Add user's response as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: optionText,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
+  const handleAgeSubmitCall = () => {
+    handleAgeSubmit(
+      ageInput, 
+      setAgeError, 
+      setMessages, 
+      messages, 
+      setCurrentStep, 
+      conversationFlow, 
+      userResponses, 
+      setUserResponses,
+      setAgeInput);
+  }
 
-    // Update user responses based on current step
-    if (currentStep === 'sex') {
-      setUserResponses(prev => ({
-        ...prev,
-        demographics: {
-          ...prev.demographics,
-          sex: optionText
-        }
-      }));
-      setUserSex(optionText);
-    } 
-    
-    else if (currentStep === 'cancer') {
-      setUserResponses(prev => ({
-        ...prev,
-        medicalHistory: {
-          ...prev.medicalHistory,
-          personalCancer: {
-            ...prev.medicalHistory.personalCancer,
-            diagnosed: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'familyHistory') {
-      setUserResponses(prev => ({
-        ...prev,
-        medicalHistory: {
-          ...prev.medicalHistory,
-          familyCancer: {
-            ...prev.medicalHistory.familyCancer,
-            diagnosed: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'smokingStatus') {
-      setUserResponses(prev => ({
-        ...prev,
-        lifestyle: {
-          ...prev.lifestyle,
-          smoking: {
-            ...prev.lifestyle.smoking,
-            current: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'transplant') {
-      setUserResponses(prev => ({
-        ...prev,
-        lifestyle: {
-          ...prev.lifestyle,
-          transplant: optionText === 'Yes'
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'allergies') {
-      if (optionText === 'No') {
-        setUserResponses(prev => ({
-          ...prev,
-          allergies: "None"
-        }));
-      }
-    } 
-    
-    else if (currentStep === 'checkSex') {
-      // This case is kept for backward compatibility, but should no longer be used
-      // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
-      routeBasedOnSex();
-    } 
-    
-    else if (currentStep === 'urinarySymptoms') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          male: {
-            ...prev.sexSpecificInfo.male,
-            urinarySymptoms: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'prostateTest') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          male: {
-            ...prev.sexSpecificInfo.male,
-            prostateTest: {
-              ...prev.sexSpecificInfo.male.prostateTest,
-              had: optionText === 'Yes'
-            }
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'testicularIssues') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          male: {
-            ...prev.sexSpecificInfo.male,
-            testicularIssues: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'menstruationStatus') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          female: {
-            ...prev.sexSpecificInfo.female,
-            menstruationStatus: optionText
-          }
-        }
-      }));
-      setMenstruationStatus(optionText);
-    } 
-    
-    else if (currentStep === 'pregnancy') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          female: {
-            ...prev.sexSpecificInfo.female,
-            pregnancy: {
-              ...prev.sexSpecificInfo.female.pregnancy,
-              hadPregnancy: optionText === 'Yes'
-            }
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'hormoneTreatment') {
-      setUserResponses(prev => ({
-        ...prev,
-        sexSpecificInfo: {
-          ...prev.sexSpecificInfo,
-          female: {
-            ...prev.sexSpecificInfo.female,
-            hormoneTreatment: optionText === 'Yes'
-          }
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'hpvVaccine') {
-      setUserResponses(prev => ({
-        ...prev,
-        vaccinations: {
-          ...prev.vaccinations,
-          hpv: optionText === 'Yes'
-        }
-      }));
-    } 
-    
-    else if (currentStep === 'hepBVaccine') {
-      setUserResponses(prev => ({
-        ...prev,
-        vaccinations: {
-          ...prev.vaccinations,
-          hepB: optionText === 'Yes'
-        }
-      }));
-    }
-    
-    // Move to the next step after a short delay
-    setTimeout(() => {
-      // Reset processing state after UI updates are complete
-      setIsProcessingSelection(false);
-      
-      // Special handling for routeBasedOnSex
-      if (nextId === "routeBasedOnSex") {
-        // Directly call the routeBasedOnSex function
-        routeBasedOnSex();
-      } 
-      
-      else {
-        // Special handling for prostateTest for males under 30
-        if (nextId === "prostateTest" && userSex === "Male" && userResponses.demographics.age < 30) {
-          // Skip prostate test for males under 30
-          // Pre-fill the prostate test data as No and N/A
-          setUserResponses(prev => ({
-            ...prev,
-            sexSpecificInfo: {
-              ...prev.sexSpecificInfo,
-              male: {
-                ...prev.sexSpecificInfo.male,
-                prostateTest: {
-                  had: false,
-                  ageAtLast: "N/A" // Using "N/A" as a string value for age at last test
-                }
-              }
-            }
-          }));
-          
-          // Directly go to testicularIssues
-          const skipToStep = conversationFlow.testicularIssues;
-          
-          if (skipToStep) {
-            setMessages(prev => [
-              ...prev, 
-              {
-                id: prev.length + 1,
-                text: skipToStep.question,
-                sender: 'bot',
-                timestamp: new Date()
-              }
-            ]);
-            
-            setCurrentStep('testicularIssues');
-            
-            
-          }
-        } 
-        
-        else {
-          // Normal flow - move to the next step in the conversation flow
-          const nextStep = conversationFlow[nextId];
-          
-          if (nextStep) {
-            // Add bot's next question
-            setMessages(prev => [
-              ...prev, 
-              {
-                id: prev.length + 1,
-                text: nextStep.question,
-                sender: 'bot',
-                timestamp: new Date()
-              }
-            ]);
-            
-            // Update the current step
-            setCurrentStep(nextId);
-            
-          }
-        }
-      }
-    }, 1000);
-  };
-  
-  // Handle submitting the age input
-  const handleAgeSubmit = () => {
-    // Validate age input
-    if (!ageInput.trim()) {
-      setAgeError('Age is required');
-      return;
-    }
-    
-    const age = parseInt(ageInput);
-    
-    if (isNaN(age) || age < 0 || age > 120) {
-      setAgeError('Please enter a valid age between 0 and 120');
-      return;
-    }
-    
-    // Clear error
-    setAgeError('');
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      demographics: {
-        ...prev.demographics,
-        age: age
-      }
-    }));
-    
-    // Add user's age as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `${age}`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setAgeInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.sex;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('sex');
-        
-      }
-    }, 1000);
-  };
-  
-  // Handle submitting the ethnicity selection
-  const handleEthnicitySubmit = () => {
-    // Validate ethnicity input
-    if (!ethnicityInput) {
-      toast({
-        title: "Error",
-        description: "Please select your ethnicity",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    // Update consolidated responses with ethnicity
-    setUserResponses(prev => ({
-      ...prev,
-      demographics: {
-        ...prev.demographics,
-        ethnicity: ethnicityInput
-      }
-    }));
-    
-    // Add user's ethnicity as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: ethnicityInput,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setEthnicityInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.location;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('location');
-        
-      }
-    }, 1000);
-  };
-  
+  const handleEthnicitySubmitCall = () => {
+    handleEthnicitySubmit(ethnicityInput, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setEthnicityInput);
+  }
 
-  // Handle submitting the country selection
-  const handleCountrySubmit = () => {
-    // Validate country input
-    if (!countryInput) {
-      toast({
-        title: "Error",
-        description: "Please select a country",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    // Update consolidated responses with country
-    setUserResponses(prev => ({
-      ...prev,
-      demographics: {
-        ...prev.demographics,
-        country: countryInput
-      }
-    }));
-    
-    // Add user's country as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: countryInput,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setCountryInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.cancer;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('cancer');
-        
-      }
-    }, 1000);
-  };
+  const handleCountrySubmitCall = () => {
+    handleCountrySubmit(countryInput, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setCountryInput);
+  }
 
-  // Handle submitting cancer details
-  const handleCancerDetailsSubmit = () => {
-    // Validate cancer inputs
-    if (!cancerType) {
-      toast({
-        title: "Error",
-        description: "Please select a cancer type",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
+  const handleCancerDetailsSubmitCall = () => {
+    handleCancerDetailsSubmit(
+      cancerType, 
+      cancerAgeInput, 
+      setCancerAgeError, 
+      toast,
+      setUserResponses, 
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setCancerType,
+      setCancerAgeInput);
+  }
 
-    if (!cancerAgeInput.trim()) {
-      setCancerAgeError('Age at diagnosis is required');
-      return;
-    }
-    
-    const age = parseInt(cancerAgeInput);
-    
-    if (isNaN(age) || age < 0 || age > 120) {
-      setCancerAgeError('Please enter a valid age between 0 and 120');
-      return;
-    }
+  const handleChronicConditionsSubmitCall = () => {
+    handleChronicConditionsSubmit(
+      chronicConditions, 
+      toast,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setChronicConditions);
+  }
 
-    // Clear error
-    setCancerAgeError('');
-    
-    // Add user's cancer details as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `Cancer type: ${cancerType}, Age at diagnosis: ${age}`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      medicalHistory: {
-        ...prev.medicalHistory,
-        personalCancer: {
-          ...prev.medicalHistory.personalCancer,
-          diagnosed: true, // Ensure diagnosed is set to true
-          type: cancerType,
-          ageAtDiagnosis: age
-        }
-      }
-    }));
-    
-    // Clear inputs
-    setCancerType('');
-    setCancerAgeInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.familyHistory;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('familyHistory');
-        
-      }
-    }, 1000);
-  };
+  const handleFamilyCancerDetailsSubmitCall = () => {
+    handleFamilyCancerDetailsSubmit(
+      familyCancerType, 
+      familyRelation,
+      familyCancerAgeInput, 
+      setFamilyCancerAgeError, 
+      toast,
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setFamilyCancerType,
+      setFamilyRelation,
+      setFamilyCancerAgeInput);
+  }
 
-  // Handle submitting chronic conditions
-  const handleChronicConditionsSubmit = () => {
-    const selectedConditions = Object.entries(chronicConditions)
-      .filter(([_, selected]) => selected)
-      .map(([condition, _]) => {
-        switch(condition) {
-          case 'diabetes': return 'Diabetes';
-          case 'hiv': return 'HIV';
-          case 'ibd': return 'Inflammatory Bowel Disease';
-          case 'hepatitisB': return 'Hepatitis B';
-          case 'hepatitisC': return 'Hepatitis C';
-          case 'none': return 'None';
-          default: return condition;
-        }
-      });
-    
-    if (selectedConditions.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one option",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      medicalHistory: {
-        ...prev.medicalHistory,
-        chronicConditions: selectedConditions
-      }
-    }));
-    
-    // Add user's chronic conditions as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: selectedConditions.length > 0 ? 
-          `Chronic conditions: ${selectedConditions.join(', ')}` : 
-          'No chronic conditions',
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Reset chronic conditions
-    setChronicConditions({
-      diabetes: false,
-      hiv: false,
-      ibd: false,
-      hepatitisB: false,
-      hepatitisC: false,
-      none: false
-    });
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.smokingStatus;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('smokingStatus');
-        
-      }
-    }, 1000);
-  };
+  const handleAlcoholResponseCall = (optionText = "Yes", nextId = "alcoholAmount") => {
+    handleAlcoholResponse(
+      optionText, 
+      nextId, 
+      isProcessingSelection, 
+      setIsProcessingSelection, 
+      setSelectedOption, 
+      setMessages, 
+      setUserResponses, 
+      conversationFlow, 
+      setCurrentStep);
+  }
 
-  // Handle family cancer history details submission
-  const handleFamilyCancerDetailsSubmit = () => {
-    // Validate family cancer inputs
-    if (!familyCancerType) {
-      toast({
-        title: "Error",
-        description: "Please select a cancer type",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
+  const handleTransplantResponseCall = (optionText = "Yes", nextId = "transplant") => {
+    handleTransplantResponse(
+      optionText, 
+      nextId, 
+      isProcessingSelection, 
+      setIsProcessingSelection, 
+      setSelectedOption, 
+      setMessages, 
+      setUserResponses, 
+      conversationFlow, 
+      setCurrentStep);
+  }
 
-    if (!familyRelation) {
-      toast({
-        title: "Error",
-        description: "Please select a family relation",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    if (!familyCancerAgeInput.trim()) {
-      setFamilyCancerAgeError('Age at diagnosis is required');
-      return;
-    }
-    
-    const age = parseInt(familyCancerAgeInput);
-    
-    if (isNaN(age) || age < 0 || age > 120) {
-      setFamilyCancerAgeError('Please enter a valid age between 0 and 120');
-      return;
-    }
+  const handlePregnancyAgeSubmitCall = () => {
+    handlePregnancyAgeSubmit(
+      pregnancyAgeInput, 
+      setPregnancyAgeError, 
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setPregnancyAgeInput);
+  }
 
-    // Clear error
-    setFamilyCancerAgeError('');
-    
-    // Add user's family cancer details as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `Family member with cancer: ${familyRelation}, Cancer type: ${familyCancerType}, Age at diagnosis: ${age}`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Update consolidated responses with family cancer details
-    setUserResponses(prev => ({
-      ...prev,
-      medicalHistory: {
-        ...prev.medicalHistory,
-        familyCancer: {
-          ...prev.medicalHistory.familyCancer,
-          diagnosed: true, // Ensure diagnosed is set to true
-          relation: familyRelation,
-          type: familyCancerType,
-          ageAtDiagnosis: age
-        }
-      }
-    }));
-    
-    // Clear inputs
-    setFamilyCancerType('');
-    setFamilyRelation('');
-    setFamilyCancerAgeInput('');
-    
-    // Move to the next step (chronicConditions)
-    setTimeout(() => {
-      const nextStep = conversationFlow.chronicConditions;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('chronicConditions');
-        
-      }
-    }, 1000);
-  };
-   
-  // Handle alcohol consumption response 
- const handleAlcoholResponse = (optionText, nextId) => {
-   // Prevent multiple clicks by setting processing state
-   if (isProcessingSelection) return;
-  
-   // Set processing state to true to disable all buttons
-   setIsProcessingSelection(true);
-  
-   // Set the selected option
-   setSelectedOption(optionText);
-  
-   // Add user's alcohol response as a message
-   setMessages(prev => [
-     ...prev,
-     {
-       id: prev.length + 1,
-       text: optionText,
-       sender: 'user',
-       timestamp: new Date()
-     }
-   ]);
-  
-   // Update user responses with alcohol consumption information
-   setUserResponses(prev => ({
-     ...prev,
-      lifestyle: {
-       ...prev.lifestyle,
-       alcohol: {
-         ...prev.lifestyle.alcohol,
-         consumes: optionText === 'Yes'
-       }
-     }
-   }));
-  
-   // Move to the next step based on response
-   setTimeout(() => {
-     // Reset processing state after UI updates are complete
-     setIsProcessingSelection(false);
-    
-     // If user drinks alcohol, go to alcoholAmount step, otherwise skip to transplant
-     if (optionText === 'Yes') {
-       const nextStep = conversationFlow.alcoholAmount;
-      
-       if (nextStep) {
-         // Add bot's next question
-         setMessages(prev => [
-           ...prev, 
-           {
-             id: prev.length + 1,
-             text: nextStep.question,
-             sender: 'bot',
-             timestamp: new Date()
-           }
-         ]);
-        
-         // Update the current step
-         setCurrentStep('alcoholAmount');
-        
-         
-       }
-     } else {
-       // Skip directly to sexual health question for non-drinkers
-       const skipToStep = conversationFlow.sexualHealth;
-      
-       if (skipToStep) {
-         // Add bot's next question
-         setMessages(prev => [
-           ...prev, 
-           {
-             id: prev.length + 1,
-             text: skipToStep.question,
-             sender: 'bot',
-             timestamp: new Date()
-           }
-         ]);
-        
-         // Update the current step
-         setCurrentStep('sexualHealth');
-        
-       }
-     }
-   }, 1000);
- };
-  // Handle submitting the transplant response
-  const handleTransplantResponse = (optionText, nextId) => {
-    // Prevent multiple clicks by setting processing state
-    if (isProcessingSelection) return;
-    
-    // Set processing state to true to disable all buttons
-    setIsProcessingSelection(true);
-    
-    // Set the selected option
-    setSelectedOption(optionText);
-    
-    // Add user's transplant response as a message
-    setMessages(prev => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        text: optionText,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Update user responses with transplant information
-    setUserResponses(prev => ({
-      ...prev,
-      lifestyle: {
-        ...prev.lifestyle,
-        transplant: optionText === 'Yes'
-      }
-    }));
-    
-    // Move to the medications step
-    setTimeout(() => {
-      // Reset processing state after UI updates are complete
-      setIsProcessingSelection(false);
-      
-      const nextStep = conversationFlow.medications;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('medications');
-        
-      }
-    }, 1000);
-  };
+  const handleMenarcheAgeSubmitCall = () => {
+    handleMenarcheAgeSubmit(
+      menarcheAgeInput, 
+      setMenarcheAgeError, 
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setMenarcheAgeInput);
+  }
 
-  // Handle pregnancy age input
- // Handle pregnancy age input
- const handlePregnancyAgeSubmit = () => {
-  // Validate pregnancy age input
-  if (!pregnancyAgeInput.trim()) {
-    setPregnancyAgeError('Age at first pregnancy is required');
-    return;
+  const handleCancerScreeningDetailsSubmitCall = () => {
+    handleCancerScreeningDetailsSubmit(
+      cancerScreeningInput, 
+      toast,
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setCancerScreeningInput);
+  }
+
+  const handleMedicationsSubmitCall = () => {
+    handleMedicationsSubmit(
+      medications, 
+      toast,
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setMedications);
+  }
+
+  const handleAllergySubmitCall = () => {
+    handleAllergySubmit(
+      allergyInput, 
+      toast,
+      setUserResponses,
+      setMessages, 
+      conversationFlow,
+      setCurrentStep, 
+      routeBasedOnSex,
+      setAllergyInput);
+  }
+
+  const handleSmokingPacksSubmitCall = () => {
+    handleSmokingPacksSubmit(
+      smokingPacksInput, 
+      setSmokingPacksError,
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep, 
+      setSmokingPacksInput);
+  }
+
+  const handleSmokingYearsSubmitCall = () => {
+    handleSmokingYearsSubmit(
+      smokingYearsInput, 
+      setSmokingYearsError,
+      setMessages, 
+      setCurrentStep, 
+      conversationFlow, 
+      userResponses, 
+      setUserResponses,
+      setSmokingYearsInput,
+      setPackYears);  
+  }
+
+  const handleAlcoholAmountSubmitCall = () => {
+    handleAlcoholAmountSubmit(
+      alcoholAmountInput, 
+      setAlcoholAmountError,
+      setUserResponses,
+      setMessages, 
+      conversationFlow,
+      setCurrentStep, 
+      setAlcoholAmountInput);
+  }
+
+  const handleProstateTestAgeSubmitCall = () => {
+    handleProstateTestAgeSubmit(
+      prostateTestAgeInput, 
+      setProstateTestAgeError,
+      setUserResponses,
+      setMessages, 
+      conversationFlow, 
+      setCurrentStep,
+      setProstateTestAgeInput);
   }
   
-  const age = parseInt(pregnancyAgeInput);
-  
-  if (isNaN(age) || age < 14 || age > 50) {
-    setPregnancyAgeError('Please enter a valid age between 14 and 50');
-    return;
+  const handleOptionSelectCall = (optionText, nextId) => {
+    handleOptionSelect(
+      optionText,
+      nextId,
+      currentStep,
+      isProcessingSelection,
+      setIsProcessingSelection,
+      setSelectedOption,
+      setMessages,
+      setUserResponses,
+      userResponses,
+      conversationFlow,
+      setCurrentStep,
+      userSex,
+      setUserSex,
+      setMenstruationStatus,
+      routeBasedOnSex);
   }
-  
-  // Clear error
-  setPregnancyAgeError('');
-  
-  // Update user responses with pregnancy age
-  setUserResponses(prev => ({
-    ...prev,
-    sexSpecificInfo: {
-      ...prev.sexSpecificInfo,
-      female: {
-        ...prev.sexSpecificInfo.female,
-        pregnancy: {
-          ...prev.sexSpecificInfo.female.pregnancy,
-          hadPregnancy: true,
-          ageAtFirst: age
-        }
-      }
-    }
-  }));
-  
-  // Add user's pregnancy age as a message
-  setMessages(prev => [
-    ...prev, 
-    {
-      id: prev.length + 1,
-      text: `First full-term pregnancy at age ${age}`,
-      sender: 'user',
-      timestamp: new Date()
-    }
-  ]);
-  
-  // Clear input
-  setPregnancyAgeInput('');
-  
-  // Move to the next step (hormoneTreatment)
-  setTimeout(() => {
-    const nextStep = conversationFlow.hormoneTreatment;
-    
-    if (nextStep) {
-      // Add bot's next question
-      setMessages(prev => [
-        ...prev, 
-        {
-          id: prev.length + 1,
-          text: nextStep.question,
-          sender: 'bot',
-          timestamp: new Date()
-        }
-      ]);
-      
-      // Update the current step
-      setCurrentStep('hormoneTreatment');
 
-    }
-  }, 1000);
- };
-  
-  // Handle menarche age input
- const handleMenarcheAgeSubmit = () => {
-  // Validate menarche age input
-  if (!menarcheAgeInput.trim()) {
-    setMenarcheAgeError('Age at first period is required');
-    return;
-  }
- 
-  const age = parseInt(menarcheAgeInput);
-  
-  if (isNaN(age) || age < 8 || age > 18) {
-    setMenarcheAgeError('Please enter a valid age between 8 and 18');
-    return;
-  }
-  
-  // Clear error
-  setMenarcheAgeError('');
-  
-  // Update user responses
-  setUserResponses(prev => ({
-    ...prev,
-    sexSpecificInfo: {
-      ...prev.sexSpecificInfo,
-      female: {
-        ...prev.sexSpecificInfo.female,
-        menarcheAge: age
-      }
-    }
-  }));
-  
-  // Add user's menarche age as a message
-  setMessages(prev => [
-    ...prev, 
-    {
-      id: prev.length + 1,
-      text: `First period at age ${age}`,
-      sender: 'user',
-      timestamp: new Date()
-    }
-  ]);
-  
-  // Clear input
-  setMenarcheAgeInput('');
-  
-  // Move to the next step (menstruationStatus)
-  setTimeout(() => {
-    const nextStep = conversationFlow.menstruationStatus;
-    
-    if (nextStep) {
-      // Add bot's next question
-      setMessages(prev => [
-        ...prev, 
-        {
-          id: prev.length + 1,
-          text: nextStep.question,
-          sender: 'bot',
-          timestamp: new Date()
-        }
-      ]);
-      
-      // Update the current step
-      setCurrentStep('menstruationStatus');
-      
-    }
-  }, 1000);
- };
-
- const handleCancerScreeningDetailsSubmit = () => {
-  // Validate cancer screening input
-   if (!cancerScreeningInput.trim()) {
-     toast({
-       title: "Error",
-       description: "Please enter your cancer screening details",
-       status: "error",
-       duration: 2000,
-       isClosable: true,
-       position: "top-right"
-     });
-     return;
-   }
-  
-   // Update consolidated responses
-   setUserResponses(prev => ({
-     ...prev,
-     cancerScreening: {
-       hadScreening: true,
-       details: cancerScreeningInput
-     }
-   }));
-  
-   // Add user's cancer screening details as a message
-   setMessages(prev => [
-     ...prev, 
-     {
-       id: prev.length + 1,
-       text: `Cancer screening history: ${cancerScreeningInput}`,
-       sender: 'user',
-       timestamp: new Date()
-     }
-   ]);
-  
-  // Clear input
-   setCancerScreeningInput('');
-  
-  // Move to the next step (hpvVaccine)
-   setTimeout(() => {
-     const nextStep = conversationFlow.hpvVaccine;
-    
-     if (nextStep) {
-      // Add bot's next question
-       setMessages(prev => [
-         ...prev, 
-         {
-           id: prev.length + 1,
-           text: nextStep.question,
-           sender: 'bot',
-           timestamp: new Date()
-         }
-       ]);
-      
-       // Update the current step
-       setCurrentStep('hpvVaccine');
-      
-     }
-   }, 1000);
- };
-  
-  // Handle submitting medications information
-  const handleMedicationsSubmit = () => {
-    const selectedMedications = Object.entries(medications)
-      .filter(([_, selected]) => selected)
-      .map(([medication, _]) => {
-        switch(medication) {
-          case 'anticoagulants': return 'Anticoagulants/Blood thinners';
-          case 'statins': return 'Cholesterol medications (Statins)';
-          case 'antihypertensives': return 'Blood pressure medications';
-          case 'antidepressants': return 'Antidepressants';
-          case 'opioids': return 'Pain medications (Opioids)';
-          case 'steroids': return 'Steroids';
-          case 'antibiotics': return 'Antibiotics';
-          case 'none': return 'None';
-          default: return medication;
-        }
-      });
-    
-    if (selectedMedications.length === 0) {
-      toast({
-        title: "Error",
-        description: "Please select at least one option",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      medications: selectedMedications
-    }));
-    
-    // Add user's medications as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: selectedMedications.length > 0 ? 
-          `Medications: ${selectedMedications.join(', ')}` : 
-          'No medications',
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Reset medications
-    setMedications({
-      anticoagulants: false,
-      statins: false,
-      antihypertensives: false,
-      antidepressants: false,
-      opioids: false,
-      steroids: false,
-      antibiotics: false,
-      none: false
-    });
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.allergies;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('allergies');
-        
-      }
-    }, 1000);
-  };
-  
-  // Handle allergyDetails submission
-  const handleAllergySubmit = () => {
-    // Validate allergy input
-    if (!allergyInput.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter your allergies",
-        status: "error",
-        duration: 2000,
-        isClosable: true,
-        position: "top-right"
-      });
-      return;
-    }
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      allergies: allergyInput
-    }));
-    
-    // Add user's allergies as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `Drug allergies: ${allergyInput}`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setAllergyInput('');
-    
-    // Directly route based on sex instead of going to checkSex step
-    setTimeout(() => {
-      
-      routeBasedOnSex();
-    }, 1000);
-  };
-        
-  // Handle smoking packs per day input
-  const handleSmokingPacksSubmit = () => {
-    // Validate packs input
-    if (!smokingPacksInput.trim()) {
-      setSmokingPacksError('Number of packs per day is required');
-      return;
-    }
-    
-    const packs = parseFloat(smokingPacksInput);
-    
-    if (isNaN(packs) || packs < 0 || packs > 10) {
-      setSmokingPacksError('Please enter a valid number between 0 and 10');
-      return;
-    }
-    
-    // Clear error
-    setSmokingPacksError('');
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      lifestyle: {
-        ...prev.lifestyle,
-        smoking: {
-          ...prev.lifestyle.smoking,
-          packsPerDay: packs
-        }
-      }
-    }));
-    
-    // Add user's smoking packs as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `${packs} packs per day`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setSmokingPacksInput('');
-    
-    // Move to the next step (smokingYears)
-    setTimeout(() => {
-      const nextStep = conversationFlow.smokingAmount;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('smokingAmount');
-        
-      }
-    }, 1000);
-  };
-
-  //Handle prostate test age input
-  const handleProstateTestAgeSubmit = () => {
-    // Validate age input
-    if (!prostateTestAgeInput.trim()) {
-      setProstateTestAgeError('Age at last prostate test is required');
-      return;
-    }
-
-    const age = parseInt(prostateTestAgeInput);
-
-    if (isNaN(age) || age < 30 || age > 120) {
-      setProstateTestAgeError('Please enter a valid age between 30 and 120');
-      return;
-    }
-
-    // Clear error
-    setProstateTestAgeError('');
-
-    // Update user responses with prostate test age
-    setUserResponses(prev => ({
-      ...prev,
-      sexSpecificInfo: {
-        ...prev.sexSpecificInfo,
-        male: {
-          ...prev.sexSpecificInfo.male,
-          prostateTest: {
-            ...prev.sexSpecificInfo.male.prostateTest,
-            had: true,
-            ageAtLast: age
-          }
-        }
-      }
-    }));
-
-    // Add user's prostate test age as a message
-    setMessages(prev => [
-      ...prev,
-      {
-        id: prev.length + 1,
-        text: `Last prostate test at age ${age}`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-
-    // Clear input
-    setProstateTestAgeInput('');
-
-    // Move to the next step (testicularIssues)
-    setTimeout(() => {
-      const nextStep = conversationFlow.testicularIssues;
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('testicularIssues');
-        
-      }
-    }, 1000);
-  };
-  // Handle smoking years input and calculate pack-years
-  const handleSmokingYearsSubmit = () => {
-    // Validate years input
-    if (!smokingYearsInput.trim()) {
-      setSmokingYearsError('Number of years is required');
-      return;
-    }
-    
-    const years = parseInt(smokingYearsInput);
-    
-    if (isNaN(years) || years < 0 || years > 100) {
-      setSmokingYearsError('Please enter a valid number between 0 and 100');
-      return;
-    }
-    
-    // Clear error
-    setSmokingYearsError('');
-    
-    // Calculate pack-years: packs per day × years smoked
-    const packsPerDay = userResponses.lifestyle.smoking.packsPerDay || 0;
-    const calculatedPackYears = Math.round(packsPerDay * years * 10) / 10; // Round to 1 decimal place
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      lifestyle: {
-        ...prev.lifestyle,
-        smoking: {
-          ...prev.lifestyle.smoking,
-          years: years,
-          packYears: calculatedPackYears
-        }
-      }
-    }));
-    
-    // Set pack-years state
-    setPackYears(calculatedPackYears);
-    
-    // Add user's smoking years and calculated pack-years as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `${years} years of smoking (${calculatedPackYears} pack-years total)`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setSmokingYearsInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.alcoholConsumption;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('alcoholConsumption');
-        
-      }
-    }, 1000);
-  };
-  
-  // Handle alcohol amount input
-  const handleAlcoholAmountSubmit = () => {
-    // Validate alcohol amount input
-    if (!alcoholAmountInput.trim()) {
-      setAlcoholAmountError('Number of drinks per week is required');
-      return;
-    }
-    
-    const drinksPerWeek = parseInt(alcoholAmountInput);
-    
-    if (isNaN(drinksPerWeek) || drinksPerWeek < 0 || drinksPerWeek > 100) {
-      setAlcoholAmountError('Please enter a valid number between 0 and 100');
-      return;
-    }
-
-    // Clear error
-    setAlcoholAmountError('');
-    
-    // Update consolidated responses
-    setUserResponses(prev => ({
-      ...prev,
-      lifestyle: {
-        ...prev.lifestyle,
-        alcohol: {
-          ...prev.lifestyle.alcohol,
-          drinksPerWeek: drinksPerWeek
-        }
-      }
-    }));
-    
-    // Add user's alcohol amount as a message
-    setMessages(prev => [
-      ...prev, 
-      {
-        id: prev.length + 1,
-        text: `${drinksPerWeek} drinks per week`,
-        sender: 'user',
-        timestamp: new Date()
-      }
-    ]);
-    
-    // Clear input
-    setAlcoholAmountInput('');
-    
-    // Move to the next step
-    setTimeout(() => {
-      const nextStep = conversationFlow.sexualHealth;
-      
-      if (nextStep) {
-        // Add bot's next question
-        setMessages(prev => [
-          ...prev, 
-          {
-            id: prev.length + 1,
-            text: nextStep.question,
-            sender: 'bot',
-            timestamp: new Date()
-          }
-        ]);
-        
-        // Update the current step
-        setCurrentStep('sexualHealth');
-        
-      }
-    }, 1000);
-  };
   
   // Special routing function based on user sex
   const routeBasedOnSex = () => {
@@ -1733,7 +481,6 @@ function App() {
       
       // Update the current step
       setCurrentStep(nextId);
-
     } 
     
     else {
@@ -1796,8 +543,7 @@ function App() {
       'hpvVaccine': 93,
       'hepBVaccine': 96,
       'summary': 100,
-      'end': 100
-    };
+      'end': 100};
     
     return stepProgressMap[currentStep] || 0;
   };
@@ -1990,7 +736,7 @@ function App() {
                   onChange={(e) => setAgeInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleAgeSubmit();
+                      handleAgeSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2001,7 +747,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleAgeSubmit}>
+                    onClick={handleAgeSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2026,7 +772,7 @@ function App() {
               </Select>
               <Button
                 colorScheme="blue"
-                onClick={handleEthnicitySubmit}
+                onClick={handleEthnicitySubmitCall}
                 isFullWidth
                 borderRadius="full"
               >
@@ -2050,7 +796,7 @@ function App() {
               </Select>
               <Button
                 colorScheme="blue"
-                onClick={handleCountrySubmit}
+                onClick={handleCountrySubmitCall}
                 isFullWidth
                 borderRadius="full">
                 Submit
@@ -2082,7 +828,7 @@ function App() {
                     onChange={(e) => setCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
-                        handleCancerDetailsSubmit();
+                        handleCancerDetailsSubmitCall();
                       }
                     }}
                     borderRadius="md"
@@ -2093,7 +839,7 @@ function App() {
                       h="1.75rem" 
                       size="sm" 
                       colorScheme="blue"
-                      onClick={handleCancerDetailsSubmit}
+                      onClick={handleCancerDetailsSubmitCall}
                     >
                       Submit
                     </Button>
@@ -2172,7 +918,7 @@ function App() {
               </HStack>
               <Button
                 colorScheme="blue"
-                onClick={handleChronicConditionsSubmit}
+                onClick={handleChronicConditionsSubmitCall}
                 isFullWidth
                 borderRadius="full">
                 Submit
@@ -2188,7 +934,7 @@ function App() {
                   size="md"
                   borderRadius="full"
                   _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                  onClick={() => handleTransplantResponse(option.text, option.nextId)}
+                  onClick={() => handleTransplantResponseCall(option.text, option.nextId)}
                   transition="all 0.2s"
                   justifyContent="flex-start"
                   textAlign="left"
@@ -2315,7 +1061,7 @@ function App() {
               
               <Button
                 colorScheme="blue"
-                onClick={handleMedicationsSubmit}
+                onClick={handleMedicationsSubmitCall}
                 isFullWidth
                 borderRadius="full"
                 mt={2}>
@@ -2363,7 +1109,7 @@ function App() {
                     onChange={(e) => setFamilyCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
-                        handleFamilyCancerDetailsSubmit();
+                        handleFamilyCancerDetailsSubmitCall();
                       }
                     }}
                     borderRadius="md"
@@ -2373,7 +1119,7 @@ function App() {
                       h="1.75rem" 
                       size="sm" 
                       colorScheme="blue"
-                      onClick={handleFamilyCancerDetailsSubmit}>
+                      onClick={handleFamilyCancerDetailsSubmitCall}>
                       Submit
                     </Button>
                   </InputRightElement>
@@ -2392,7 +1138,7 @@ function App() {
                   onChange={(e) => setSmokingPacksInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleSmokingPacksSubmit();
+                      handleSmokingPacksSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2402,7 +1148,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleSmokingPacksSubmit}>
+                    onClick={handleSmokingPacksSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2422,7 +1168,7 @@ function App() {
                   onChange={(e) => setSmokingYearsInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleSmokingYearsSubmit();
+                      handleSmokingYearsSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2432,7 +1178,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleSmokingYearsSubmit}>
+                    onClick={handleSmokingYearsSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2449,7 +1195,7 @@ function App() {
                   size="md"
                   borderRadius="full"
                   _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                  onClick={() => handleAlcoholResponse(option.text, option.nextId)}
+                  onClick={() => handleAlcoholResponseCall(option.text, option.nextId)}
                   transition="all 0.2s"
                   justifyContent="flex-start"
                   textAlign="left"
@@ -2476,7 +1222,7 @@ function App() {
                   onChange={(e) => setAlcoholAmountInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleAlcoholAmountSubmit();
+                      handleAlcoholAmountSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2486,7 +1232,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleAlcoholAmountSubmit}>
+                    onClick={handleAlcoholAmountSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2502,7 +1248,7 @@ function App() {
                   onChange={(e) => setAllergyInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleAllergySubmit();
+                      handleAllergySubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2512,7 +1258,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleAllergySubmit}>
+                    onClick={handleAllergySubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2528,7 +1274,7 @@ function App() {
                   onChange={(e) => setMenarcheAgeInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleMenarcheAgeSubmit();
+                      handleMenarcheAgeSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2538,7 +1284,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleMenarcheAgeSubmit}>
+                    onClick={handleMenarcheAgeSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2555,7 +1301,7 @@ function App() {
                   onChange={(e) => setPregnancyAgeInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handlePregnancyAgeSubmit();
+                      handlePregnancyAgeSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2565,7 +1311,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handlePregnancyAgeSubmit}>
+                    onClick={handlePregnancyAgeSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2582,7 +1328,7 @@ function App() {
                   onChange={(e) => setProstateTestAgeInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleProstateTestAgeSubmit();
+                      handleProstateTestAgeSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2592,7 +1338,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleProstateTestAgeSubmit}>
+                    onClick={handleProstateTestAgeSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2609,7 +1355,7 @@ function App() {
                   onChange={(e) => setCancerScreeningInput(e.target.value)}
                   onKeyPress={(e) => {
                     if (e.key === 'Enter') {
-                      handleCancerScreeningDetailsSubmit();
+                      handleCancerScreeningDetailsSubmitCall();
                     }
                   }}
                   borderRadius="md"
@@ -2619,7 +1365,7 @@ function App() {
                     h="1.75rem" 
                     size="sm" 
                     colorScheme="blue"
-                    onClick={handleCancerScreeningDetailsSubmit}>
+                    onClick={handleCancerScreeningDetailsSubmitCall}>
                     Submit
                   </Button>
                 </InputRightElement>
@@ -2627,7 +1373,7 @@ function App() {
             </FormControl>
           ) : currentStep === 'summary' ? (
             <Box id="summary-scroll-container" h="calc(100vh - 50px)" overflowY="auto" pt={2}>
-              <SummaryComponent userResponses={userResponses} handleOptionSelect={handleOptionSelect} />
+              <SummaryComponentWrapper userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
             </Box>
           ) : (
             <VStack spacing={3} align="stretch">
@@ -2639,7 +1385,7 @@ function App() {
                   size="md"
                   borderRadius="full"
                   _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                  onClick={() => handleOptionSelect(option.text, option.nextId)}
+                  onClick={() => handleOptionSelectCall(option.text, option.nextId)}
                   transition="all 0.2s"
                   justifyContent="flex-start"
                   textAlign="left"
