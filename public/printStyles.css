@@ -1,9 +1,25 @@
+/* Set explicit page dimensions and margins for printing */
+@page {
+  size: A4 portrait;
+  margin: 10mm;
+  marks: none;
+  bleed: 0;
+}
+
 @media print {
   /* General print styles */
   body {
     background: white !important;
     color: black !important;
     font-size: 11pt !important;
+  }
+  
+  /* Article container - prevent unwanted page breaks */
+  article {
+    display: block !important;
+    width: 100% !important;
+    page-break-before: avoid !important;
+    break-before: avoid !important;
   }
   
   /* Specific first page elements */
@@ -124,12 +140,15 @@
     line-height: 1.3 !important;
   }
 
-  /* Page break control */
+  /* Page break control - improved */
   .page {
-    page-break-after: always !important;
-    break-after: page !important;
     page-break-inside: avoid !important;
     break-inside: avoid !important;
+  }
+  
+  .page:first-child {
+    page-break-after: always !important;
+    break-after: page !important;
   }
   
   .page:last-child {
@@ -172,12 +191,15 @@
     break-inside: avoid !important;
   }
   
-  /* Test card styling */
+  /* Test card styling - improved for print */
   .test-card {
     background-color: white !important;
-    padding: 10px 0 !important;
-    margin-bottom: 15px !important;
+    padding: 5px 0 !important;
+    margin-bottom: 8px !important;
     border-bottom: 1px solid #E2E8F0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    display: block !important;
   }
   
   .test-name {
@@ -214,9 +236,9 @@
   .section-title {
     font-size: 14pt !important;
     color: #2B6CB0 !important;
-    padding-bottom: 6px !important;
-    margin-bottom: 12px !important;
-    margin-top: 18px !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 6px !important;
+    margin-top: 9px !important;
     font-weight: bold !important;
   }
   
@@ -229,13 +251,13 @@
   .grid {
     display: grid !important;
     grid-template-columns: 120px 1fr !important;
-    gap: 10px !important;
+    gap: 8px !important;
     align-items: flex-start !important;
     width: 100% !important;
-    margin-bottom: 15px !important;
+    margin-bottom: 8px !important;
     background-color: white !important;
     border-bottom: 1px solid #E2E8F0 !important;
-    padding: 5px 0 !important;
+    padding: 3px 0 !important;
   }
   
   /* Label and value styling */
@@ -247,7 +269,7 @@
   
   .value {
     font-size: 11pt !important;
-    margin-bottom: 8px !important;
+    margin-bottom: 4px !important;
     color: #2D3748 !important;
   }
   

@@ -165,9 +165,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       printIframe.style.position = 'fixed';
       printIframe.style.right = '0';
       printIframe.style.bottom = '0';
-      printIframe.style.width = '0';
-      printIframe.style.height = '0';
+      // Not setting width/height to 0 to help with rendering
+      printIframe.style.width = '100%';
+      printIframe.style.height = '100%';
       printIframe.style.border = 'none';
+      printIframe.style.opacity = '0';
+      printIframe.style.visibility = 'hidden';
+      printIframe.style.overflow = 'hidden';
       
       // Append the iframe to document body
       document.body.appendChild(printIframe);
@@ -385,6 +389,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             @page {
               size: A4 portrait;
               margin: 10mm;
+              /* This helps ensure consistent page breaking */
+              marks: none;
+              bleed: 0;
             }
             
             body {
@@ -410,7 +417,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               border-radius: 5px;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
               background-color: white;
-              margin-bottom: 40mm;
+              /* Removed large margin-bottom that could cause blank space */
+              margin-bottom: 0;
             }
             
             @media print {
@@ -420,6 +428,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                 padding: 0;
                 border-radius: 0;
                 page-break-inside: avoid;
+                break-inside: avoid;
+              }
+              
+              .page:first-child {
                 page-break-after: always;
                 break-after: page;
               }
@@ -464,9 +476,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             .section-title {
               font-size: 16pt;
               color: #2B6CB0;
-              padding-bottom: 6px;
-              margin-bottom: 12px;
-              margin-top: 18px;
+              padding-bottom: 3px;
+              margin-bottom: 6px;
+              margin-top: 9px;
               font-weight: bold;
               position: relative;
               border-bottom: none;
@@ -629,9 +641,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           </style>
         </head>
         <body>
-          <article>
+          <article style="page-break-after: avoid; break-after: avoid;">
             <!-- First Page -->
-            <section class="page">
+            <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
                 <h2>Cancer Screening Test</h2>
@@ -665,15 +677,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             ${prescribedTests.length > 0 ? `
             <!-- Second Page (only rendered if there are prescribed tests) -->
-            <section class="page" style="margin-top: 50px;">
+            <section class="page">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900">Recommended Cancer Screening Tests</h1>
               </header>
               
-              <div class="content">
-                <div class="column" style="width: 100%;">
+              <div class="content" style="page-break-before: avoid; break-before: avoid;">
+                <div class="column" style="width: 100%; page-break-inside: avoid; break-inside: avoid;">
                   ${prescribedTests.map(test => `
-                    <div class="test-card">
+                    <div class="test-card" style="page-break-inside: avoid; break-inside: avoid;">
                       <div class="test-name">
                         <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#38A169; margin-right:8px;"></span>
                         ${test.name}
@@ -755,11 +767,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       };
       
       // Use onload as the primary method to trigger print
-      printIframe.onload = () => setTimeout(triggerPrint, 500);
+      printIframe.onload = () => {
+        // Give browsers more time to properly render the content before printing
+        // This helps avoid blank pages in the print output
+        setTimeout(triggerPrint, 1000);
+      };
       
       // Fallback in case onload doesn't fire, but with a longer delay
       // This prevents racing with the onload handler
-      setTimeout(triggerPrint, 1500);
+      setTimeout(triggerPrint, 2000);
 
     } catch (error) {
       console.error("Print preparation error:", error);
@@ -866,7 +882,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <Box width="48%" pr={3}>
             {/* Demographics section */}
             <Box mb={3}>            
-              <Heading size="sm" mb={3} pb={1} fontSize="14pt" color="#2B6CB0" fontWeight="bold">
+              <Heading size="sm" mb={1.5} pb={0.5} fontSize="14pt" color="#2B6CB0" fontWeight="bold">
                 Personal Information
               </Heading>            
               <Grid templateColumns="repeat(2, 1fr)" gap={2} width="100%">
@@ -911,7 +927,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
 
             {/* Medical History */}
             <Box mb={4}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                 Medical History
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
@@ -1002,7 +1018,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Medications & Allergies */}
             <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                 Medications & Allergies
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
@@ -1028,7 +1044,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Gender-specific Information - Moved below Medications & Allergies in left column */}
             <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                 {userResponses.demographics.sex === "Male" ? "Male" : "Female"}-Specific Screening
               </Heading>
                 {userResponses.demographics.sex === "Male" && (
@@ -1115,7 +1131,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           
             {/* Vaccination and Screening History - Moved to top of right column */}
             <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                 Vaccinations & Screening History
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
@@ -1156,7 +1172,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Risk Assessment - Moved from page 2 */}
             <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                 Health Risk Assessment
               </Heading>            
               <Flex justify="space-between" align="center" mb={2}>
@@ -1214,7 +1230,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
               {/* General Recommendations - Moved from page 2 */}
               <Box mb={3}>
-                <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+                <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
                   General Recommendations
                 </Heading>
                 <List spacing={1}>
@@ -1241,7 +1257,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Recommended Tests Section */}
             <Box mb={6} className="tests-container">
-              <Heading size="sm" mb={4} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="14pt" color={accentColor}>
+              <Heading size="sm" mb={2} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="14pt" color={accentColor}>
                 Recommended Cancer Screening Tests
               </Heading>
               
