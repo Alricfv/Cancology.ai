@@ -92,23 +92,20 @@ function App() {
       age: null,
       sex: "",
       ethnicity: "",
-      country: ""
-    }
+      country: ""}
     ,
     medicalHistory: {
       personalCancer: {
         diagnosed: false,
         type: "",
-        ageAtDiagnosis: null
-        }
+        ageAtDiagnosis: null}
         ,
 
       familyCancer: {
         diagnosed: false,
         relation: "",
         type: "",
-        ageAtDiagnosis: null
-        }
+        ageAtDiagnosis: null}
         ,
 
       chronicConditions: []
@@ -119,54 +116,44 @@ function App() {
         current: false,
         years: null,
         packsPerDay: null,
-        packYears: null
-      }
+        packYears: null}
       ,
       alcohol: {
         consumes: false,
-        drinksPerWeek: null
-      }
+        drinksPerWeek: null}
       ,
       sexualHealth: {
-        unprotectedSexOrHpvHiv: false
-      }
+        unprotectedSexOrHpvHiv: false}
       ,
-      transplant: false
-    }
+      transplant: false}
     ,
     medications: [],
     allergies: "",
     cancerScreening: {
       hadScreening: false,
-      details: ""
-    }
+      details: ""}
     ,
     vaccinations: {
       hpv: false,
-      hepB: false
-    }
+      hepB: false}
     ,
     sexSpecificInfo: {
       male: {
         urinarySymptoms: false,
         prostateTest: {
           had: false,
-          ageAtLast: null
-        }
+          ageAtLast: null}
         ,
-        testicularIssues: false
-      }
+        testicularIssues: false}
       ,
       female: {
         menarcheAge: null,
         menstruationStatus: "",
         pregnancy: {
           hadPregnancy: false,
-          ageAtFirst: null
-        }
+          ageAtFirst: null}
         ,
-        hormoneTreatment: false
-      }
+        hormoneTreatment: false}
     }
   });
   
@@ -275,8 +262,7 @@ function App() {
       conversationFlow, 
       userResponses, 
       setUserResponses,
-      setAgeInput
-    );
+      setAgeInput);
   }
 
   const handleEthnicitySubmitCall = () => {
@@ -298,8 +284,7 @@ function App() {
       conversationFlow, 
       setCurrentStep,
       setCancerType,
-      setCancerAgeInput
-    );
+      setCancerAgeInput);
   }
 
   const handleChronicConditionsSubmitCall = () => {
@@ -310,8 +295,7 @@ function App() {
       setMessages,
       conversationFlow,
       setCurrentStep,
-      setChronicConditions
-    );
+      setChronicConditions);
   }
 
   const handleFamilyCancerDetailsSubmitCall = () => {
@@ -327,8 +311,7 @@ function App() {
       setCurrentStep,
       setFamilyCancerType,
       setFamilyRelation,
-      setFamilyCancerAgeInput
-    );
+      setFamilyCancerAgeInput);
   }
 
   const handleAlcoholResponseCall = (optionText = "Yes", nextId = "alcoholAmount") => {
@@ -341,8 +324,7 @@ function App() {
       setMessages, 
       setUserResponses, 
       conversationFlow, 
-      setCurrentStep
-    );
+      setCurrentStep);
   }
 
   const handleTransplantResponseCall = (optionText = "Yes", nextId = "transplant") => {
@@ -355,8 +337,7 @@ function App() {
       setMessages, 
       setUserResponses, 
       conversationFlow, 
-      setCurrentStep
-    );
+      setCurrentStep);
   }
 
   const handlePregnancyAgeSubmitCall = () => {
@@ -367,8 +348,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep,
-      setPregnancyAgeInput
-    );
+      setPregnancyAgeInput);
   }
 
   const handleMenarcheAgeSubmitCall = () => {
@@ -379,8 +359,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep,
-      setMenarcheAgeInput
-    );
+      setMenarcheAgeInput);
   }
 
   const handleCancerScreeningDetailsSubmitCall = () => {
@@ -391,8 +370,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep,
-      setCancerScreeningInput
-    );
+      setCancerScreeningInput);
   }
 
   const handleMedicationsSubmitCall = () => {
@@ -403,8 +381,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep,
-      setMedications
-    );
+      setMedications);
   }
 
   const handleAllergySubmitCall = () => {
@@ -416,8 +393,7 @@ function App() {
       conversationFlow,
       setCurrentStep, 
       routeBasedOnSex,
-      setAllergyInput
-    );
+      setAllergyInput);
   }
 
   const handleSmokingPacksSubmitCall = () => {
@@ -428,8 +404,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep, 
-      setSmokingPacksInput
-    );
+      setSmokingPacksInput);
   }
 
   const handleSmokingYearsSubmitCall = () => {
@@ -442,8 +417,7 @@ function App() {
       userResponses, 
       setUserResponses,
       setSmokingYearsInput,
-      setPackYears
-    );  
+      setPackYears);  
   }
 
   const handleAlcoholAmountSubmitCall = () => {
@@ -454,8 +428,7 @@ function App() {
       setMessages, 
       conversationFlow,
       setCurrentStep, 
-      setAlcoholAmountInput
-    );
+      setAlcoholAmountInput);
   }
 
   const handleProstateTestAgeSubmitCall = () => {
@@ -466,8 +439,7 @@ function App() {
       setMessages, 
       conversationFlow, 
       setCurrentStep,
-      setProstateTestAgeInput
-    );
+      setProstateTestAgeInput);
   }
   
   const handleOptionSelectCall = (optionText, nextId) => {
@@ -486,15 +458,9 @@ function App() {
       userSex,
       setUserSex,
       setMenstruationStatus,
-      routeBasedOnSex
-    );
+      routeBasedOnSex);
   }
 
-  // Function to handle user input submission
-
-  
-
-  
   
   // Special routing function based on user sex
   const routeBasedOnSex = () => {
@@ -515,7 +481,6 @@ function App() {
       
       // Update the current step
       setCurrentStep(nextId);
-
     } 
     
     else {
@@ -578,8 +543,7 @@ function App() {
       'hpvVaccine': 93,
       'hepBVaccine': 96,
       'summary': 100,
-      'end': 100
-    };
+      'end': 100};
     
     return stepProgressMap[currentStep] || 0;
   };
