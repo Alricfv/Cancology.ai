@@ -3,7 +3,34 @@
   body {
     background: white !important;
     color: black !important;
-    font-size: 10pt !important;
+    font-size: 11pt !important;
+  }
+  
+  /* Specific first page elements */
+  .page:first-child .value,
+  .page:first-child .label,
+  .page:first-child .grid {
+    font-size: 12pt !important;
+  }
+
+  /* Header styling to match summary component */
+  .header {
+    border-bottom: 3px solid #2B6CB0 !important;
+    padding-bottom: 15px !important;
+  }
+  
+  .header h1 {
+    color: #2B6CB0 !important;
+    font-size: 26pt !important;
+    font-weight: 600 !important;
+    letter-spacing: -0.5px !important;
+  }
+  
+  .header h2 {
+    font-size: 18pt !important;
+    margin: 8px 0 0 0 !important;
+    font-weight: 500 !important;
+    color: #4A5568 !important;
   }
 
   .print-section {
@@ -28,23 +55,211 @@
     height: 18px !important;
     line-height: 1 !important;
     white-space: nowrap !important;
+  }
+  
+  /* Larger badges for first page */
+  .page:first-child .badge,
+  .page:first-child .chakra-badge {
+    font-size: 11pt !important;
+    padding: 3px 9px !important;
+    height: 20px !important;
+  }
+  
+  /* Badge colors for print */
+  .chakra-badge[data-status="red"],
+  .badge-red,
+  .chakra-badge.very-high-risk {
+    background-color: #FEDED2 !important;
+    color: #9B2C2C !important;
+  }
+  
+  .chakra-badge[data-status="green"],
+  .badge-green {
+    background-color: #C6F6D5 !important;
+    color: #22543D !important;
+  }
+  
+  .chakra-badge[data-status="yellow"],
+  .badge-yellow {
+    background-color: #FEFCBF !important;
+    color: #744210 !important;
+  }
+  
+  .chakra-badge[data-status="orange"],
+  .badge-orange {
+    background-color: #FEEBC8 !important;
+    color: #7B341E !important;
+  }
+  
+  .risk-badge {
+    background-color: #FEDED2 !important;
+    color: #9B2C2C !important;
     position: relative !important;
+    display: inline-block !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    font-size: 14pt !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+    margin-bottom: 0 !important;
+  }
+  
+  .risk-assessment {
+    background-color: white !important;
+    margin-bottom: 20px !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    padding-bottom: 15px !important;
+    padding-top: 5px !important;
+  }
+  
+  /* Hide risk factors list */
+  .risk-assessment ul {
+    display: none !important;
+  }
+  
+  .risk-assessment li {
+    display: none !important;
+    margin-bottom: 3px !important;
+    font-size: 11pt !important;
+    line-height: 1.3 !important;
   }
 
-  /* Ensure proper page breaks */
-  .page-break-before {
-    page-break-before: always !important;
-  }
-
-  .page-break-after {
+  /* Page break control */
+  .page {
     page-break-after: always !important;
+    break-after: page !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  
+  .page:last-child {
+    page-break-after: auto !important;
+    break-after: auto !important;
+  }
+  
+  /* Header and content should stay together */
+  .header {
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+  
+  .content {
+    page-break-before: avoid !important;
+    break-before: avoid !important;
+  }
+  
+  /* Each test card should try to stay together */
+  .test-card {
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
   }
 
+  /* Content layout */
+  .content {
+    display: flex !important;
+    justify-content: space-between !important;
+    margin-bottom: 30px !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  
+  .column {
+    width: 48% !important;
+    background-color: white !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+  }
+  
+  /* Test card styling */
+  .test-card {
+    background-color: white !important;
+    padding: 10px 0 !important;
+    margin-bottom: 15px !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+  }
+  
+  .test-name {
+    font-weight: bold !important;
+    font-size: 12pt !important;
+    color: #2D3748 !important;
+    margin-bottom: 5px !important;
+  }
+  
+  .test-info {
+    color: #4A5568 !important;
+    font-size: 11pt !important;
+    margin: 3px 0 !important;
+    line-height: 1.4 !important;
+  }
+  
+  .test-badge {
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    border-radius: 3px !important;
+    font-size: 9pt !important;
+    color: inherit !important;
+    margin-top: 5px !important;
+    font-weight: bold !important;
+    text-transform: uppercase !important;
+  }
+  
   /* Remove background colors from sections */
   .chakra-box, div {
     background-color: white !important;
   }
 
+  /* Section title styling to match summary */
+  .section-title {
+    font-size: 14pt !important;
+    color: #2B6CB0 !important;
+    padding-bottom: 6px !important;
+    margin-bottom: 12px !important;
+    margin-top: 18px !important;
+    font-weight: bold !important;
+  }
+  
+  /* Increased font size for first page section titles */
+  .page:first-child .section-title {
+    font-size: 16pt !important;
+  }
+
+  /* Grid layout styling */
+  .grid {
+    display: grid !important;
+    grid-template-columns: 120px 1fr !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+    width: 100% !important;
+    margin-bottom: 15px !important;
+    background-color: white !important;
+    border-bottom: 1px solid #E2E8F0 !important;
+    padding: 5px 0 !important;
+  }
+  
+  /* Label and value styling */
+  .label {
+    font-weight: bold !important;
+    font-size: 11pt !important;
+    color: #4A5568 !important;
+  }
+  
+  .value {
+    font-size: 11pt !important;
+    margin-bottom: 8px !important;
+    color: #2D3748 !important;
+  }
+  
+  /* Increased font size for first page labels and values */
+  .page:first-child .label {
+    font-size: 14pt !important;
+  }
+  
+  .page:first-child .value {
+    font-size: 14pt !important;
+  }
+  
   /* Adjust spacing for print */
   h1, h2, h3, h4 {
     margin-top: 10pt !important;
