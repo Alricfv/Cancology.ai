@@ -107,16 +107,9 @@ const conversationFlow = {
   brcaMutation: {
     question: "Have you tested positive for a BRCA1/BRCA2 mutation?",
     options: [
-      { text: "Yes", nextId: "endometriosis" },
-      { text: "No", nextId: "endometriosis" },
-      { text: "Not tested", nextId: "endometriosis" }
-    ]
-  },
-  endometriosis: {
-    question: "Have you ever been diagnosed with endometriosis?",
-    options: [
       { text: "Yes", nextId: "medications" },
-      { text: "No", nextId: "medications" }
+      { text: "No", nextId: "medications" },
+      { text: "Not tested", nextId: "medications" }
     ]
   },
   medications: {
@@ -193,23 +186,59 @@ const conversationFlow = {
     question: "Are you currently menstruating?",
     options: [
       { text: "Premenopausal", nextId: "pregnancy" },
-      { text: "Postmenopausal", nextId: "pregnancy" }
+      { text: "Postmenopausal", nextId: "menopauseAge" }
     ]
+  },
+  menopauseAge: {
+    question: "At what age did your periods stop?",
+    options: [],
+    inputType: "menopauseAge",
+    nextId: "pregnancy"
   },
   pregnancy: {
     question: "Have you ever been pregnant?",
     options: [
-      { text: "Yes", nextId: "firstPregnancyAge" },
-      { text: "No", nextId: "hormoneTreatment" }
+      { text: "Yes", nextId: "numberOfBirths" },
+      { text: "No", nextId: "birthControl" }
     ]
+  },
+  numberOfBirths: {
+    question: "How many times have you given birth to a baby at or after 24 weeks of pregnancy?",
+    options: [
+      { text: "1", nextId: "firstPregnancyAge" },
+      { text: "2", nextId: "firstPregnancyAge" },
+      { text: "3", nextId: "firstPregnancyAge" },
+      { text: "4+", nextId: "firstPregnancyAge" }
+    ],
+    inputType: "dropdown"
   },
   firstPregnancyAge: {
     question: "What age was your first full term pregnancy?",
     options: [],
-    inputType: "pregnancyAge"
+    inputType: "pregnancyAge",
+    nextId: "birthControl"
   },
-  hormoneTreatment: {
-    question: "Have you ever taken birth control or hormone replacement therapy (HRT)?",
+  birthControl: {
+    question: "Have you ever used birth control pills?",
+    options: [
+      { text: "Yes", nextId: "pillYears" },
+      { text: "No", nextId: "hormoneReplacementTherapy" }
+    ]
+  },
+  pillYears: {
+    question: "How many years have you used combined oral-contraceptive pills?",
+    options: [
+      { text: "0", nextId: "hormoneReplacementTherapy" },
+      { text: "Lesser than a year", nextId: "hormoneReplacementTherapy" },
+      { text: "1-4 years", nextId: "hormoneReplacementTherapy" },
+      { text: "5-9 years", nextId: "hormoneReplacementTherapy" },
+      { text: "10+ years", nextId: "hormoneReplacementTherapy" }
+    ],
+    inputType: "dropdown",
+    nextId: "hormoneReplacementTherapy"
+  },
+  hormoneReplacementTherapy: {
+    question: "Have you ever used hormone replacement therapy (HRT)?",
     options: [
       { text: "Yes", nextId: "tubalLigation" },
       { text: "No", nextId: "tubalLigation" }
@@ -225,10 +254,30 @@ const conversationFlow = {
   ovaryRemoved: {
     question: "Have you had either ovary removed?",
     options: [
-      { text: "Left", nextId: "pastCancerScreening" },
-      { text: "Right", nextId: "pastCancerScreening" },
-      { text: "Both", nextId: "pastCancerScreening" },
-      { text: "None", nextId: "pastCancerScreening" }
+      { text: "Left", nextId: "endometriosis" },
+      { text: "Right", nextId: "endometriosis" },
+      { text: "Both", nextId: "endometriosis" },
+      { text: "None", nextId: "endometriosis" }
+    ]
+  },
+  endometriosis: {
+    question: "Have you ever been diagnosed with endometriosis?",
+    options: [
+      { text: "Yes", nextId: "fertilityDrugs" },
+      { text: "No", nextId: "fertilityDrugs" }
+    ]
+  },
+  fertilityDrugs: {
+    question: "Have you ever received fertility (IVF) drugs?",
+    options: [
+      { text: "Yes", nextId: "goffSymptomIntro" },
+      { text: "No", nextId: "goffSymptomIntro" }
+    ]
+  },
+  goffSymptomIntro: {
+    question: "The following questions ask about common symptoms that may be associated with ovarian cancer. Please indicate whether you have experienced any of the symptoms listed below on more than 12 days per month in the past 3 months.",
+    options: [
+      { text: "Continue", nextId: "pastCancerScreening" }
     ]
   },
   pastCancerScreening: {

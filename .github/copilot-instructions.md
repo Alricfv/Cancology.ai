@@ -1,4 +1,16 @@
 # Copilot Instructions for Cancology.ai (drfrempong)
+## Recent Events & Ongoing Patterns (as of July 18, 2025)
+- **Handler & Flow Bugfixes:**
+  - Fixed a bug where the "age of first full term pregnancy" step did not progress to the next question. The handler now uses `conversationFlow.firstPregnancyAge.nextId` instead of a hardcoded value.
+  - All handler functions are kept in `HandlerFunctions.js` and must use the correct `nextId` from `conversationFlow.js` for step progression.
+- **UI Artifact Removal:**
+  - Removed a blue triangle/spec from user chat bubbles by deleting the `_after` prop in the chat message rendering in `App.js`.
+- **User Request Pattern:**
+  - The user will make requests to update these instructions with recent events, bugfixes, or workflow changes. Always update this file to reflect the latest project state and patterns.
+  - When a bug is fixed or a workflow changes, add a bullet point summary here with the date and a brief description.
+  - Treat this section as a running changelog and knowledge base for future Copilot actions.
+**Changelog last updated:** July 18, 2025
+# Copilot Instructions for Cancology.ai (drfrempong)
 
 ## Project Overview
 - **Cancology.ai** is a React/Chakra UI single-page app for interactive cancer risk assessment and screening recommendations.

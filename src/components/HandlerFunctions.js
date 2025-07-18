@@ -1,3 +1,202 @@
+// Handle fertility (IVF) drugs question for females
+export const handleFertilityDrugsSubmit = (
+  fertilityDrugsInput,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep
+) => {
+  // Save to userResponses.sexSpecificInfo.female.IVF_history
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        IVF_history: fertilityDrugsInput
+      }
+    }
+  }));
+  // Add user's answer to messages
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Fertility (IVF) drugs: ${fertilityDrugsInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  // Advance to next step (pastCancerScreening)
+  const nextId = 'pastCancerScreening';
+  setTimeout(() => {
+    if (conversationFlow[nextId]) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: conversationFlow[nextId].question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    }
+  }, 1000);
+};
+// Handle number of births input for numberOfBirths step
+export const handleNumberOfBirthsSubmit = (
+  numberOfBirthsInput,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setNumberOfBirthsInput
+) => {
+  // Save to userResponses.sexSpecificInfo.female.numberOfBirths
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        numberOfBirths: numberOfBirthsInput
+      }
+    }
+  }));
+  // Add user's answer to messages
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Number of times given birth: ${numberOfBirthsInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  // Advance to next step and add bot message for next question after a delay
+  const nextId = conversationFlow.numberOfBirths?.options?.[0]?.nextId || 'summary';
+  setTimeout(() => {
+    if (conversationFlow[nextId]) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: conversationFlow[nextId].question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    } else {
+      setCurrentStep('summary');
+    }
+    setNumberOfBirthsInput("");
+  }, 1000);
+};
+
+// Handler for menopause age submit
+export const handleMenopauseAgeSubmit = (menopauseAgeInput, setMenopauseAgeError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setMenopauseAgeInput) => {
+  // Validate input: must be integer between 30 and 60 (typical menopause range)
+  const age = parseInt(menopauseAgeInput, 10);
+  if (isNaN(age) || age < 30 || age > 60) {
+    setMenopauseAgeError('Please enter a valid age between 30 and 60.');
+    return;
+  }
+  setMenopauseAgeError('');
+  // Update userResponses
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        menopauseAge: age
+      }
+    }
+  }));
+  // Add user's answer to messages
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Age at periods stopping: ${age}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  // Advance to next step and add bot message for next question after a delay
+  const nextId = conversationFlow.menopauseAge.nextId || 'pregnancy'; // Default to 'pregnancy' if not defined
+  setTimeout(() => {
+    setCurrentStep(nextId);
+    setMenopauseAgeInput('');
+    // Add bot message for next question (pregnancy)
+    const nextStep = conversationFlow[nextId];
+    if (nextStep && nextStep.question) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2, // +2 because user message was just added
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+    }
+  }, 1000);
+};
+// Handle pill-years input for birth control use
+export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setPillYearsInput) => {
+  // Validate pill-years input (dropdown)
+  const allowedOptions = [
+    '0',
+    'Lesser than a year',
+    '1-4 years',
+    '5-9 years',
+    '10+ years'
+  ];
+  if (!allowedOptions.includes(pillYearsInput)) {
+    setPillYearsError('Please select a valid option for pill years.');
+    return;
+  }
+  setPillYearsError('');
+  setUserResponses(prev => ({
+    ...prev,
+    sexSpecificInfo: {
+      ...prev.sexSpecificInfo,
+      female: {
+        ...prev.sexSpecificInfo.female,
+        pillYears: pillYearsInput
+      }
+    }
+  }));
+  // Add user's answer to messages
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Years on birth control pill: ${pillYearsInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setPillYearsInput('');
+  setTimeout(() => {
+    const nextStep = conversationFlow.hormoneReplacementTherapy;
+    if (nextStep) {
+      setMessages(prev => [
+        ...prev,
+        {
+          id: prev.length + 2, // +2 because user message was just added
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]);
+      setCurrentStep('hormoneReplacementTherapy');
+    }
+  }, 1000);
+};
 // No imports needed from App.js as all dependencies should be passed as parameters
 
 export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, setCurrentStep, conversationFlow, userResponses, setUserResponses, setAgeInput) => {
@@ -633,10 +832,10 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
   // Clear input
   setPregnancyAgeInput('');
   
-  // Move to the next step (hormoneTreatment)
+  // Move to the next step (from conversationFlow.firstPregnancyAge.nextId)
   setTimeout(() => {
-    const nextStep = conversationFlow.hormoneTreatment;
-    
+    const nextId = conversationFlow.firstPregnancyAge.nextId || 'birthControl';
+    const nextStep = conversationFlow[nextId];
     if (nextStep) {
       // Add bot's next question
       setMessages(prev => [
@@ -648,10 +847,8 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
           timestamp: new Date()
         }
       ]);
-      
       // Update the current step
-      setCurrentStep('hormoneTreatment');
-
+      setCurrentStep(nextId);
     }
   }, 1000);
  };
@@ -1345,18 +1542,30 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    else if (currentStep === 'hormoneTreatment') {
+    else if (currentStep === 'birthControl') {
       setUserResponses(prev => ({
         ...prev,
         sexSpecificInfo: {
           ...prev.sexSpecificInfo,
           female: {
             ...prev.sexSpecificInfo.female,
-            hormoneTreatment: optionText === 'Yes'
+            birthControl: optionText === 'Yes'
           }
         }
       }));
-    } 
+    }
+    else if (currentStep === 'hormoneReplacementTherapy') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            hormoneReplacementTherapy: optionText === 'Yes'
+          }
+        }
+      }));
+    }
     else if (currentStep === 'tubalLigation') {
       setUserResponses(prev => ({
         ...prev,
@@ -1409,6 +1618,30 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
             optionText === 'Yes'
               ? [...(prev.medicalHistory.geneticMutations || []), 'BRCA1/BRCA2']
               : prev.medicalHistory.geneticMutations || []
+        }
+      }));
+    }
+    else if (currentStep === 'numberOfBirths') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            numberOfBirths: optionText // "1", "2", "3", or "4+"
+          }
+        }
+      }));
+    }
+    else if (currentStep === 'menopauseAge') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            menopauseAge: optionText // integer input as string
+          }
         }
       }));
     }

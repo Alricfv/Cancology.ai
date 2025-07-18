@@ -27,10 +27,12 @@ import {
   InputRightElement,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   Select,
   useToast,
   Progress,
-  Tooltip} from '@chakra-ui/react';
+  Tooltip
+} from '@chakra-ui/react';
 
 import { 
   FaUserMd, 
@@ -44,25 +46,29 @@ import SummaryComponentWrapper from './components/SummaryComponentWrapper';
 import conversationFlow from './conversationFlow';
 
 import {
-handleAgeSubmit,
-handleEthnicitySubmit,
-handleCountrySubmit,
-handleCancerDetailsSubmit,
-handleChronicConditionsSubmit,
-handleFamilyCancerDetailsSubmit,
-handleAlcoholResponse,
-handleTransplantResponse,
-handlePregnancyAgeSubmit,
-handleMenarcheAgeSubmit,
-handleCancerScreeningDetailsSubmit,
-handleMedicationsSubmit,
-handleAllergySubmit,
-handleSmokingPacksSubmit,
-handleProstateTestAgeSubmit,
-handleSmokingYearsSubmit,
-handleAlcoholAmountSubmit,
-handleOptionSelect
-} from './components/HandlerFunctions'
+  handleAgeSubmit,
+  handleEthnicitySubmit,
+  handleCountrySubmit,
+  handleCancerDetailsSubmit,
+  handleChronicConditionsSubmit,
+  handleFamilyCancerDetailsSubmit,
+  handleAlcoholResponse,
+  handleTransplantResponse,
+  handlePregnancyAgeSubmit,
+  handleMenarcheAgeSubmit,
+  handleMenopauseAgeSubmit,
+  handleCancerScreeningDetailsSubmit,
+  handleMedicationsSubmit,
+  handleAllergySubmit,
+  handleSmokingPacksSubmit,
+  handleProstateTestAgeSubmit,
+  handleSmokingYearsSubmit,
+  handleAlcoholAmountSubmit,
+  handleOptionSelect,
+  handlePillYearsSubmit,
+  handleNumberOfBirthsSubmit,
+  handleFertilityDrugsSubmit
+} from './components/HandlerFunctions';
 
 function App() {
   const [appState, setAppState] = useState('landing'); // State to track app state
@@ -92,70 +98,103 @@ function App() {
       age: null,
       sex: "",
       ethnicity: "",
-      country: ""}
-    ,
+      country: ""
+    },
     medicalHistory: {
       personalCancer: {
         diagnosed: false,
         type: "",
-        ageAtDiagnosis: null}
-        ,
-
+        ageAtDiagnosis: null
+      },
       familyCancer: {
         diagnosed: false,
         relation: "",
         type: "",
-        ageAtDiagnosis: null}
-        ,
-
+        ageAtDiagnosis: null
+      },
       chronicConditions: []
-    }
-    ,
+    },
     lifestyle: {
       smoking: {
         current: false,
         years: null,
         packsPerDay: null,
-        packYears: null}
-      ,
+        packYears: null
+      },
       alcohol: {
         consumes: false,
-        drinksPerWeek: null}
-      ,
+        drinksPerWeek: null
+      },
       sexualHealth: {
-        unprotectedSexOrHpvHiv: false}
-      ,
-      transplant: false}
-    ,
+        unprotectedSexOrHpvHiv: false
+      },
+      transplant: false
+    },
     medications: [],
     allergies: "",
     cancerScreening: {
       hadScreening: false,
-      details: ""}
-    ,
+      details: ""
+    },
     vaccinations: {
       hpv: false,
-      hepB: false}
-    ,
+      hepB: false
+    },
     sexSpecificInfo: {
       male: {
         urinarySymptoms: false,
         prostateTest: {
           had: false,
-          ageAtLast: null}
-        ,
-        testicularIssues: false}
-      ,
+          ageAtLast: null
+        },
+        testicularIssues: false
+      },
       female: {
         menarcheAge: null,
         menstruationStatus: "",
         pregnancy: {
           hadPregnancy: false,
-          ageAtFirst: null}
-        ,
-        hormoneTreatment: false}
+          ageAtFirst: null
+        },
+        pillYears: null,
+        birthControl: null,
+        hormoneReplacementTherapy: null,
+        hormoneTreatment: false,
+        IVF_history: null
+      }
     }
   });
+
+  // Handler for fertility (IVF) drugs submit
+  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput) => {
+    handleFertilityDrugsSubmit(
+      fertilityDrugsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep
+    );
+  };
+
+  // Pill-years input state
+  const [pillYearsInput, setPillYearsInput] = useState("");
+  const [pillYearsError, setPillYearsError] = useState("");
+
+  // Number of births input state
+  const [numberOfBirthsInput, setNumberOfBirthsInput] = useState("");
+
+
+  // Handler for number of births submit (delegates to HandlerFunctions.js)
+  const handleNumberOfBirthsSubmitCall = () => {
+    handleNumberOfBirthsSubmit(
+      numberOfBirthsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setNumberOfBirthsInput
+    );
+  };
   
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -247,6 +286,10 @@ function App() {
   const [menstruationStatus, setMenstruationStatus] = useState('');
   const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
+  // Menopause age input state
+  const [menopauseAgeInput, setMenopauseAgeInput] = useState('');
+  const [menopauseAgeError, setMenopauseAgeError] = useState('');
+  // Handler for menopause age submit is now in HandlerFunctions.js
   const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
   const [prostateTestAgeError, setProstateTestAgeError] = useState('');
   const [cancerScreeningInput, setCancerScreeningInput] = useState('');
@@ -684,21 +727,6 @@ function App() {
                 boxShadow="md"
                 spacing={3}
                 position="relative"
-                _after={
-                  message.sender === 'user' 
-                    ? {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        right: -5,
-                        borderWidth: '10px',
-                        borderStyle: 'solid',
-                        borderColor: `transparent transparent ${userBubbleColor} transparent`,
-                        transform: 'rotate(-45deg)',
-                        display: 'block'
-                      }
-                    : {}
-                }
               >
                 {message.sender === 'bot' && (
                   <Avatar 
@@ -869,10 +897,8 @@ function App() {
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, hiv: !prev.hiv }))}
                   transition="all 0.2s">
-                  HIV
+                  HIV/AIDS
                 </Button>
-              </HStack>
-              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.ibd ? "blue" : "gray"}
                   variant={chronicConditions.ibd ? "solid" : "outline"}
@@ -883,6 +909,8 @@ function App() {
                   transition="all 0.2s">
                   Inflammatory Bowel Disease (IBD)
                 </Button>
+              </HStack>
+              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.hepatitisB ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisB ? "solid" : "outline"}
@@ -893,8 +921,6 @@ function App() {
                   transition="all 0.2s">
                   Hepatitis B
                 </Button>
-              </HStack>
-              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.hepatitisC ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisC ? "solid" : "outline"}
@@ -924,6 +950,40 @@ function App() {
                 Submit
               </Button>
             </VStack>
+          ) : currentStep === 'pillYears' ? (
+            <FormControl isInvalid={!!pillYearsError}>
+              <Select
+                placeholder="Select years of pill use"
+                value={pillYearsInput}
+                onChange={(e) => setPillYearsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+              >
+                <option value="0">0</option>
+                <option value="Lesser than a year">Lesser than a year</option>
+                <option value="1-4 years">1-4 years</option>
+                <option value="5-9 years">5-9 years</option>
+                <option value="10+ years">10+ years</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={() => handlePillYearsSubmit(
+                  pillYearsInput,
+                  setPillYearsError,
+                  setUserResponses,
+                  setMessages,
+                  conversationFlow,
+                  setCurrentStep,
+                  setPillYearsInput
+                )}
+                isFullWidth
+                borderRadius="full"
+              >
+                Submit
+              </Button>
+              {pillYearsError && <FormErrorMessage>{pillYearsError}</FormErrorMessage>}
+            </FormControl>
           ) : currentStep === 'transplant' ? (
             <VStack spacing={3} align="stretch">
               {conversationFlow[currentStep]?.options.map((option, index) => (
@@ -1317,6 +1377,127 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {pregnancyAgeError && <FormErrorMessage>{pregnancyAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'numberOfBirths' ? (
+            <FormControl>
+              <Select
+                placeholder="Select number of times you have given birth"
+                value={numberOfBirthsInput || ''}
+                onChange={e => setNumberOfBirthsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4+">4+</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleNumberOfBirthsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!numberOfBirthsInput}
+              >
+                Submit
+              </Button>
+            </FormControl>
+          ) : currentStep === 'menopauseAge' ? (
+            <FormControl isInvalid={!!menopauseAgeError}>
+              <InputGroup size="md">
+                <Input
+                  type="number"
+                  placeholder="Enter age when your periods stopped (30-60)"
+                  value={menopauseAgeInput}
+                  onChange={(e) => setMenopauseAgeInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleMenopauseAgeSubmit(
+                        menopauseAgeInput,
+                        setMenopauseAgeError,
+                        setUserResponses,
+                        setMessages,
+                        conversationFlow,
+                        setCurrentStep,
+                        setMenopauseAgeInput
+                      );
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="blue.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    colorScheme="blue"
+                  onClick={() => handleMenopauseAgeSubmit(
+                    menopauseAgeInput,
+                    setMenopauseAgeError,
+                    setUserResponses,
+                    setMessages,
+                    conversationFlow,
+                    setCurrentStep,
+                    setMenopauseAgeInput
+                  )}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormHelperText color="gray.500">
+                Please enter the age (in years) when your periods stopped naturally or due to surgery/medical treatment.
+              </FormHelperText>
+              {menopauseAgeError && <FormErrorMessage>{menopauseAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'pillYears' ? (
+            <FormControl isInvalid={!!pillYearsError}>
+              <InputGroup size="md">
+                <Input
+                  type="number"
+                  placeholder="Enter total years of pill use (0-50)"
+                  value={pillYearsInput}
+                  onChange={(e) => setPillYearsInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handlePillYearsSubmit(
+                        pillYearsInput,
+                        setPillYearsError,
+                        setUserResponses,
+                        setMessages,
+                        conversationFlow,
+                        setCurrentStep,
+                        setPillYearsInput
+                      );
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="blue.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    colorScheme="blue"
+                    onClick={() => handlePillYearsSubmit(
+                      pillYearsInput,
+                      setPillYearsError,
+                      setUserResponses,
+                      setMessages,
+                      conversationFlow,
+                      setCurrentStep,
+                      setPillYearsInput
+                    )}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormHelperText color="gray.500">
+                Please enter a whole number. 1 pill-year = 365 pills, or 12 months of daily use.
+              </FormHelperText>
+              {pillYearsError && <FormErrorMessage>{pillYearsError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'prostateTestAge' ? (
             <FormControl isInvalid={!!prostateTestAgeError}>

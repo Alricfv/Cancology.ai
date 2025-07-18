@@ -73,7 +73,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     
     if (userResponses.demographics.sex === 'Female') {
       // Female-specific risk factors
-      if (userResponses.sexSpecificInfo.female.hormoneTreatment) riskScore += 1;
+      if (userResponses.sexSpecificInfo.female.birthControl) riskScore += 1;
+      if (userResponses.sexSpecificInfo.female.hormoneReplacementTherapy) riskScore += 1;
     }
     
     // Vaccination status
@@ -329,9 +330,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                 `(First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})` : ''}
             </div>
             
-            <div class="label">Hormone Treatment:</div>
+            <div class="label">Birth Control Pills:</div>
             <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneTreatment, 'YES', 'NO', 'purple', 'gray')}
+              ${formatBadge(userResponses.sexSpecificInfo.female.birthControl, 'YES', 'NO', 'purple', 'gray')}
+            </div>
+            <div class="label">Hormone Replacement Therapy (HRT):</div>
+            <div class="value">
+              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneReplacementTherapy, 'YES', 'NO', 'purple', 'gray')}
             </div>
           </div>
         `;
@@ -1111,11 +1116,19 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                       </Text>}
                   </Box>
                   <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Hormone Treatment:
-                  </Text>                
+                    Birth Control Pills:
+                  </Text>
                   <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hormoneTreatment ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.female.hormoneTreatment ? "YES" : "NO"}
+                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.birthControl ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
+                      {userResponses.sexSpecificInfo.female.birthControl ? "YES" : "NO"}
+                    </Badge>
+                  </Box>
+                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                    Hormone Replacement Therapy (HRT):
+                  </Text>
+                  <Box display="flex" alignItems="center">
+                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hormoneReplacementTherapy ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
+                      {userResponses.sexSpecificInfo.female.hormoneReplacementTherapy ? "YES" : "NO"}
                     </Badge>
                   </Box>
                   
