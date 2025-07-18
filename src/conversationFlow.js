@@ -277,7 +277,42 @@ const conversationFlow = {
   goffSymptomIntro: {
     question: "The following questions ask about common symptoms that may be associated with ovarian cancer. Please indicate whether you have experienced any of the symptoms listed below on more than 12 days per month in the past 3 months.",
     options: [
-      { text: "Continue", nextId: "pastCancerScreening" }
+      { text: "Continue", nextId: "goffBloating" }
+    ]
+  },
+  goffBloating: {
+    question: "In the past 3 months, have you experienced persistent bloating or abdominal swelling on more than 12 days per month?",
+    options: [
+      { text: "Yes", nextId: "goffPain" },
+      { text: "No", nextId: "goffPain" }
+    ]
+  },
+  goffPain: {
+    question: "In the past 3 months, have you experienced pelvic or lower-abdominal pain on more than 12 days per month?",
+    options: [
+      { text: "Yes", nextId: "goffFullness" },
+      { text: "No", nextId: "goffFullness" }
+    ]
+  },
+  goffFullness: {
+    question: "In the past 3 months, have you felt full quickly or been unable to finish meals on more than 12 days per month?",
+    options: [
+      { text: "Yes", nextId: "goffUrinary" },
+      { text: "No", nextId: "goffUrinary" }
+    ]
+  },
+  goffUrinary: {
+    question: "In the past 3 months, have you had an urgent or frequent need to pass urine on more than 12 days per month?",
+    options: [
+      { text: "Yes", nextId: "goffAbdomenSize" },
+      { text: "No", nextId: "goffAbdomenSize" }
+    ]
+  },
+  goffAbdomenSize: {
+    question: "In the past 3 months, have you noticed an increase in your abdomen size or that your clothes have become tight on more than 12 days per month?",
+    options: [
+      { text: "Yes", nextId: "pastCancerScreening" },
+      { text: "No", nextId: "pastCancerScreening" }
     ]
   },
   pastCancerScreening: {

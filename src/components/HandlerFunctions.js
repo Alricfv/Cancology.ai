@@ -1407,6 +1407,63 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
     ]);
 
     // Update user responses based on current step
+    // Goff Symptom Index questions
+    if (currentStep === 'goffBloating') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          goffSymptomIndex: {
+            ...((prev.symptoms && prev.symptoms.goffSymptomIndex) || {}),
+            bloating: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'goffPain') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          goffSymptomIndex: {
+            ...((prev.symptoms && prev.symptoms.goffSymptomIndex) || {}),
+            pain: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'goffFullness') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          goffSymptomIndex: {
+            ...((prev.symptoms && prev.symptoms.goffSymptomIndex) || {}),
+            fullness: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'goffUrinary') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          goffSymptomIndex: {
+            ...((prev.symptoms && prev.symptoms.goffSymptomIndex) || {}),
+            urinary: optionText === 'Yes'
+          }
+        }
+      }));
+    } else if (currentStep === 'goffAbdomenSize') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          goffSymptomIndex: {
+            ...((prev.symptoms && prev.symptoms.goffSymptomIndex) || {}),
+            abdomenSize: optionText === 'Yes'
+          }
+        }
+      }));
+    }
     if (currentStep === 'sex') {
       setUserResponses(prev => ({
         ...prev,
