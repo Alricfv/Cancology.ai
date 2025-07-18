@@ -1,3 +1,247 @@
+// Handle gastric cancer gene mutation (CDH1/other) question (Yes/No)
+export const handleGastricGeneMutationSubmit = (
+  gastricGeneMutationInput,
+  setGastricGeneMutationError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setGastricGeneMutationInput,
+  nextId
+) => {
+  if (!gastricGeneMutationInput) {
+    setGastricGeneMutationError("Please select Yes or No.");
+    return;
+  }
+  setGastricGeneMutationError("");
+  setUserResponses(prev => ({
+    ...prev,
+    medicalHistory: {
+      ...prev.medicalHistory,
+      gastricGeneMutation: gastricGeneMutationInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Gastric cancer gene mutation: ${gastricGeneMutationInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setGastricGeneMutationInput("");
+  setTimeout(() => {
+    const nextStep = conversationFlow[nextId];
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    }
+  }, 1000);
+};
+// Handle chronic gastritis/gastric ulcers question (Yes/No)
+export const handleGastritisUlcerSubmit = (
+  gastritisUlcerInput,
+  setGastritisUlcerError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setGastritisUlcerInput
+) => {
+  if (!gastritisUlcerInput) {
+    setGastritisUlcerError("Please select Yes or No.");
+    return;
+  }
+  setGastritisUlcerError("");
+  setUserResponses(prev => ({
+    ...prev,
+    lifestyle: {
+      ...prev.lifestyle,
+      gastritisUlcer: gastritisUlcerInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Chronic gastritis/gastric ulcers: ${gastritisUlcerInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setGastritisUlcerInput("");
+  setTimeout(() => {
+    const nextStep = conversationFlow.medications;
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep('medications');
+    }
+  }, 1000);
+};
+// Handle H. pylori eradication therapy question (Yes/No)
+export const handleHPyloriEradicationSubmit = (
+  hPyloriEradicationInput,
+  setHPyloriEradicationError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setHPyloriEradicationInput,
+  nextId
+) => {
+  if (!hPyloriEradicationInput) {
+    setHPyloriEradicationError("Please select Yes or No.");
+    return;
+  }
+  setHPyloriEradicationError("");
+  setUserResponses(prev => ({
+    ...prev,
+    lifestyle: {
+      ...prev.lifestyle,
+      hPyloriEradication: hPyloriEradicationInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `H. pylori eradication therapy completed: ${hPyloriEradicationInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setHPyloriEradicationInput("");
+  setTimeout(() => {
+    const nextStep = conversationFlow[nextId];
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    }
+  }, 1000);
+};
+// Handle H. pylori infection question (Yes/No)
+export const handleHPyloriSubmit = (
+  hPyloriInput,
+  setHPyloriError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setHPyloriInput,
+  nextId
+) => {
+  if (!hPyloriInput) {
+    setHPyloriError("Please select Yes or No.");
+    return;
+  }
+  setHPyloriError("");
+  setUserResponses(prev => ({
+    ...prev,
+    lifestyle: {
+      ...prev.lifestyle,
+      hPylori: hPyloriInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `H. pylori infection: ${hPyloriInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setHPyloriInput("");
+  setTimeout(() => {
+    const nextStep = conversationFlow[nextId];
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    }
+  }, 1000);
+};
+ // Handle fruit & vegetable servings question
+export const handleFruitVegServingsSubmit = (
+  fruitVegServingsInput,
+  setFruitVegServingsError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setFruitVegServingsInput
+) => {
+  if (!fruitVegServingsInput) {
+    setFruitVegServingsError("Please select an option.");
+    return;
+  }
+  setFruitVegServingsError("");
+  setUserResponses(prev => ({
+    ...prev,
+    lifestyle: {
+      ...prev.lifestyle,
+      fruitVegServings: fruitVegServingsInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Fruit & vegetable servings per day: ${fruitVegServingsInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  // Find nextId from options array
+  const nextId = conversationFlow.fruitVegServings.options.find(opt => opt.text === fruitVegServingsInput)?.nextId || 'sexualHealth';
+  setTimeout(() => {
+    if (conversationFlow[nextId]) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: conversationFlow[nextId].question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(nextId);
+    }
+    setFruitVegServingsInput("");
+  }, 1000);
+};
 // Handle fertility (IVF) drugs question for females
 export const handleFertilityDrugsSubmit = (
   fertilityDrugsInput,
@@ -679,55 +923,95 @@ export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection,
      }
    }));
   
-   // Move to the next step based on response
-   setTimeout(() => {
-     // Reset processing state after UI updates are complete
-     setIsProcessingSelection(false);
-    
-     // If user drinks alcohol, go to alcoholAmount step, otherwise skip to transplant
-     if (optionText === 'Yes') {
-       const nextStep = conversationFlow.alcoholAmount;
-      
-       if (nextStep) {
-         // Add bot's next question
-         setMessages(prev => [
-           ...prev, 
-           {
-             id: prev.length + 1,
-             text: nextStep.question,
-             sender: 'bot',
-             timestamp: new Date()
-           }
-         ]);
-        
-         // Update the current step
-         setCurrentStep('alcoholAmount');
-        
-         
-       }
-     } else {
-       // Skip directly to sexual health question for non-drinkers
-       const skipToStep = conversationFlow.sexualHealth;
-      
-       if (skipToStep) {
-         // Add bot's next question
-         setMessages(prev => [
-           ...prev, 
-           {
-             id: prev.length + 1,
-             text: skipToStep.question,
-             sender: 'bot',
-             timestamp: new Date()
-           }
-         ]);
-        
-         // Update the current step
-         setCurrentStep('sexualHealth');
-        
-       }
-     }
-   }, 1000);
- };
+
+  // Move to the next step based on response
+  setTimeout(() => {
+    // Reset processing state after UI updates are complete
+    setIsProcessingSelection(false);
+
+    // If user drinks alcohol, go to alcoholAmount step, otherwise skip to transplant
+    if (optionText === 'Yes') {
+      // Insert salty/smoked foods question after alcoholAmount
+      const nextStep = conversationFlow.alcoholAmount;
+      if (nextStep) {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: prev.length + 2,
+            text: nextStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        setCurrentStep('alcoholAmount');
+      }
+    } else {
+      // For non-drinkers, go to salty/smoked foods question
+      const saltyStep = conversationFlow.saltySmokedFoods;
+      if (saltyStep) {
+        setMessages(prev => [
+          ...prev,
+          {
+            id: prev.length + 2,
+            text: saltyStep.question,
+            sender: 'bot',
+            timestamp: new Date()
+          }
+        ]);
+        setCurrentStep('saltySmokedFoods');
+      }
+    }
+  }, 1000);
+};
+
+// Handle salty/smoked foods frequency question (dropdown)
+export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmokedFoodsError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setSaltySmokedFoodsInput) => {
+  // Validate input
+  const allowedOptions = [
+    'Never',
+    'less than one time a week',
+    '1-3 times a week',
+    '4 or more times a week'
+  ];
+  if (!allowedOptions.includes(saltySmokedFoodsInput)) {
+    setSaltySmokedFoodsError('Please select a valid option for salty/smoked foods.');
+    return;
+  }
+  setSaltySmokedFoodsError('');
+  setUserResponses(prev => ({
+    ...prev,
+    lifestyle: {
+      ...prev.lifestyle,
+      saltySmokedFoods: saltySmokedFoodsInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Salty/smoked foods: ${saltySmokedFoodsInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setSaltySmokedFoodsInput('');
+  // Move to the next step (fruitVegServings)
+  setTimeout(() => {
+    const nextStep = conversationFlow.fruitVegServings;
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep('fruitVegServings');
+    }
+  }, 1000);
+};
 
 // Handle submitting the transplant response
 export const handleTransplantResponse = (optionText, nextId, isProcessingSelection, setIsProcessingSelection, setSelectedOption, setMessages, setUserResponses, conversationFlow, setCurrentStep) => {

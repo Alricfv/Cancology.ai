@@ -67,7 +67,13 @@ import {
   handleOptionSelect,
   handlePillYearsSubmit,
   handleNumberOfBirthsSubmit,
-  handleFertilityDrugsSubmit
+  handleFertilityDrugsSubmit,
+  handleSaltySmokedFoodsSubmit,
+  handleFruitVegServingsSubmit,
+  handleHPyloriSubmit,
+  handleHPyloriEradicationSubmit,
+  handleGastritisUlcerSubmit,
+  handleGastricGeneMutationSubmit
 } from './components/HandlerFunctions';
 
 function App() {
@@ -84,6 +90,107 @@ function App() {
   const [currentStep, setCurrentStep] = useState('start');
   const [isProcessingSelection, setIsProcessingSelection] = useState(false); // Add loading state
   const [selectedOption, setSelectedOption] = useState(''); // Track the selected option
+
+  // State for salty/smoked foods dropdown
+  const [saltySmokedFoodsInput, setSaltySmokedFoodsInput] = useState("");
+  const [saltySmokedFoodsError, setSaltySmokedFoodsError] = useState("");
+  // Handler for salty/smoked foods submit
+  const handleSaltySmokedFoodsSubmitCall = () => {
+    handleSaltySmokedFoodsSubmit(
+      saltySmokedFoodsInput,
+      setSaltySmokedFoodsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setSaltySmokedFoodsInput
+    );
+  };
+
+  // State for fruit & vegetable servings dropdown
+  const [fruitVegServingsInput, setFruitVegServingsInput] = useState("");
+  const [fruitVegServingsError, setFruitVegServingsError] = useState("");
+  // Handler for fruit & vegetable servings submit
+  const handleFruitVegServingsSubmitCall = () => {
+    handleFruitVegServingsSubmit(
+      fruitVegServingsInput,
+      setFruitVegServingsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setFruitVegServingsInput
+    );
+  };
+
+  const [gastritisUlcerInput, setGastritisUlcerInput] = useState("");
+  const [gastritisUlcerError, setGastritisUlcerError] = useState("");
+  // Handler for chronic gastritis/gastric ulcers submit
+  const handleGastritisUlcerSubmitCall = () => {
+    handleGastritisUlcerSubmit(
+      gastritisUlcerInput,
+      setGastritisUlcerError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastritisUlcerInput
+    );
+  };
+
+  // State for H. pylori infection question
+  const [hPyloriInput, setHPyloriInput] = useState("");
+  const [hPyloriError, setHPyloriError] = useState("");
+  // State for H. pylori eradication therapy question
+  const [hPyloriEradicationInput, setHPyloriEradicationInput] = useState("");
+  const [hPyloriEradicationError, setHPyloriEradicationError] = useState("");
+  // State for gastric cancer gene mutation question
+  const [gastricGeneMutationInput, setGastricGeneMutationInput] = useState("");
+  const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
+  // Handler for H. pylori infection submit
+  const handleHPyloriSubmitCall = () => {
+    // Find nextId from the selected option in conversationFlow.hPylori.options
+    const nextId = conversationFlow.hPylori.options.find(opt => opt.text === hPyloriInput)?.nextId;
+    handleHPyloriSubmit(
+      hPyloriInput,
+      setHPyloriError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setHPyloriInput,
+      nextId
+    );
+  };
+  // Handler for H. pylori eradication therapy submit
+  const handleHPyloriEradicationSubmitCall = () => {
+    // Find nextId from the selected option in conversationFlow.hPyloriEradication.options
+    const nextId = conversationFlow.hPyloriEradication.options.find(opt => opt.text === hPyloriEradicationInput)?.nextId;
+    handleHPyloriEradicationSubmit(
+      hPyloriEradicationInput,
+      setHPyloriEradicationError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setHPyloriEradicationInput,
+      nextId
+    );
+  };
+  // Handler for gastric gene mutation submit
+  const handleGastricGeneMutationSubmitCall = () => {
+    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === gastricGeneMutationInput)?.nextId;
+    handleGastricGeneMutationSubmit(
+      gastricGeneMutationInput,
+      setGastricGeneMutationError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastricGeneMutationInput,
+      nextId
+    );
+  };
   const messagesEndRef = useRef(null);
   const toast = useToast();
   const bg = useColorModeValue('white', 'gray.800');
@@ -281,6 +388,9 @@ function App() {
   const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
   const [alcoholAmountError, setAlcoholAmountError] = useState('');
   const [PackYears, setPackYears] = useState(0);
+  // Fertility drugs (IVF) state
+  const [fertilityDrugsInput, setFertilityDrugsInput] = useState('');
+  const [fertilityDrugsError, setFertilityDrugsError] = useState('');
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
   const [menstruationStatus, setMenstruationStatus] = useState('');
@@ -1298,6 +1408,195 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {alcoholAmountError && <FormErrorMessage>{alcoholAmountError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'saltySmokedFoods' ? (
+            <FormControl isInvalid={!!saltySmokedFoodsError}>
+              <Select
+                placeholder="Select frequency of salty/smoked foods"
+                value={saltySmokedFoodsInput || ''}
+                onChange={e => setSaltySmokedFoodsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="Never">Never</option>
+                <option value="less than one time a week">less than one time a week</option>
+                <option value="1-3 times a week">1-3 times a week</option>
+                <option value="4 or more times a week">4 or more times a week</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleSaltySmokedFoodsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!saltySmokedFoodsInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {saltySmokedFoodsError && <FormErrorMessage>{saltySmokedFoodsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'fruitVegServings' ? (
+            <FormControl isInvalid={!!fruitVegServingsError}>
+              <Select
+                placeholder="Select daily fruit & vegetable servings"
+                value={fruitVegServingsInput || ''}
+                onChange={e => setFruitVegServingsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="0-1 servings">0-1 servings</option>
+                <option value="2-4 servings">2-4 servings</option>
+                <option value="5+ servings">5+ servings</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleFruitVegServingsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!fruitVegServingsInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {fruitVegServingsError && <FormErrorMessage>{fruitVegServingsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hPylori' ? (
+            <FormControl isInvalid={!!hPyloriError}>
+              <Select
+                placeholder="Have you ever been diagnosed with H. pylori infection?"
+                value={hPyloriInput || ''}
+                onChange={e => setHPyloriInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Not sure">Not sure</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleHPyloriSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!hPyloriInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {hPyloriError && <FormErrorMessage>{hPyloriError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hPyloriEradication' ? (
+            <FormControl isInvalid={!!hPyloriEradicationError}>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => {
+                      if (!isProcessingSelection) {
+                        setHPyloriEradicationInput(opt);
+                        setTimeout(() => {
+                          handleHPyloriEradicationSubmitCall();
+                        }, 0);
+                      }
+                    }}
+                    isDisabled={isProcessingSelection}
+                    bg={hPyloriEradicationInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={hPyloriEradicationInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && hPyloriEradicationInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {hPyloriEradicationError && <FormErrorMessage>{hPyloriEradicationError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'gastritisUlcer' ? (
+            <FormControl isInvalid={!!gastritisUlcerError}>
+              <Select
+                placeholder="Have you ever been diagnosed with chronic gastritis or gastric ulcers?"
+                value={gastritisUlcerInput || ''}
+                onChange={e => setGastritisUlcerInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleGastritisUlcerSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!gastritisUlcerInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {gastritisUlcerError && <FormErrorMessage>{gastritisUlcerError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'gastricGeneMutation' ? (
+            <FormControl isInvalid={!!gastricGeneMutationError}>
+              <Select
+                placeholder={conversationFlow.gastricGeneMutation.question}
+                value={gastricGeneMutationInput || ''}
+                onChange={e => setGastricGeneMutationInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                {conversationFlow.gastricGeneMutation.options.map(opt => (
+                  <option key={opt.text} value={opt.text}>{opt.text}</option>
+                ))}
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleGastricGeneMutationSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!gastricGeneMutationInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {gastricGeneMutationError && <FormErrorMessage>{gastricGeneMutationError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'fertilityDrugs' ? (
+            <FormControl isInvalid={!!fertilityDrugsError}>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.fertilityDrugs.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleFertilityDrugsSubmitCall(opt.text)}
+                    isDisabled={isProcessingSelection}
+                    bg={fertilityDrugsInput === opt.text ? 'blue.50' : 'transparent'}
+                    borderColor={fertilityDrugsInput === opt.text ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && fertilityDrugsInput === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {fertilityDrugsError && <FormErrorMessage>{fertilityDrugsError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'allergyDetails' ? (
             <FormControl>

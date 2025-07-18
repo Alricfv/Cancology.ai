@@ -52,13 +52,21 @@ const conversationFlow = {
     question: "Has a first-degree relative (parent, sibling, child) ever been diagnosed with cancer?",
     options: [
       { text: "Yes", nextId: "familyHistoryDetails" },
-      { text: "No", nextId: "chronicConditions" }
+      { text: "No", nextId: "gastricGeneMutation" }
     ]
   },
   familyHistoryDetails: {
     question: "Please provide details about your family member's cancer diagnosis:",
     options: [],
-    inputType: "familyCancer"
+    inputType: "familyCancer",
+    nextId: "gastricGeneMutation"
+  },
+  gastricGeneMutation: {
+    question: "Have you been diagnosed with a CDH1 or other gene mutation associated with gastric cancer?",
+    options: [
+      { text: "Yes", nextId: "chronicConditions" },
+      { text: "No", nextId: "chronicConditions" }
+    ]
   },
   chronicConditions: {
     question: "Do you have any of the following chronic conditions?",
@@ -83,12 +91,33 @@ const conversationFlow = {
     question: "Do you drink alcohol?",
     options: [
       { text: "Yes", nextId: "alcoholAmount" },
-      { text: "No", nextId: "transplant" }
+      { text: "No", nextId: "saltySmokedFoods" }
     ]
-  },  alcoholAmount: {
+  },
+  alcoholAmount: {
     question: "How many alcoholic drinks do you consume per week on average?",
     options: [],
-    inputType: "alcoholAmount"
+    inputType: "alcoholAmount",
+    nextId: "saltySmokedFoods"
+  },
+  saltySmokedFoods: {
+    question: "Do you often eat very salty/smoked foods?",
+    options: [
+      { text: "Never", nextId: "fruitVegServings" },
+      { text: "less than one time a week", nextId: "fruitVegServings" },
+      { text: "1-3 times a week", nextId: "fruitVegServings" },
+      { text: "4 or more times a week", nextId: "fruitVegServings" }
+    ],
+    inputType: "saltySmokedFoods"
+  },
+  fruitVegServings: {
+    question: "How many fruit & vegetable servings do you have per day?",
+    options: [
+      { text: "0-1 servings", nextId: "sexualHealth" },
+      { text: "2-4 servings", nextId: "sexualHealth" },
+      { text: "5+ servings", nextId: "sexualHealth" }
+    ],
+    inputType: "fruitVegServings"
   },
   sexualHealth: {
     question: "Have you had unprotected sex or been diagnosed with HPV or HIV?",
@@ -107,9 +136,31 @@ const conversationFlow = {
   brcaMutation: {
     question: "Have you tested positive for a BRCA1/BRCA2 mutation?",
     options: [
+      { text: "Yes", nextId: "hPylori" },
+      { text: "No", nextId: "hPylori" },
+      { text: "Not tested", nextId: "hPylori" }
+    ]
+  },
+  hPylori: {
+    question: "Have you ever been diagnosed with an H. pylori (Helicobacter pylori) infection?",
+    options: [
+      { text: "Yes", nextId: "hPyloriEradication" },
+      { text: "No", nextId: "gastritisUlcer" },
+      { text: "Not sure", nextId: "gastritisUlcer" }
+    ]
+  },
+  hPyloriEradication: {
+    question: "Did you complete the eradication therapy?",
+    options: [
+      { text: "Yes", nextId: "gastritisUlcer" },
+      { text: "No", nextId: "gastritisUlcer" }
+    ]
+  },
+  gastritisUlcer: {
+    question: "Have you ever been diagnosed with chronic gastritis or gastric ulcers?",
+    options: [
       { text: "Yes", nextId: "medications" },
-      { text: "No", nextId: "medications" },
-      { text: "Not tested", nextId: "medications" }
+      { text: "No", nextId: "medications" }
     ]
   },
   medications: {
