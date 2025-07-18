@@ -100,6 +100,21 @@ const conversationFlow = {
   transplant: {
     question: "Have you had organ transplants or immunosuppressive therapy?",
     options: [
+      { text: "Yes", nextId: "brcaMutation" },
+      { text: "No", nextId: "brcaMutation" }
+    ]
+  },
+  brcaMutation: {
+    question: "Have you tested positive for a BRCA1/BRCA2 mutation?",
+    options: [
+      { text: "Yes", nextId: "endometriosis" },
+      { text: "No", nextId: "endometriosis" },
+      { text: "Not tested", nextId: "endometriosis" }
+    ]
+  },
+  endometriosis: {
+    question: "Have you ever been diagnosed with endometriosis?",
+    options: [
       { text: "Yes", nextId: "medications" },
       { text: "No", nextId: "medications" }
     ]
@@ -196,8 +211,24 @@ const conversationFlow = {
   hormoneTreatment: {
     question: "Have you ever taken birth control or hormone replacement therapy (HRT)?",
     options: [
-      { text: "Yes", nextId: "pastCancerScreening" },
-      { text: "No", nextId: "pastCancerScreening" }
+      { text: "Yes", nextId: "tubalLigation" },
+      { text: "No", nextId: "tubalLigation" }
+    ]
+  },
+  tubalLigation: {
+    question: "Have you had tubal ligation (“tied tubes”)?",
+    options: [
+      { text: "Yes", nextId: "ovaryRemoved" },
+      { text: "No", nextId: "ovaryRemoved" }
+    ]
+  },
+  ovaryRemoved: {
+    question: "Have you had either ovary removed?",
+    options: [
+      { text: "Left", nextId: "pastCancerScreening" },
+      { text: "Right", nextId: "pastCancerScreening" },
+      { text: "Both", nextId: "pastCancerScreening" },
+      { text: "None", nextId: "pastCancerScreening" }
     ]
   },
   pastCancerScreening: {

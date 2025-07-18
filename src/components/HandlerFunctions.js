@@ -561,15 +561,14 @@ export const handleTransplantResponse = (optionText, nextId, isProcessingSelecti
       }
     }));
     
-    // Move to the medications step
+    // Move to the next step (use nextId from conversationFlow)
     setTimeout(() => {
       // Reset processing state after UI updates are complete
       setIsProcessingSelection(false);
       
-      const nextStep = conversationFlow.medications;
+      const nextStep = conversationFlow[nextId];
       
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -580,9 +579,7 @@ export const handleTransplantResponse = (optionText, nextId, isProcessingSelecti
           }
         ]);
         
-        // Update the current step
-        setCurrentStep('medications');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -1223,7 +1220,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
       setUserSex(optionText);
     } 
-    
     else if (currentStep === 'cancer') {
       setUserResponses(prev => ({
         ...prev,
@@ -1236,7 +1232,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'familyHistory') {
       setUserResponses(prev => ({
         ...prev,
@@ -1249,7 +1244,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'smokingStatus') {
       setUserResponses(prev => ({
         ...prev,
@@ -1262,7 +1256,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'transplant') {
       setUserResponses(prev => ({
         ...prev,
@@ -1272,7 +1265,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'allergies') {
       if (optionText === 'No') {
         setUserResponses(prev => ({
@@ -1281,13 +1273,11 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }));
       }
     } 
-    
     else if (currentStep === 'checkSex') {
       // This case is kept for backward compatibility, but should no longer be used
       // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
       routeBasedOnSex();
     } 
-    
     else if (currentStep === 'urinarySymptoms') {
       setUserResponses(prev => ({
         ...prev,
@@ -1300,7 +1290,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'prostateTest') {
       setUserResponses(prev => ({
         ...prev,
@@ -1316,7 +1305,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'testicularIssues') {
       setUserResponses(prev => ({
         ...prev,
@@ -1329,7 +1317,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'menstruationStatus') {
       setUserResponses(prev => ({
         ...prev,
@@ -1343,7 +1330,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
       setMenstruationStatus(optionText);
     } 
-    
     else if (currentStep === 'pregnancy') {
       setUserResponses(prev => ({
         ...prev,
@@ -1359,7 +1345,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
     else if (currentStep === 'hormoneTreatment') {
       setUserResponses(prev => ({
         ...prev,
@@ -1372,7 +1357,30 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
-    
+    else if (currentStep === 'tubalLigation') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            tubalLigation: optionText === 'Yes'
+          }
+        }
+      }));
+    }
+    else if (currentStep === 'ovaryRemoved') {
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            ovaryRemoved: optionText // "Left", "Right", "Both", or "None"
+          }
+        }
+      }));
+    }
     else if (currentStep === 'hpvVaccine') {
       setUserResponses(prev => ({
         ...prev,
@@ -1382,7 +1390,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
-    
     else if (currentStep === 'hepBVaccine') {
       setUserResponses(prev => ({
         ...prev,
@@ -1392,7 +1399,20 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
-    
+    else if (currentStep === 'brcaMutation') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          brcaMutationStatus: optionText, // Store the raw answer
+          geneticMutations:
+            optionText === 'Yes'
+              ? [...(prev.medicalHistory.geneticMutations || []), 'BRCA1/BRCA2']
+              : prev.medicalHistory.geneticMutations || []
+        }
+      }));
+    }
+
     // Move to the next step after a short delay
     setTimeout(() => {
       // Reset processing state after UI updates are complete
@@ -1403,7 +1423,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         // Directly call the routeBasedOnSex function
         routeBasedOnSex();
       } 
-      
       else {
         // Special handling for prostateTest for males under 30
         if (nextId === "prostateTest" && userSex === "Male" && userResponses.demographics.age < 30) {
@@ -1442,7 +1461,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
             
           }
         } 
-        
         else {
           // Normal flow - move to the next step in the conversation flow
           const nextStep = conversationFlow[nextId];
