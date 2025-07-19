@@ -196,50 +196,57 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       // Format all the user data for display
       const personalInfo = `
         <div class="section-title">Personal Information</div>
-        <div class="grid">
-          <div class="label">Age:</div>
-          <div class="value"><strong>${userResponses.demographics.age}</strong></div>
-          
-          <div class="label">Sex:</div>
-          <div class="value"><strong>${userResponses.demographics.sex}</strong></div>
-          
-          <div class="label">Ethnicity:</div>
-          <div class="value">${userResponses.demographics.ethnicity || 'Not specified'}</div>
-          
-          <div class="label">Location:</div>
-          <div class="value">${userResponses.demographics.country || 'Not specified'}</div>
+        <div class="personal-info-grid">
+          <div class="info-pair">
+            <span class="label">Age:</span>
+            <span class="value"><strong>${userResponses.demographics.age}</strong></span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Sex:</span>
+            <span class="value"><strong>${userResponses.demographics.sex}</strong></span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Ethnicity:</span>
+            <span class="value">${userResponses.demographics.ethnicity === 'Middle Eastern or North African' ? 'MENA' : (userResponses.demographics.ethnicity || 'Not specified')}</span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Location:</span>
+            <span class="value">${userResponses.demographics.country || 'Not specified'}</span>
+          </div>
         </div>
       `;
       
       const medicalHistory = `
         <div class="section-title">Medical History</div>
-        <div class="grid">
-          <div class="label">Personal Cancer:</div>
-          <div class="value">
-            ${formatBadge(userResponses.medicalHistory.personalCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-            ${userResponses.medicalHistory.personalCancer.diagnosed ? 
-              `<span style="margin-left:5px;">${userResponses.medicalHistory.personalCancer.type || "Cancer type"}
-              ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? 
-                `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
-              </span>` : ''}
+        <div class="medical-history-grid">
+          <div class="mh-labels">
+            <div class="label">Personal Cancer:</div>
+            <div class="label">Family Cancer:</div>
+            <div class="label">Chronic Conditions:</div>
           </div>
-          
-          <div class="label">Family Cancer:</div>
-          <div class="value">
-            ${formatBadge(userResponses.medicalHistory.familyCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-            ${userResponses.medicalHistory.familyCancer.diagnosed && userResponses.medicalHistory.familyCancer.type ? 
-              `<span style="margin-left:5px;">${userResponses.medicalHistory.familyCancer.type}
-              ${userResponses.medicalHistory.familyCancer.relation ? ` <span style="font-weight:bold;">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
-              ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? 
-                `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
-              </span>` : ''}
-          </div>
-          
-          <div class="label">Chronic Conditions:</div>
-          <div class="value">
-            ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
-              `<span style="font-weight:500;">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
-              '<span style="color:#38A169;">None</span>'}
+          <div class="mh-values">
+            <div class="value" style="text-align:right;">
+              ${formatBadge(userResponses.medicalHistory.personalCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
+              ${userResponses.medicalHistory.personalCancer.diagnosed ? 
+                `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.personalCancer.type || "Cancer type"}
+                ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? 
+                  `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
+                </span>` : ''}
+            </div>
+            <div class="value" style="text-align:right;">
+              ${formatBadge(userResponses.medicalHistory.familyCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
+              ${userResponses.medicalHistory.familyCancer.diagnosed && userResponses.medicalHistory.familyCancer.type ? 
+                `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.familyCancer.type}
+                ${userResponses.medicalHistory.familyCancer.relation ? ` <span style=\"font-weight:bold;\">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
+                ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? 
+                  `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
+                </span>` : ''}
+            </div>
+            <div class="value" style="text-align:right;">
+              ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
+                `<span style=\"font-weight:500;\">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
+                '<span style=\"color:#38A169;\">None</span>'}
+            </div>
           </div>
         </div>
       `;
@@ -299,12 +306,12 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             </div>
             
             <div class="label">Prostate Test:</div>
-            <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.male.prostateTest.had, 'YES', 'NO', 'green', 'yellow')}
+            <div class="value" style="display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
               ${userResponses.sexSpecificInfo.male.prostateTest.had ? 
-                `(Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})` : 
-                userResponses.demographics.age < 30 ? 
-                `<span style="color:#718096; font-size:8pt;">N/A (Not recommended under 30)</span>` : ''}
+                `<span>(Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})</span>` : ''}
+              ${formatBadge(userResponses.sexSpecificInfo.male.prostateTest.had, 'YES', 'NO', 'green', 'yellow')}
+              ${!userResponses.sexSpecificInfo.male.prostateTest.had && userResponses.demographics.age < 30 ? 
+                `<span style=\"color:#718096; font-size:8pt;\">N/A (Not recommended under 30)</span>` : ''}
             </div>
             
             <div class="label">Testicular Issues:</div>
@@ -391,6 +398,68 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <title>Cancer Screening Test Results</title>
           <link rel="stylesheet" href="/printStyles.css">
           <style>
+            .medical-history-grid {
+              display: grid;
+              grid-template-columns: 180px 1fr;
+              width: 100%;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .mh-labels, .mh-values {
+              display: flex;
+              flex-direction: column;
+            }
+            .mh-labels > .label, .mh-values > .value {
+              min-height: 28px;
+              display: flex;
+              align-items: center;
+              justify-content: flex-start;
+              text-align: left;
+            }
+            /* Force all Medical History labels to align exactly with their answers on the y-axis */
+            .mh-labels > .label:nth-child(1),
+            .mh-labels > .label:nth-child(2),
+            .mh-labels > .label:nth-child(3) {
+              align-items: flex-end;
+              justify-content: flex-start;
+              display: flex;
+              text-align: left;
+              height: 100%;
+              position: relative;
+              top: 0px;
+              margin-top: 0;
+              margin-bottom: 0;
+            }
+            /* Remove special centering for Chronic Conditions label to align x-axis with other labels */
+            .mh-values > .value {
+              justify-content: flex-end;
+              text-align: right;
+            }
+            .mh-values > .value span {
+              display: inline-flex;
+              align-items: center;
+              min-height: 24px;
+            }
+            .personal-info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              grid-template-rows: 1fr 1fr;
+              gap: 3px 20px;
+              width: 100%;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .info-pair {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: flex-start;
+              min-width: 0;
+            }
             @page {
               size: A4 portrait;
               margin: 10mm;
@@ -458,28 +527,28 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             .header h1 {
               color: #2B6CB0;
-              font-size: 26pt;
+              font-size: 20pt;
               margin: 0;
-              font-weight: 600;
+              font-weight: 900;
               letter-spacing: -0.5px;
             }
-            
+
             .header h2 {
-              font-size: 18pt;
+              font-size: 12pt;
               margin: 8px 0 0 0;
               font-weight: 500;
               color: #4A5568;
             }
-            
+
             .header p {
               color: #718096;
               font-size: 10pt;
               margin: 5px 0 0 0;
               font-style: italic;
             }
-            
+
             .section-title {
-              font-size: 16pt;
+              font-size: 15pt;
               color: #2B6CB0;
               padding-bottom: 3px;
               margin-bottom: 6px;
@@ -488,7 +557,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               position: relative;
               border-bottom: none;
             }
-            
+
             .section-title:first-child {
               margin-top: 0;
             }
@@ -508,7 +577,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             }
             
             .label {
-              font-weight: bold;
               font-size: 14pt;
               color: #4A5568;
               text-align: left;
@@ -531,6 +599,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               margin-right: 5px;
               font-weight: bold;
               text-transform: uppercase;
+              vertical-align: middle;
+            }
+            .grid .value span,
+            .grid .value .badge {
+              vertical-align: middle;
             }
             
             /* Badge colors updated to match the pink/light red high risk style from the reference image */
@@ -545,13 +618,48 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             .grid {
               display: grid;
               grid-template-columns: 120px 1fr;
-              gap: 10px;
+              gap: 3px 10px;
               align-items: flex-start;
               width: 100%;
-              margin-bottom: 15px;
+              margin-bottom: 8px;
               background-color: white;
               border-bottom: 1px solid #E2E8F0;
-              padding: 5px 0;
+              padding: 2px 0;
+            }
+            /* Right-align all values except personal info and cancer tests; labels left-aligned */
+            .grid .label {
+              text-align: left;
+              justify-content: flex-start;
+            }
+            .grid .value {
+              text-align: right;
+              justify-content: flex-end;
+            }
+            /* All labels in a single line (no wrapping, no stacking) */
+            .grid .label,
+            .medical-history-grid .mh-labels .label {
+              display: inline-block;
+              width: 100%;
+              white-space: nowrap;
+              vertical-align: middle;
+            }
+            /* Remove flex/column stacking for label columns */
+            .grid,
+            .medical-history-grid {
+              align-items: center;
+            }
+            /* But keep left alignment for personal info grid */
+            .personal-info-grid .label,
+            .personal-info-grid .value {
+              text-align: left;
+              justify-content: flex-start;
+            }
+            /* And for test cards (cancer tests) */
+            .test-card .test-name,
+            .test-card .test-info,
+            .test-card .test-badge {
+              text-align: left;
+              justify-content: flex-start;
             }
             
             .risk-assessment {
@@ -567,10 +675,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               display: inline-block;
               padding: 4px 10px;
               border-radius: 4px;
-              font-size: 13pt;
-              color: #9B2C2C;
-              background-color: #FEDED2;
-              font-weight: bold;
+              font-size: 14pt;
+              margin-bottom: 2px;
+              padding-left: 0;
+              color: #2D3748;
               text-transform: uppercase;
               white-space: nowrap;
               line-height: 1.2;
@@ -869,8 +977,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         borderColor="gray.200"
         pb={4}>
 
-        <Heading size="lg" color="#2B6CB0" fontSize="26pt">Sky Premium Hospital</Heading>
-        <Heading size="md" mt={2} fontSize="18pt" color="gray.700">Cancer Screening Test</Heading>
+        <Heading size="lg" color="#2B6CB0" fontSize="20pt">Sky Premium Hospital</Heading>
+        <Heading size="md" mt={2} fontSize="12pt" color="gray.700">Cancer Screening Test</Heading>
       </Box>
         
       {/* Page 1: Medical Data */}
@@ -887,7 +995,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <Box width="48%" pr={3}>
             {/* Demographics section */}
             <Box mb={3}>            
-              <Heading size="sm" mb={1.5} pb={0.5} fontSize="14pt" color="#2B6CB0" fontWeight="bold">
+              <Heading size="sm" mb={1.5} pb={0.5} fontSize="9pt" color="#2B6CB0" fontWeight="bold">
                 Personal Information
               </Heading>            
               <Grid templateColumns="repeat(2, 1fr)" gap={2} width="100%">
@@ -932,7 +1040,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
 
             {/* Medical History */}
             <Box mb={4}>
-              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 Medical History
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
@@ -978,7 +1086,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
 
             {/* Lifestyle */}
             <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 Lifestyle Factors
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
@@ -1023,7 +1131,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Medications & Allergies */}
             <Box mb={3}>
-              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 Medications & Allergies
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
@@ -1049,7 +1157,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             {/* Gender-specific Information - Moved below Medications & Allergies in left column */}
             <Box mb={3}>
-              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 {userResponses.demographics.sex === "Male" ? "Male" : "Female"}-Specific Screening
               </Heading>
                 {userResponses.demographics.sex === "Male" && (
@@ -1144,7 +1252,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           
             {/* Vaccination and Screening History - Moved to top of right column */}
             <Box mb={3}>
-              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+              <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 Vaccinations & Screening History
               </Heading>            
               <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
@@ -1243,7 +1351,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
               {/* General Recommendations - Moved from page 2 */}
               <Box mb={3}>
-                <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
+                <Heading size="sm" mb={1} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                   General Recommendations
                 </Heading>
                 <List spacing={1}>
@@ -1264,13 +1372,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <Box width="100%" px={4} py={3} maxHeight="calc(297mm - 180px)" overflow="auto">
             {/* Page title */}
             <Box textAlign="center" mb={6} width="100%" borderBottom="1px solid" borderColor="gray.200" pb={4}>
-              <Heading size="md" color="#2B6CB0" fontSize="18pt">Cancer Screening Tests</Heading>
-              <Text mt={2} fontSize="12pt" color="gray.700">Recommended Screenings Based on Risk Assessment</Text>
+              <Heading size="md" color="#2B6CB0" fontSize="12pt">Cancer Screening Tests</Heading>
+              <Text mt={2} fontSize="9pt" color="gray.700">Recommended Screenings Based on Risk Assessment</Text>
             </Box>
             
             {/* Recommended Tests Section */}
             <Box mb={6} className="tests-container">
-              <Heading size="sm" mb={2} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="14pt" color={accentColor}>
+              <Heading size="sm" mb={2} pb={0.5} borderBottom="1px solid" borderColor="gray.200" fontSize="9pt" color={accentColor}>
                 Recommended Cancer Screening Tests
               </Heading>
               
@@ -1288,7 +1396,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                       
                       <Flex align="center" mb={2}>
                         <Box w={3} h={3} borderRadius="50%" bg="green.500" mr={2}></Box>
-                        <Heading size="sm" fontSize="16pt" color="gray.800">{test.name}</Heading>
+                        <Heading size="sm" fontSize="9pt" color="gray.800">{test.name}</Heading>
                       </Flex>
                       
                       <Text fontSize="11pt" mb={1}><b>Frequency:</b> {test.frequency}</Text>
