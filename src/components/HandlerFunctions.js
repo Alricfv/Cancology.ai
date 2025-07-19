@@ -252,7 +252,8 @@ export const handleFertilityDrugsSubmit = (
   setUserResponses,
   setMessages,
   conversationFlow,
-  setCurrentStep
+  setCurrentStep,
+  nextId
 ) => {
   // Save to userResponses.sexSpecificInfo.female.IVF_history
   setUserResponses(prev => ({
@@ -275,8 +276,7 @@ export const handleFertilityDrugsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Advance to next step using nextId from conversationFlow.fertilityDrugs
-  const nextId = conversationFlow.fertilityDrugs.nextId || 'pastCancerScreening';
+  // Advance to next step using nextId from the selected option
   setTimeout(() => {
     if (conversationFlow[nextId]) {
       setMessages(prev => ([

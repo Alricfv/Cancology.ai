@@ -273,13 +273,14 @@ function App() {
   });
 
   // Handler for fertility (IVF) drugs submit
-  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput) => {
+  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput, nextId) => {
     handleFertilityDrugsSubmit(
       fertilityDrugsInput,
       setUserResponses,
       setMessages,
       conversationFlow,
-      setCurrentStep
+      setCurrentStep,
+      nextId
     );
   };
 
@@ -1502,15 +1503,19 @@ function App() {
                     _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
                     onClick={() => {
                       if (!isProcessingSelection) {
-                        setHPyloriEradicationInput(opt);
-                        setTimeout(() => {
-                          handleHPyloriEradicationSubmitCall();
-                        }, 0);
+                        handleHPyloriEradicationSubmit(
+                          opt,
+                          setHPyloriEradicationError,
+                          setUserResponses,
+                          setMessages,
+                          conversationFlow,
+                          setCurrentStep,
+                          setHPyloriEradicationInput,
+                          conversationFlow.hPyloriEradication.options.find(o => o.text === opt)?.nextId
+                        );
                       }
                     }}
                     isDisabled={isProcessingSelection}
-                    bg={hPyloriEradicationInput === opt ? 'blue.50' : 'transparent'}
-                    borderColor={hPyloriEradicationInput === opt ? 'blue.400' : 'gray.200'}
                     justifyContent="flex-start"
                     textAlign="left"
                   >
@@ -1584,7 +1589,7 @@ function App() {
                     borderRadius="full"
                     isFullWidth
                     _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                    onClick={() => !isProcessingSelection && handleFertilityDrugsSubmitCall(opt.text)}
+                    onClick={() => !isProcessingSelection && handleFertilityDrugsSubmitCall(opt.text, opt.nextId)}
                     isDisabled={isProcessingSelection}
                     bg={fertilityDrugsInput === opt.text ? 'blue.50' : 'transparent'}
                     borderColor={fertilityDrugsInput === opt.text ? 'blue.400' : 'gray.200'}
@@ -1597,6 +1602,147 @@ function App() {
                 ))}
               </VStack>
               {fertilityDrugsError && <FormErrorMessage>{fertilityDrugsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'goffSymptomIntro' ? (
+            <VStack spacing={3} align="stretch">
+              {conversationFlow.goffSymptomIntro.options.map((option, index) => (
+                <Button
+                  key={option.text}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="md"
+                  borderRadius="full"
+                  _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                  onClick={() => handleOptionSelectCall(option.text, option.nextId)}
+                  transition="all 0.2s"
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  isDisabled={isProcessingSelection}
+                  _disabled={{
+                    opacity: 0.7,
+                    cursor: "not-allowed",
+                    _hover: { bg: "initial", borderColor: "inherit" }
+                  }}
+                >
+                  {option.text}
+                  {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
+                </Button>
+              ))}
+            </VStack>
+          ) : currentStep === 'goffBloating' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffBloating.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffPain' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffPain.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffFullness' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffFullness.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffUrinary' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffUrinary.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffAbdomenSize' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffAbdomenSize.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
             </FormControl>
           ) : currentStep === 'allergyDetails' ? (
             <FormControl>
