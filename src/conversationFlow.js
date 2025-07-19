@@ -78,10 +78,12 @@ const conversationFlow = {
       { text: "Yes", nextId: "smokingYears" },
       { text: "No", nextId: "alcoholConsumption" }
     ]
-  },smokingYears: {
+  },
+  smokingYears: {
     question: "How many packs of cigarettes do/did you smoke per day on average? (A pack contains 20 cigarettes)",
     options: [],
-    inputType: "smokingPacks"
+    inputType: "smoking",
+    nextId: "smokingAmount"
   },  smokingAmount: {
     question: "How many years have you smoked?",
     options: [],

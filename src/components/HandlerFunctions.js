@@ -1435,14 +1435,13 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
     // Clear input
     setSmokingPacksInput('');
     
-    // Move to the next step using nextId from conversationFlow.smokingAmount
+    // Move to the next step: always go to 'smokingAmount' after packs per day
     setTimeout(() => {
-      const nextId = conversationFlow.smokingAmount?.nextId || 'smokingYears';
+      const nextId = 'smokingAmount';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
-          ...prev, 
+          ...prev,
           {
             id: prev.length + 1,
             text: nextStep.question,
@@ -1450,7 +1449,6 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
@@ -1576,14 +1574,13 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
     // Clear input
     setSmokingYearsInput('');
     
-    // Move to the next step using nextId from conversationFlow.smokingYears
+    // Move to the next step: always go to 'alcoholConsumption' after years smoked
     setTimeout(() => {
-      const nextId = conversationFlow.smokingYears?.nextId || 'alcoholConsumption';
+      const nextId = 'alcoholConsumption';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
-          ...prev, 
+          ...prev,
           {
             id: prev.length + 1,
             text: nextStep.question,
@@ -1591,7 +1588,6 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
