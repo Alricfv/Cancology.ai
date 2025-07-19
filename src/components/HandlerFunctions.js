@@ -32,7 +32,8 @@ export const handleGastricGeneMutationSubmit = (
   ]));
   setGastricGeneMutationInput("");
   setTimeout(() => {
-    const nextStep = conversationFlow[nextId];
+    const id = nextId || conversationFlow.gastricGeneMutation.nextId;
+    const nextStep = conversationFlow[id];
     if (nextStep) {
       setMessages(prev => ([
         ...prev,
@@ -43,7 +44,7 @@ export const handleGastricGeneMutationSubmit = (
           timestamp: new Date()
         }
       ]));
-      setCurrentStep(nextId);
+      setCurrentStep(id);
     }
   }, 1000);
 };
@@ -80,7 +81,8 @@ export const handleGastritisUlcerSubmit = (
   ]));
   setGastritisUlcerInput("");
   setTimeout(() => {
-    const nextStep = conversationFlow.medications;
+    const nextId = conversationFlow.gastritisUlcer.nextId || 'medications';
+    const nextStep = conversationFlow[nextId];
     if (nextStep) {
       setMessages(prev => ([
         ...prev,
@@ -91,7 +93,7 @@ export const handleGastritisUlcerSubmit = (
           timestamp: new Date()
         }
       ]));
-      setCurrentStep('medications');
+      setCurrentStep(nextId);
     }
   }, 1000);
 };
@@ -129,7 +131,8 @@ export const handleHPyloriEradicationSubmit = (
   ]));
   setHPyloriEradicationInput("");
   setTimeout(() => {
-    const nextStep = conversationFlow[nextId];
+    const id = nextId || conversationFlow.hPyloriEradication.nextId;
+    const nextStep = conversationFlow[id];
     if (nextStep) {
       setMessages(prev => ([
         ...prev,
@@ -140,7 +143,7 @@ export const handleHPyloriEradicationSubmit = (
           timestamp: new Date()
         }
       ]));
-      setCurrentStep(nextId);
+      setCurrentStep(id);
     }
   }, 1000);
 };
@@ -178,7 +181,8 @@ export const handleHPyloriSubmit = (
   ]));
   setHPyloriInput("");
   setTimeout(() => {
-    const nextStep = conversationFlow[nextId];
+    const id = nextId || conversationFlow.hPylori.nextId;
+    const nextStep = conversationFlow[id];
     if (nextStep) {
       setMessages(prev => ([
         ...prev,
@@ -189,7 +193,7 @@ export const handleHPyloriSubmit = (
           timestamp: new Date()
         }
       ]));
-      setCurrentStep(nextId);
+      setCurrentStep(id);
     }
   }, 1000);
 };
@@ -224,8 +228,8 @@ export const handleFruitVegServingsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Find nextId from options array
-  const nextId = conversationFlow.fruitVegServings.options.find(opt => opt.text === fruitVegServingsInput)?.nextId || 'sexualHealth';
+  // Find nextId from options array or from conversationFlow
+  const nextId = conversationFlow.fruitVegServings.options.find(opt => opt.text === fruitVegServingsInput)?.nextId || conversationFlow.fruitVegServings.nextId || 'sexualHealth';
   setTimeout(() => {
     if (conversationFlow[nextId]) {
       setMessages(prev => ([
@@ -271,8 +275,8 @@ export const handleFertilityDrugsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Advance to next step (pastCancerScreening)
-  const nextId = 'pastCancerScreening';
+  // Advance to next step using nextId from conversationFlow.fertilityDrugs
+  const nextId = conversationFlow.fertilityDrugs.nextId || 'pastCancerScreening';
   setTimeout(() => {
     if (conversationFlow[nextId]) {
       setMessages(prev => ([
@@ -318,8 +322,8 @@ export const handleNumberOfBirthsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Advance to next step and add bot message for next question after a delay
-  const nextId = conversationFlow.numberOfBirths?.options?.[0]?.nextId || 'summary';
+  // Advance to next step using nextId from conversationFlow.numberOfBirths
+  const nextId = conversationFlow.numberOfBirths.nextId || conversationFlow.numberOfBirths?.options?.[0]?.nextId || 'summary';
   setTimeout(() => {
     if (conversationFlow[nextId]) {
       setMessages(prev => ([
@@ -426,7 +430,8 @@ export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUser
   ]));
   setPillYearsInput('');
   setTimeout(() => {
-    const nextStep = conversationFlow.hormoneReplacementTherapy;
+    const nextId = conversationFlow.pillYears?.nextId || 'hormoneReplacementTherapy';
+    const nextStep = conversationFlow[nextId];
     if (nextStep) {
       setMessages(prev => [
         ...prev,
@@ -437,7 +442,7 @@ export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUser
           timestamp: new Date()
         }
       ]);
-      setCurrentStep('hormoneReplacementTherapy');
+      setCurrentStep(nextId);
     }
   }, 1000);
 };
@@ -483,10 +488,10 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
     // Clear input
     setAgeInput('');
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.age
     setTimeout(() => {
-      const nextStep = conversationFlow.sex;
-      
+      const nextId = conversationFlow.age?.nextId || 'sex';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -498,10 +503,8 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('sex');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -544,10 +547,10 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
     // Clear input
     // Note: setEthnicityInput needs to be passed as a parameter
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.ethnicity
     setTimeout(() => {
-      const nextStep = conversationFlow.location;
-      
+      const nextId = conversationFlow.ethnicity?.nextId || 'location';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -559,10 +562,8 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('location');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -605,10 +606,10 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
     // Clear input
     setCountryInput('');
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.country
     setTimeout(() => {
-      const nextStep = conversationFlow.cancer;
-      
+      const nextId = conversationFlow.country?.nextId || 'cancer';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -620,10 +621,8 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('cancer');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -687,10 +686,10 @@ export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerA
     setCancerType('');
     setCancerAgeInput('');
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.cancerDetails
     setTimeout(() => {
-      const nextStep = conversationFlow.familyHistory;
-      
+      const nextId = conversationFlow.cancerDetails?.nextId || 'familyHistory';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -702,10 +701,8 @@ export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerA
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('familyHistory');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -770,14 +767,13 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
       none: false
     });
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.chronicConditions
     setTimeout(() => {
-      const nextStep = conversationFlow.smokingStatus;
-      
+      const nextId = conversationFlow.chronicConditions.nextId || 'smokingStatus';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
-          ...prev, 
+          ...prev,
           {
             id: prev.length + 1,
             text: nextStep.question,
@@ -785,10 +781,7 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
             timestamp: new Date()
           }
         ]);
-        
-        // Update the current step
-        setCurrentStep('smokingStatus');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -866,14 +859,13 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
     setFamilyRelation('');
     setFamilyCancerAgeInput('');
     
-    // Move to the next step (chronicConditions)
+    // Move to the next step using nextId from conversationFlow.familyHistoryDetails
     setTimeout(() => {
-      const nextStep = conversationFlow.chronicConditions;
-      
+      const nextId = conversationFlow.familyHistoryDetails.nextId || 'gastricGeneMutation';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
-          ...prev, 
+          ...prev,
           {
             id: prev.length + 1,
             text: nextStep.question,
@@ -881,10 +873,7 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
             timestamp: new Date()
           }
         ]);
-        
-        // Update the current step
-        setCurrentStep('chronicConditions');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -995,9 +984,10 @@ export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmok
     }
   ]));
   setSaltySmokedFoodsInput('');
-  // Move to the next step (fruitVegServings)
+  // Move to the next step using nextId from conversationFlow.saltySmokedFoods
   setTimeout(() => {
-    const nextStep = conversationFlow.fruitVegServings;
+    const nextId = conversationFlow.saltySmokedFoods?.nextId || 'fruitVegServings';
+    const nextStep = conversationFlow[nextId];
     if (nextStep) {
       setMessages(prev => ([
         ...prev,
@@ -1008,7 +998,7 @@ export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmok
           timestamp: new Date()
         }
       ]));
-      setCurrentStep('fruitVegServings');
+      setCurrentStep(nextId);
     }
   }, 1000);
 };
@@ -1181,10 +1171,10 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
   // Clear input
   setMenarcheAgeInput('');
   
-  // Move to the next step (menstruationStatus)
+  // Move to the next step using nextId from conversationFlow.menarcheAge
   setTimeout(() => {
-    const nextStep = conversationFlow.menstruationStatus;
-    
+    const nextId = conversationFlow.menarcheAge?.nextId || 'menstruationStatus';
+    const nextStep = conversationFlow[nextId];
     if (nextStep) {
       // Add bot's next question
       setMessages(prev => [
@@ -1196,10 +1186,8 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
           timestamp: new Date()
         }
       ]);
-      
       // Update the current step
-      setCurrentStep('menstruationStatus');
-      
+      setCurrentStep(nextId);
     }
   }, 1000);
  };
@@ -1241,12 +1229,12 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
   // Clear input
    setCancerScreeningInput('');
   
-  // Move to the next step (hpvVaccine)
+  // Move to the next step using nextId from conversationFlow.cancerScreeningDetails
    setTimeout(() => {
-     const nextStep = conversationFlow.hpvVaccine;
-    
+     const nextId = conversationFlow.cancerScreeningDetails?.nextId || 'hpvVaccine';
+     const nextStep = conversationFlow[nextId];
      if (nextStep) {
-      // Add bot's next question
+       // Add bot's next question
        setMessages(prev => [
          ...prev, 
          {
@@ -1256,10 +1244,8 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
            timestamp: new Date()
          }
        ]);
-      
        // Update the current step
-       setCurrentStep('hpvVaccine');
-      
+       setCurrentStep(nextId);
      }
    }, 1000);
  };
@@ -1325,10 +1311,10 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
       none: false
     });
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.medications
     setTimeout(() => {
-      const nextStep = conversationFlow.allergies;
-      
+      const nextId = conversationFlow.medications?.nextId || 'allergies';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -1340,10 +1326,8 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('allergies');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -1383,10 +1367,27 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
     // Clear input
     setAllergyInput('');
     
-    // Directly route based on sex instead of going to checkSex step
+    // Move to the next step using nextId from conversationFlow.allergies, or call routeBasedOnSex if specified
     setTimeout(() => {
-      
-      routeBasedOnSex();
+      const nextId = conversationFlow.allergies?.nextId;
+      if (nextId && nextId !== 'routeBasedOnSex') {
+        const nextStep = conversationFlow[nextId];
+        if (nextStep) {
+          setMessages(prev => [
+            ...prev,
+            {
+              id: prev.length + 1,
+              text: nextStep.question,
+              sender: 'bot',
+              timestamp: new Date()
+            }
+          ]);
+          setCurrentStep(nextId);
+        }
+      } else {
+        // Default or explicit routeBasedOnSex
+        routeBasedOnSex();
+      }
     }, 1000);
   };
         
@@ -1434,10 +1435,10 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
     // Clear input
     setSmokingPacksInput('');
     
-    // Move to the next step (smokingYears)
+    // Move to the next step using nextId from conversationFlow.smokingAmount
     setTimeout(() => {
-      const nextStep = conversationFlow.smokingAmount;
-      
+      const nextId = conversationFlow.smokingAmount?.nextId || 'smokingYears';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -1449,10 +1450,8 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('smokingAmount');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -1505,9 +1504,10 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
     // Clear input
     setProstateTestAgeInput('');
 
-    // Move to the next step (testicularIssues)
+    // Move to the next step using nextId from conversationFlow.prostateTestAge
     setTimeout(() => {
-      const nextStep = conversationFlow.testicularIssues;
+      const nextId = conversationFlow.prostateTestAge?.nextId || 'testicularIssues';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -1519,10 +1519,8 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('testicularIssues');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -1578,10 +1576,10 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
     // Clear input
     setSmokingYearsInput('');
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.smokingYears
     setTimeout(() => {
-      const nextStep = conversationFlow.alcoholConsumption;
-      
+      const nextId = conversationFlow.smokingYears?.nextId || 'alcoholConsumption';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
         // Add bot's next question
         setMessages(prev => [
@@ -1593,10 +1591,8 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
             timestamp: new Date()
           }
         ]);
-        
         // Update the current step
-        setCurrentStep('alcoholConsumption');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
@@ -1645,14 +1641,13 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
     // Clear input
     setAlcoholAmountInput('');
     
-    // Move to the next step
+    // Move to the next step using nextId from conversationFlow.alcoholAmount
     setTimeout(() => {
-      const nextStep = conversationFlow.sexualHealth;
-      
+      const nextId = conversationFlow.alcoholAmount?.nextId || 'saltySmokedFoods';
+      const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
-          ...prev, 
+          ...prev,
           {
             id: prev.length + 1,
             text: nextStep.question,
@@ -1660,10 +1655,7 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
             timestamp: new Date()
           }
         ]);
-        
-        // Update the current step
-        setCurrentStep('sexualHealth');
-        
+        setCurrentStep(nextId);
       }
     }, 1000);
   };
