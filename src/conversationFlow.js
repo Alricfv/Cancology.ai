@@ -52,14 +52,28 @@ const conversationFlow = {
     question: "Has a first-degree relative (parent, sibling, child) ever been diagnosed with cancer?",
     options: [
       { text: "Yes", nextId: "familyHistoryDetails" },
-      { text: "No", nextId: "gastricGeneMutation" }
+      { text: "No", nextId: "partialGastrectomy" }
     ]
   },
   familyHistoryDetails: {
     question: "Please provide details about your family member's cancer diagnosis:",
     options: [],
     inputType: "familyCancer",
-    nextId: "gastricGeneMutation"
+    nextId: "partialGastrectomy"
+  },
+  partialGastrectomy: {
+    question: "Have you ever had part of your stomach surgically removed (partial gastrectomy), more than 15 years ago?",
+    options: [
+      { text: "Yes", nextId: "perniciousAnemia" },
+      { text: "No", nextId: "perniciousAnemia" }
+    ]
+  },
+  perniciousAnemia: {
+    question: "Have you ever been diagnosed with pernicious anemia or received regular vitamin B12 injections?",
+    options: [
+      { text: "Yes", nextId: "gastricGeneMutation" },
+      { text: "No", nextId: "gastricGeneMutation" }
+    ]
   },
   gastricGeneMutation: {
     question: "Have you been diagnosed with a CDH1 or other gene mutation associated with gastric cancer?",
@@ -72,7 +86,8 @@ const conversationFlow = {
     question: "Do you have any of the following chronic conditions?",
     options: [],
     inputType: "chronic"
-  },  smokingStatus: {
+  },  
+  smokingStatus: {
     question: "Do you currently smoke or have you smoked in the past?",
     options: [
       { text: "Yes", nextId: "smokingYears" },
@@ -174,7 +189,7 @@ const conversationFlow = {
     question: "Do you have any known drug allergies?",
     options: [
       { text: "Yes", nextId: "allergyDetails" },
-      { text: "No", nextId: "routeBasedOnSex" }
+      { text: "No", nextId: "symptomScreenIntro" }
     ]
   },
   // This step is kept for backward compatibility but is bypassed in the current flow
@@ -193,8 +208,68 @@ const conversationFlow = {
   allergyDetails: {
     question: "Please specify your drug allergies:",
     options: [],
-    inputType: "allergies"
-  },  maleQuestions: {
+    inputType: "allergies",
+    nextId: "symptomScreenIntro"
+  },
+  symptomScreenIntro: {
+    question: "Please let us know if you have experienced any of the following. These help us ensure your symptoms are not due to a more serious condition.",
+    options: [
+      { text: "Continue", nextId: "swallowingDifficulty" }
+    ]
+  },
+  swallowingDifficulty: {
+    question: "Do you have pain/difficulty when swallowing?",
+    options: [
+      { text: "Yes", nextId: "blackStool" },
+      { text: "No", nextId: "blackStool" }
+    ]
+  },
+  blackStool: {
+    question: "Have you noticed any black, sticky, or tar-like stools in the last 6 months?",
+    options: [
+      { text: "Yes", nextId: "weightLoss" },
+      { text: "No", nextId: "weightLoss" }
+    ]
+  },
+  weightLoss: {
+    question: "Have you unintentionally lost weight (5 kg or more) over the past 6 months?",
+    options: [
+      { text: "Yes", nextId: "vomiting" },
+      { text: "No", nextId: "vomiting" }
+    ]
+  },
+  vomiting: {
+    question: "Have you had vomiting that lasted a week or longer, and you didn't know what was causing it?",
+    options: [
+      { text: "Yes", nextId: "epigastricPain" },
+      { text: "No", nextId: "epigastricPain" }
+    ]
+  },
+  epigastricPain: {
+    question: "Have you had persistent or repeated pain in the upper stomach area (epigastric) that has lasted longer than one month?",
+    options: [
+      { text: "Yes", nextId: "indigestion" },
+      { text: "No", nextId: "indigestion" }
+    ]
+  },
+  indigestion: {
+    question: "How often do you experience indigestion or heartburn?",
+    options: [
+      { text: "Never", nextId: "painWakesAtNight" },
+      { text: "Occasionally", nextId: "painWakesAtNight" },
+      { text: "Weekly", nextId: "painWakesAtNight" },
+      { text: "Daily", nextId: "painWakesAtNight" }
+    ],
+    inputType: "dropdown"
+  },
+  painWakesAtNight: {
+    question: "Does pain from your main health problems ever wake you up at night? (Not including minor issues like leg cramps.)",
+    options: [
+      { text: "Yes", nextId: "routeBasedOnSex" },
+      { text: "No", nextId: "routeBasedOnSex" }
+    ]
+  },
+  maleQuestions: {
     question: "We have some additional male-specific health questions. Let's continue with those.",
     options: [
       { text: "Continue", nextId: "urinarySymptoms" }

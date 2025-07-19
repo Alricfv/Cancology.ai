@@ -1553,28 +1553,42 @@ function App() {
             </FormControl>
           ) : currentStep === 'gastricGeneMutation' ? (
             <FormControl isInvalid={!!gastricGeneMutationError}>
-              <Select
-                placeholder={conversationFlow.gastricGeneMutation.question}
-                value={gastricGeneMutationInput || ''}
-                onChange={e => setGastricGeneMutationInput(e.target.value)}
-                borderRadius="md"
-                focusBorderColor="blue.400"
-                mb={3}
-                isDisabled={isProcessingSelection}
-              >
-                {conversationFlow.gastricGeneMutation.options.map(opt => (
-                  <option key={opt.text} value={opt.text}>{opt.text}</option>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => {
+                      if (!isProcessingSelection) {
+                        setGastricGeneMutationInput(opt);
+                        handleGastricGeneMutationSubmit(
+                          opt,
+                          setGastricGeneMutationError,
+                          setUserResponses,
+                          setMessages,
+                          conversationFlow,
+                          setCurrentStep,
+                          setGastricGeneMutationInput,
+                          conversationFlow.gastricGeneMutation.options.find(o => o.text === opt)?.nextId
+                        );
+                      }
+                    }}
+                    isDisabled={isProcessingSelection}
+                    bg={gastricGeneMutationInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={gastricGeneMutationInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && gastricGeneMutationInput === opt && <span> ✓</span>}
+                  </Button>
                 ))}
-              </Select>
-              <Button
-                colorScheme="blue"
-                onClick={handleGastricGeneMutationSubmitCall}
-                isFullWidth
-                borderRadius="full"
-                isDisabled={!gastricGeneMutationInput || isProcessingSelection}
-              >
-                Submit
-              </Button>
+              </VStack>
               {gastricGeneMutationError && <FormErrorMessage>{gastricGeneMutationError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'fertilityDrugs' ? (

@@ -1798,7 +1798,79 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           allergies: "None"
         }));
       }
-    } 
+    }
+    else if (currentStep === 'swallowingDifficulty') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          swallowingDifficulty: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'blackStool') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          blackStool: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'weightLoss') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          weightLoss: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'vomiting') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          vomiting: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'epigastricPain') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          epigastricPain: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'indigestion') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          indigestion: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'painWakesAtNight') {
+      setUserResponses(prev => ({
+        ...prev,
+        symptoms: {
+          ...prev.symptoms,
+          painWakesAtNight: optionText === 'Yes'
+        }
+      }));
+    }
+    else if (currentStep === 'partialGastrectomy') {
+      setUserResponses(prev => ({
+        ...prev,
+        surgery: {
+          ...prev.surgery,
+          partialGastrectomy: optionText === 'Yes'
+        }
+      }));
+    }
     else if (currentStep === 'checkSex') {
       // This case is kept for backward compatibility, but should no longer be used
       // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
@@ -1947,6 +2019,15 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
             optionText === 'Yes'
               ? [...(prev.medicalHistory.geneticMutations || []), 'BRCA1/BRCA2']
               : prev.medicalHistory.geneticMutations || []
+        }
+      }));
+    }
+    else if (currentStep === 'gastricGeneMutation') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          gastricGeneMutation: optionText === 'Yes'
         }
       }));
     }
