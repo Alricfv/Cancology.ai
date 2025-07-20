@@ -837,7 +837,7 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
   };
 
 // Handle family cancer history details submission
-export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation, familyCancerAgeInput,setFamilyCancerAgeError, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setFamilyCancerType, setFamilyRelation, setFamilyCancerAgeInput) => {
+export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation, familyCancerAgeInput, setFamilyCancerAgeError, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setFamilyCancerType, setFamilyRelation, setFamilyCancerAgeInput, userResponses) => {
     // Validate family cancer inputs
     if (!familyCancerType) {
       toast({
@@ -909,9 +909,9 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
     setFamilyRelation('');
     setFamilyCancerAgeInput('');
     
-    // Move to the next step using nextId from conversationFlow.familyHistoryDetails
+    // Move to the next step using static nextId from conversationFlow.familyHistoryDetails
     setTimeout(() => {
-      const nextId = conversationFlow.familyHistoryDetails.nextId || 'gastricGeneMutation';
+      const nextId = conversationFlow.familyHistoryDetails.nextId || 'partialGastrectomy';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
         setMessages(prev => [

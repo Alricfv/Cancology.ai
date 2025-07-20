@@ -279,7 +279,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               if (!val) return 'Not specified';
               const normalized = val.trim().toLowerCase();
               if (normalized === '4 or more times a week') return '4+/week';
-              if (normalized === '2-3 times a week') return '2-3/week';
+              if (normalized === '>1/week' || normalized === 'less than one time a week') return '>1/week';
+              if (normalized === '1-3 times a week') return '1-3/week';
               if (normalized === 'once a week') return '1/week';
               if (normalized === 'rarely' || normalized === 'less than once a week') return 'Rarely';
               if (normalized === 'never') return 'Never';
@@ -316,6 +317,50 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         </div>
       `;
       
+      const geneticInfectionRisk = `
+        <div class="section-title">Genetic & Infection Risk</div>
+        <div class="grid">
+          <div class="label">BRCA1/BRCA2 mutation:</div>
+          <div class="value">
+            ${(userResponses.medicalHistory.brcaMutationStatus !== undefined && userResponses.medicalHistory.brcaMutationStatus !== null && userResponses.medicalHistory.brcaMutationStatus !== '') ?
+              formatBadge(userResponses.medicalHistory.brcaMutationStatus === 'Yes', 'Yes', 'No', 'orange', 'green') :
+              '<span style="color:#718096;">Not specified</span>'}
+          </div>
+          <div class="label">H.pylori history:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'Yes' ?
+                formatBadge(true, 'Yes', 'No', 'orange', 'green') :
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'No' ?
+                formatBadge(false, 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+          <div class="label">Eradication Therapy:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'No'
+                ? '<span style="color:#718096;">N/A</span>'
+                : userResponses.lifestyle && userResponses.lifestyle.hPyloriEradication === 'Yes'
+                  ? formatBadge(true, 'Yes', 'No', 'orange', 'green')
+                  : userResponses.lifestyle && userResponses.lifestyle.hPyloriEradication === 'No'
+                    ? formatBadge(false, 'Yes', 'No', 'orange', 'green')
+                    : '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+          <div class="label">Gastritis (chronic) / Ulcers:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.gastritisUlcer === 'Yes'
+                ? formatBadge(true, 'Yes', 'No', 'orange', 'green')
+                : userResponses.lifestyle && userResponses.lifestyle.gastritisUlcer === 'No'
+                  ? formatBadge(false, 'Yes', 'No', 'orange', 'green')
+                  : '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+        </div>
+      `;
+
       const medicationsAllergies = `
         <div class="section-title">Medications & Allergies</div>
         <div class="grid">
@@ -347,6 +392,14 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <span class="mh-value">
               ${typeof userResponses.medicalHistory.perniciousAnemia !== 'undefined' ?
                 formatBadge(userResponses.medicalHistory.perniciousAnemia === 'Yes', 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">CDH1/Gene Mutation:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.gastricGeneMutation !== 'undefined' ?
+                formatBadge(userResponses.medicalHistory.gastricGeneMutation === 'Yes', 'Yes', 'No', 'orange', 'green') :
                 '<span style="color:#718096;">Not specified</span>'}
             </span>
           </div>
@@ -387,21 +440,71 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             <div class="label">Menstruation Status:</div>
             <div class="value">${userResponses.sexSpecificInfo.female.menstruationStatus || 'Not specified'}</div>
-            
+
+            <div class="label">Last Period Age:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.menopauseAge || 'Not specified'}</div>
+
             <div class="label">Pregnancy History:</div>
             <div class="value">
               ${formatBadge(userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy, 'YES', 'NO', 'blue', 'gray')}
               ${userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? 
                 `(First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})` : ''}
             </div>
+
+            <div class="label">Births at/after 24 weeks:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'Not specified'}</div>
+
+            <div class="label">Oral contraceptive:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'Not specified'}</div>
             
-            <div class="label">Birth Control Pills:</div>
-            <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.birthControl, 'YES', 'NO', 'purple', 'gray')}
-            </div>
-            <div class="label">Hormone Replacement Therapy (HRT):</div>
+            <div class="label">Hormone Replacement Therapy:</div>
             <div class="value">
               ${formatBadge(userResponses.sexSpecificInfo.female.hormoneReplacementTherapy, 'YES', 'NO', 'purple', 'gray')}
+            </div>
+
+            <div class="label">Tubal ligation:</div>
+            <div class="value">
+              ${formatBadge(
+                userResponses.sexSpecificInfo.female.tubalLigation === 'Yes',
+                'Yes',
+                'No',
+                'purple',
+                'gray'
+              )}
+            </div>
+
+            <div class="label">Ovary Removal:</div>
+            <div class="value">
+              ${userResponses.sexSpecificInfo.female.ovaryRemoved !== undefined && userResponses.sexSpecificInfo.female.ovaryRemoved !== null && userResponses.sexSpecificInfo.female.ovaryRemoved !== ''
+                ? userResponses.sexSpecificInfo.female.ovaryRemoved
+                : '<span class="not-specified">Not specified</span>'}
+            </div>
+
+            <div class="label">Endometriosis diagnosis:</div>
+            <div class="value">
+              ${formatBadge(
+                userResponses.sexSpecificInfo.female.endometriosis === 'Yes',
+                'Yes',
+                'No',
+                'purple',
+                'gray'
+              )}
+            </div>
+            <div class="label">IVF Drugs:</div>
+            <div class="value">
+              ${(() => {
+                const val = userResponses.sexSpecificInfo.female.IVF_history;
+                if (val === undefined || val === null || val === '') {
+                  return '<span class="not-specified">Not specified</span>';
+                }
+                if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                  return '<span class="badge badge-red">Yes</span>';
+                }
+                if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                  return '<span class="badge badge-green">No</span>';
+                }
+                return val;
+              })()}
             </div>
           </div>
         `;
@@ -573,14 +676,14 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             .header h1 {
               color: #2B6CB0;
-              font-size: 20pt;
+              font-size: 27pt;
               margin: 0;
               font-weight: 900;
               letter-spacing: -0.5px;
             }
 
             .header h2 {
-              font-size: 12pt;
+              font-size: 17pt;
               margin: 8px 0 0 0;
               font-weight: 500;
               color: #4A5568;
@@ -626,7 +729,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               font-size: 14pt;
               color: #4A5568;
               text-align: left;
-              vertical-align: top;
+              display: block;
+              white-space: nowrap;
             }
             
             .value {
@@ -634,6 +738,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               margin-bottom: 8px;
               padding-left: 0;
               color: #2D3748;
+              display: block;
+              text-align: right;
             }
             
             .badge {
@@ -645,11 +751,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               margin-right: 5px;
               font-weight: bold;
               text-transform: uppercase;
-              vertical-align: middle;
-            }
-            .grid .value span,
-            .grid .value .badge {
-              vertical-align: middle;
             }
             
             /* Badge colors updated to match the pink/light red high risk style from the reference image */
@@ -665,7 +766,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               display: grid;
               grid-template-columns: 120px 1fr;
               gap: 3px 10px;
-              align-items: flex-start;
               width: 100%;
               margin-bottom: 8px;
               background-color: white;
@@ -676,22 +776,19 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             .grid .label {
               text-align: left;
               justify-content: flex-start;
+              display: flex;
+              align-items: center;
+              white-space: nowrap;
             }
             .grid .value {
               text-align: right;
               justify-content: flex-end;
-            }
-            /* All labels in a single line (no wrapping, no stacking) */
-            .grid .label,
-            .medical-history-grid .mh-labels .label {
-              display: inline-block;
-              width: 100%;
-              white-space: nowrap;
-              vertical-align: middle;
+              display: flex;
+              align-items: center;
+              gap: 6px;
             }
             /* Remove flex/column stacking for label columns */
-            .grid,
-            .medical-history-grid {
+            .grid {
               align-items: center;
             }
             /* But keep left alignment for personal info grid */
@@ -801,13 +898,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         </head>
         <body>
           <article style="page-break-after: avoid; break-after: avoid;">
+
             <!-- First Page -->
             <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
                 <h2>Cancer Screening Test</h2>
               </header>
-              
               <div class="content">
                 <div class="column">
                   ${personalInfo}
@@ -815,33 +912,123 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                   ${lifestyleFactors}
                   ${gastrointestinalSurgery}
                 </div>
-                
                 <div class="column">
-                  ${medicationsAllergies}
+                  ${geneticInfectionRisk}
                   ${sexSpecificInfo}
                   ${vaccinationsScreening}
-                  
-                  <!-- Risk Assessment - Moved to first page -->
-                  <div class="section-title">Health Risk Assessment</div>
-                  <div class="risk-assessment">
-                    <div class="grid" style="grid-template-columns: 120px 1fr;">
-                      <div class="label">Risk Level:</div>
-                      <div class="value">
-                        <span class="risk-badge badge-${riskColor}" style="white-space: nowrap; display: inline-block; min-width: 90px; text-align: center;">${riskLevel}</span>
-                      </div>
+                  <!-- Risk Assessment removed from PDF printout as requested -->
+                </div>
+              </div>
+            </section>
+
+            <!-- Second Page: Ovarian Cancer Symptom Screening (Goff Criteria) for Females Only, no placeholders -->
+            ${userResponses.demographics.sex === "Female" ? `
+            <section class="page" style="page-break-after: always; break-after: page;">
+              <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
+                <h1 style="font-weight:900;">Sky Premium Hospital</h1>
+                <h2>Cancer Screening Test</h2>
+              </header>
+              <div class="content">
+                <div class="column" style="width: 100%; min-height: 400px;">
+                  ${medicationsAllergies}
+                  <div class="section-title">Ovarian Cancer Symptom Screening (Goff Criteria)</div>
+                  <div class="grid">
+                    <div class="label">Persistent Bloating or Abdominal Swelling:</div>
+                    <div class="value">
+                      ${(() => {
+                        // Use the exact key as set in HandlerFunctions.js
+                        const val = userResponses.symptoms?.goffSymptomIndex?.bloating;
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Pelvic or Lower-Abdominal Pain:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.pain;
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Felt Full Quickly or Been Unable to Finish Meals:</div>
+                    <div class="value">
+                      ${(() => {
+                        // Use only the correct key for this symptom
+                        const val = userResponses.symptoms?.goffSymptomIndex?.fullness;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Frequent Need To Pass Urine:</div>
+                    <div class="value">
+                      ${(() => {
+                        // Use the correct key for this symptom (urinary)
+                        const val = userResponses.symptoms?.goffSymptomIndex?.urinary;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">An Increase in abdomen size or clothes have become tight:</div>
+                    <div class="value">
+                      ${(() => {
+                        // Use the correct key for this symptom (abdomenSize)
+                        const val = userResponses.symptoms?.goffSymptomIndex?.abdomenSize;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
                     </div>
                   </div>
                 </div>
               </div>
             </section>
-            
+            ` : ''}
+
             ${prescribedTests.length > 0 ? `
-            <!-- Second Page (only rendered if there are prescribed tests) -->
+            <!-- Third Page (only rendered if there are prescribed tests) -->
             <section class="page">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900">Recommended Cancer Screening Tests</h1>
               </header>
-              
               <div class="content" style="page-break-before: avoid; break-before: avoid;">
                 <div class="column" style="width: 100%; page-break-inside: avoid; break-inside: avoid;">
                   ${prescribedTests.map(test => `
@@ -1286,8 +1473,34 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                       {userResponses.sexSpecificInfo.female.hormoneReplacementTherapy ? "YES" : "NO"}
                     </Badge>
                   </Box>
-                  
-                  {/* HPV Vaccine question removed from female section */}              
+
+                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+
+                    Tubal ligation:
+                  </Text>
+                  <Box display="flex" alignItems="center">
+                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.tubalLigation ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
+                      {userResponses.sexSpecificInfo.female.tubalLigation ? userResponses.sexSpecificInfo.female.tubalLigation : 'Not specified'}
+                    </Badge>
+                  </Box>
+
+                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                    Ovary Removal:
+                  </Text>
+                  <Text fontSize="9pt">
+                    {userResponses.sexSpecificInfo.female.ovaryRemoved || 'Not specified'}
+                  </Text>
+
+                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
+                    Endometriosis diagnosis:
+                  </Text>
+                  <Box display="flex" alignItems="center">
+                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.endometriosis ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
+                      {userResponses.sexSpecificInfo.female.endometriosis ? userResponses.sexSpecificInfo.female.endometriosis : 'Not specified'}
+                    </Badge>
+                  </Box>
+
+                  {/* HPV Vaccine question removed from female section */}
                 </Grid>
               )}
             </Box>

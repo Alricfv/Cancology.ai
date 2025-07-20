@@ -83,6 +83,8 @@ function App() {
   const [perniciousAnemiaError, setPerniciousAnemiaError] = useState("");
   const handlePerniciousAnemiaSubmitCall = (answer) => {
     setPerniciousAnemiaInput(answer);
+    // Find the nextId from the selected option in conversationFlow.perniciousAnemia.options
+    const nextId = conversationFlow.perniciousAnemia.options.find(opt => opt.text === answer)?.nextId;
     handlePerniciousAnemiaSubmit(
       answer,
       setPerniciousAnemiaError,
@@ -90,7 +92,8 @@ function App() {
       setMessages,
       conversationFlow,
       setCurrentStep,
-      setPerniciousAnemiaInput
+      setPerniciousAnemiaInput,
+      nextId
     );
   };
   const [appState, setAppState] = useState('landing'); // State to track app state
@@ -978,8 +981,10 @@ function App() {
                 <InputGroup size="md">
                   <Input 
                     type="number"
-                    placeholder="Enter your age at diagnosis (0-120)"
+                    placeholder="Enter your age at diagnosis"
                     value={cancerAgeInput}
+                    min={0}
+                    max={userResponses.demographics.age || 120}
                     onChange={(e) => setCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
@@ -1293,6 +1298,8 @@ function App() {
                     type="number"
                     placeholder="Enter their age at diagnosis (0-120)"
                     value={familyCancerAgeInput}
+                    min={0}
+                    max={120}
                     onChange={(e) => setFamilyCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
