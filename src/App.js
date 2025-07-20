@@ -73,10 +73,26 @@ import {
   handleHPyloriSubmit,
   handleHPyloriEradicationSubmit,
   handleGastritisUlcerSubmit,
-  handleGastricGeneMutationSubmit
+  handleGastricGeneMutationSubmit,
+  handlePerniciousAnemiaSubmit
 } from './components/HandlerFunctions';
 
 function App() {
+  // Pernicious Anemia state and handler
+  const [perniciousAnemiaInput, setPerniciousAnemiaInput] = useState("");
+  const [perniciousAnemiaError, setPerniciousAnemiaError] = useState("");
+  const handlePerniciousAnemiaSubmitCall = (answer) => {
+    setPerniciousAnemiaInput(answer);
+    handlePerniciousAnemiaSubmit(
+      answer,
+      setPerniciousAnemiaError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setPerniciousAnemiaInput
+    );
+  };
   const [appState, setAppState] = useState('landing'); // State to track app state
   const [messages, setMessages] = useState([
     {
@@ -1550,6 +1566,32 @@ function App() {
                 Submit
               </Button>
               {gastritisUlcerError && <FormErrorMessage>{gastritisUlcerError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'perniciousAnemia' ? (
+            <FormControl isInvalid={!!perniciousAnemiaError}>
+              <VStack spacing={3} align="stretch">
+                {["Yes", "No"].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handlePerniciousAnemiaSubmitCall(opt)}
+                    isDisabled={isProcessingSelection}
+                    bg={perniciousAnemiaInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={perniciousAnemiaInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && perniciousAnemiaInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {perniciousAnemiaError && <FormErrorMessage>{perniciousAnemiaError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'gastricGeneMutation' ? (
             <FormControl isInvalid={!!gastricGeneMutationError}>

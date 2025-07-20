@@ -1,3 +1,53 @@
+// Handle Pernicious Anemia question (Yes/No)
+export const handlePerniciousAnemiaSubmit = (
+  perniciousAnemiaInput,
+  setPerniciousAnemiaError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setPerniciousAnemiaInput,
+  nextId
+) => {
+  if (!perniciousAnemiaInput) {
+    setPerniciousAnemiaError("Please select Yes or No.");
+    return;
+  }
+  setPerniciousAnemiaError("");
+  setUserResponses(prev => ({
+    ...prev,
+    medicalHistory: {
+      ...prev.medicalHistory,
+      perniciousAnemia: perniciousAnemiaInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Pernicious Anemia: ${perniciousAnemiaInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setPerniciousAnemiaInput("");
+  setTimeout(() => {
+    const id = nextId || conversationFlow.perniciousAnemia?.nextId;
+    const nextStep = conversationFlow[id];
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(id);
+    }
+  }, 1000);
+};
 // Handle gastric cancer gene mutation (CDH1/other) question (Yes/No)
 export const handleGastricGeneMutationSubmit = (
   gastricGeneMutationInput,
@@ -1735,6 +1785,14 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           }
         }
       }));
+    } else if (currentStep === 'perniciousAnemia') {
+        setUserResponses(prev => ({
+            ...prev,
+            medicalHistory: {
+                ...prev.medicalHistory,
+                perniciousAnemia: optionText
+            }
+        }));
     }
     if (currentStep === 'sex') {
       setUserResponses(prev => ({

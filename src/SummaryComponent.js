@@ -218,35 +218,39 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       
       const medicalHistory = `
         <div class="section-title">Medical History</div>
-        <div class="medical-history-grid">
-          <div class="mh-labels">
-            <div class="label">Personal Cancer:</div>
-            <div class="label">Family Cancer:</div>
-            <div class="label">Chronic Conditions:</div>
+        <div class="simple-medical-history">
+          <div class="mh-row">
+            <span class="mh-label">Personal Cancer:</span>
+            <span class="mh-value">
+              ${userResponses.medicalHistory.personalCancer.diagnosed
+                ? (userResponses.medicalHistory.personalCancer.type
+                    ? `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.personalCancer.type}
+                        ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
+                      </span>`
+                    : formatBadge(true, 'Yes', '', 'red', 'green'))
+                : formatBadge(false, '', 'No', 'red', 'green')}
+            </span>
           </div>
-          <div class="mh-values">
-            <div class="value" style="text-align:right;">
-              ${formatBadge(userResponses.medicalHistory.personalCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-              ${userResponses.medicalHistory.personalCancer.diagnosed ? 
-                `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.personalCancer.type || "Cancer type"}
-                ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? 
-                  `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
-                </span>` : ''}
-            </div>
-            <div class="value" style="text-align:right;">
-              ${formatBadge(userResponses.medicalHistory.familyCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-              ${userResponses.medicalHistory.familyCancer.diagnosed && userResponses.medicalHistory.familyCancer.type ? 
-                `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.familyCancer.type}
-                ${userResponses.medicalHistory.familyCancer.relation ? ` <span style=\"font-weight:bold;\">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
-                ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? 
-                  `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
-                </span>` : ''}
-            </div>
-            <div class="value" style="text-align:right;">
+          <div class="mh-row">
+            <span class="mh-label">Family Cancer:</span>
+            <span class="mh-value">
+              ${userResponses.medicalHistory.familyCancer.diagnosed
+                ? (userResponses.medicalHistory.familyCancer.type
+                    ? `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.familyCancer.type}
+                        ${userResponses.medicalHistory.familyCancer.relation ? ` <span style=\"font-weight:bold;\">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
+                        ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
+                      </span>`
+                    : formatBadge(true, 'Yes', '', 'red', 'green'))
+                : formatBadge(false, '', 'No', 'red', 'green')}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">Chronic Conditions:</span>
+            <span class="mh-value">
               ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
                 `<span style=\"font-weight:500;\">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
                 '<span style=\"color:#38A169;\">None</span>'}
-            </div>
+            </span>
           </div>
         </div>
       `;
@@ -258,7 +262,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <div class="value">
             ${formatBadge(userResponses.lifestyle.smoking.current, 'Current Smoker', 'Non-Smoker', 'red', 'green')}
           </div>
-          
+
           <div class="label">Alcohol Consumption:</div>
           <div class="value">
             ${userResponses.lifestyle.alcohol?.consumes ? 
@@ -267,12 +271,44 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                 userResponses.lifestyle.alcohol.drinksPerWeek > 7 ? 'orange' : 'yellow') : 
               formatBadge(false, '', 'No', '', 'green')}
           </div>
-          
+
+          <div class="label">Salty/Smoked Foods:</div>
+          <div class="value">
+            ${(() => {
+              const val = userResponses.lifestyle.saltySmokedFoods;
+              if (!val) return 'Not specified';
+              const normalized = val.trim().toLowerCase();
+              if (normalized === '4 or more times a week') return '4+/week';
+              if (normalized === '2-3 times a week') return '2-3/week';
+              if (normalized === 'once a week') return '1/week';
+              if (normalized === 'rarely' || normalized === 'less than once a week') return 'Rarely';
+              if (normalized === 'never') return 'Never';
+              return val;
+            })()}
+          </div>
+
+          <div class="label">Fruits & Veg (servings):</div>
+          <div class="value">
+            ${(() => {
+              const servings = userResponses.lifestyle.fruitVegServings;
+              if (!servings) return 'Not specified';
+              const normalized = servings.trim().toLowerCase();
+              if (normalized === '5 or more servings') return '5+/day';
+              if (normalized === '3-4 servings') return '3-4/day';
+              if (normalized === '1-2 servings') return '1-2/day';
+              if (normalized === 'rarely' || normalized === 'less than 1 serving') return 'Rarely';
+              if (normalized === 'never') return 'Never';
+              // Try to extract a number from the servings string
+              const match = servings.match(/(\d+\+?)/);
+              return match ? `${match[1]}/day` : `${servings}/day`;
+            })()}
+          </div>
+
           <div class="label">Sexual Health Risk:</div>
           <div class="value">
             ${formatBadge(userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv, 'High Risk', 'Standard Risk', 'red', 'green')}
           </div>
-          
+
           <div class="label">Organ Transplant:</div>
           <div class="value">
             ${formatBadge(userResponses.lifestyle.transplant, 'Yes', 'No', 'orange', 'green')}
@@ -287,7 +323,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <div class="value">
             ${userResponses.medications.length > 0 ? userResponses.medications.join(', ') : 'None reported'}
           </div>
-          
           <div class="label">Known Allergies:</div>
           <div class="value">
             ${userResponses.allergies && userResponses.allergies !== "None" ? userResponses.allergies : 'None reported'}
@@ -295,6 +330,29 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         </div>
       `;
       
+      // Gastrointestinal Surgery section (moved below lifestyleFactors)
+      const gastrointestinalSurgery = `
+        <div class="section-title">Gastrointestinal Surgery</div>
+        <div class="simple-medical-history">
+          <div class="mh-row">
+            <span class="mh-label">Partial Gastrectomy:</span>
+            <span class="mh-value">
+              ${typeof userResponses.surgery !== 'undefined' && typeof userResponses.surgery.partialGastrectomy !== 'undefined' ?
+                formatBadge(userResponses.surgery.partialGastrectomy, 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">Pernicious Anemia:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.perniciousAnemia !== 'undefined' ?
+                formatBadge(userResponses.medicalHistory.perniciousAnemia === 'Yes', 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+        </div>
+      `;
+
       let sexSpecificInfo = '';
       if (userResponses.demographics.sex === "Male") {
         sexSpecificInfo = `
@@ -398,49 +456,37 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <title>Cancer Screening Test Results</title>
           <link rel="stylesheet" href="/printStyles.css">
           <style>
-            .medical-history-grid {
-              display: grid;
-              grid-template-columns: 180px 1fr;
+            .simple-medical-history {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
               width: 100%;
               margin-bottom: 8px;
               background-color: white;
               border-bottom: 1px solid #E2E8F0;
               padding: 2px 0;
             }
-            .mh-labels, .mh-values {
+            .mh-row {
               display: flex;
-              flex-direction: column;
-            }
-            .mh-labels > .label, .mh-values > .value {
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
               min-height: 28px;
-              display: flex;
-              align-items: center;
-              justify-content: flex-start;
-              text-align: left;
             }
-            /* Force all Medical History labels to align exactly with their answers on the y-axis */
-            .mh-labels > .label:nth-child(1),
-            .mh-labels > .label:nth-child(2),
-            .mh-labels > .label:nth-child(3) {
-              align-items: flex-end;
-              justify-content: flex-start;
-              display: flex;
+            .mh-label {
+              font-size: 14pt;
+              color: #4A5568;
               text-align: left;
-              height: 100%;
-              position: relative;
-              top: 0px;
-              margin-top: 0;
-              margin-bottom: 0;
+              font-weight: 400;
             }
-            /* Remove special centering for Chronic Conditions label to align x-axis with other labels */
-            .mh-values > .value {
-              justify-content: flex-end;
+            .mh-value {
+              font-size: 14pt;
+              color: #2D3748;
               text-align: right;
-            }
-            .mh-values > .value span {
-              display: inline-flex;
+              font-weight: 500;
+              display: flex;
               align-items: center;
-              min-height: 24px;
+              gap: 6px;
             }
             .personal-info-grid {
               display: grid;
@@ -767,6 +813,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                   ${personalInfo}
                   ${medicalHistory}
                   ${lifestyleFactors}
+                  ${gastrointestinalSurgery}
                 </div>
                 
                 <div class="column">
