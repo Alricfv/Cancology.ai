@@ -74,7 +74,8 @@ import {
   handleHPyloriEradicationSubmit,
   handleGastritisUlcerSubmit,
   handleGastricGeneMutationSubmit,
-  handlePerniciousAnemiaSubmit
+  handlePerniciousAnemiaSubmit,
+  handleEndometriosisSubmit
 } from './components/HandlerFunctions';
 
 function App() {
@@ -139,6 +140,25 @@ function App() {
       conversationFlow,
       setCurrentStep,
       setFruitVegServingsInput
+    );
+  };
+
+    // Endometriosis state and handler (Yes/No) - grouped with other medical history logic
+  const [endometriosisInput, setEndometriosisInput] = useState("");
+  const [endometriosisError, setEndometriosisError] = useState("");
+  const handleEndometriosisSubmitCall = (answer) => {
+    setEndometriosisInput(answer);
+    // Find the nextId from the selected option in conversationFlow.endometriosis.options
+    const nextId = conversationFlow.endometriosis.options.find(opt => opt.text === answer)?.nextId;
+    handleEndometriosisSubmit(
+      answer,
+      setEndometriosisError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setEndometriosisInput,
+      nextId
     );
   };
 
@@ -1599,6 +1619,32 @@ function App() {
                 ))}
               </VStack>
               {perniciousAnemiaError && <FormErrorMessage>{perniciousAnemiaError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'endometriosis' ? (
+            <FormControl isInvalid={!!endometriosisError}>
+              <VStack spacing={3} align="stretch">
+                {["Yes", "No"].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleEndometriosisSubmitCall(opt)}
+                    isDisabled={isProcessingSelection}
+                    bg={endometriosisInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={endometriosisInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && endometriosisInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {endometriosisError && <FormErrorMessage>{endometriosisError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'gastricGeneMutation' ? (
             <FormControl isInvalid={!!gastricGeneMutationError}>

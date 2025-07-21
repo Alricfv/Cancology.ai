@@ -1,3 +1,53 @@
+// Handle endometriosis diagnosis (Yes/No)
+export const handleEndometriosisSubmit = (
+  endometriosisInput,
+  setEndometriosisError,
+  setUserResponses,
+  setMessages,
+  conversationFlow,
+  setCurrentStep,
+  setEndometriosisInput,
+  nextId
+) => {
+  if (!endometriosisInput) {
+    setEndometriosisError("Please select Yes or No.");
+    return;
+  }
+  setEndometriosisError("");
+  setUserResponses(prev => ({
+    ...prev,
+    medicalHistory: {
+      ...prev.medicalHistory,
+      endometriosis: endometriosisInput
+    }
+  }));
+  setMessages(prev => ([
+    ...prev,
+    {
+      id: prev.length + 1,
+      text: `Endometriosis diagnosis: ${endometriosisInput}`,
+      sender: 'user',
+      timestamp: new Date()
+    }
+  ]));
+  setEndometriosisInput("");
+  setTimeout(() => {
+    const id = nextId || conversationFlow.endometriosis?.nextId;
+    const nextStep = conversationFlow[id];
+    if (nextStep) {
+      setMessages(prev => ([
+        ...prev,
+        {
+          id: prev.length + 2,
+          text: nextStep.question,
+          sender: 'bot',
+          timestamp: new Date()
+        }
+      ]));
+      setCurrentStep(id);
+    }
+  }, 1000);
+};
 // Handle Pernicious Anemia question (Yes/No)
 export const handlePerniciousAnemiaSubmit = (
   perniciousAnemiaInput,

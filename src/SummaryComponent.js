@@ -465,7 +465,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <div class="label">Tubal ligation:</div>
             <div class="value">
               ${formatBadge(
-                userResponses.sexSpecificInfo.female.tubalLigation === 'Yes',
+                userResponses.sexSpecificInfo.female.tubalLigation === true,
                 'Yes',
                 'No',
                 'purple',
@@ -483,7 +483,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <div class="label">Endometriosis diagnosis:</div>
             <div class="value">
               ${formatBadge(
-                userResponses.sexSpecificInfo.female.endometriosis === 'Yes',
+                userResponses.medicalHistory.endometriosis === 'Yes',
                 'Yes',
                 'No',
                 'purple',
@@ -1479,9 +1479,21 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                     Tubal ligation:
                   </Text>
                   <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.tubalLigation ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.female.tubalLigation ? userResponses.sexSpecificInfo.female.tubalLigation : 'Not specified'}
-                    </Badge>
+                    {userResponses.sexSpecificInfo.female.tubalLigation === true && (
+                      <Badge maxW="100%" fontSize="8pt" colorScheme="purple" display="inline-flex" alignItems="center" height="18px">
+                        Yes
+                      </Badge>
+                    )}
+                    {userResponses.sexSpecificInfo.female.tubalLigation === false && (
+                      <Badge maxW="100%" fontSize="8pt" colorScheme="gray" display="inline-flex" alignItems="center" height="18px">
+                        No
+                      </Badge>
+                    )}
+                    {(userResponses.sexSpecificInfo.female.tubalLigation === undefined || userResponses.sexSpecificInfo.female.tubalLigation === null) && (
+                      <Badge maxW="100%" fontSize="8pt" colorScheme="gray" display="inline-flex" alignItems="center" height="18px">
+                        Not specified
+                      </Badge>
+                    )}
                   </Box>
 
                   <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
@@ -1495,8 +1507,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                     Endometriosis diagnosis:
                   </Text>
                   <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.endometriosis ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.female.endometriosis ? userResponses.sexSpecificInfo.female.endometriosis : 'Not specified'}
+                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.medicalHistory.endometriosis ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
+                      {userResponses.medicalHistory.endometriosis ? userResponses.medicalHistory.endometriosis : 'Not specified'}
                     </Badge>
                   </Box>
 
