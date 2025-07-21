@@ -921,8 +921,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               </div>
             </section>
 
-            <!-- Second Page: Ovarian Cancer Symptom Screening (Goff Criteria) for Females Only, no placeholders -->
-            ${userResponses.demographics.sex === "Female" ? `
+
+            <!-- Second Page: Ovarian Cancer Symptom Screening (Goff Criteria) for Females Only, plus Symptom screening for all -->
             <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
@@ -930,6 +930,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               </header>
               <div class="content">
                 <div class="column" style="width: 100%; min-height: 400px;">
+                  ${userResponses.demographics.sex === "Female" ? `
                   ${medicationsAllergies}
                   <div class="section-title">Ovarian Cancer Symptom Screening (Goff Criteria)</div>
                   <div class="grid">
@@ -1018,10 +1019,120 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                       })()}
                     </div>
                   </div>
+                  ` : ''}
+
+                  <div class="section-title">Symptom screening</div>
+                  <div class="grid">
+                    <div class="label">Pain/Difficulty While Swallowing</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms.swallowingDifficulty;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Black, Sticky/Tar-Like Stools (Melena):</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.blackStool;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Unintentional Weight Loss</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.weightLoss;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Persistent vomiting &gt;1 week for no reason:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.vomiting;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Persistent Upper Stomach (Epigastric) Pain &gt;1 Month</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.epigastricPain;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Frequency of Indigestion or heartburn</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.indigestion;
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Sleep Disturbed By Pain:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.painWakesAtNight;
+                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                  </div>
                 </div>
               </div>
             </section>
-            ` : ''}
 
             ${prescribedTests.length > 0 ? `
             <!-- Third Page (only rendered if there are prescribed tests) -->

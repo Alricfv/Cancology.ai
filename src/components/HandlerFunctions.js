@@ -1912,7 +1912,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          swallowingDifficulty: optionText === 'Yes'
+          swallowingDifficulty: optionText 
         }
       }));
     }
@@ -1921,7 +1921,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          blackStool: optionText === 'Yes'
+          blackStool: optionText 
         }
       }));
     }
@@ -1930,7 +1930,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          weightLoss: optionText === 'Yes'
+          weightLoss: optionText 
         }
       }));
     }
@@ -1939,7 +1939,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          vomiting: optionText === 'Yes'
+          vomiting: optionText 
         }
       }));
     }
@@ -1948,7 +1948,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          epigastricPain: optionText === 'Yes'
+          epigastricPain: optionText
         }
       }));
     }
@@ -1957,7 +1957,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          indigestion: optionText === 'Yes'
+          indigestion: optionText // Store the frequency string directly
         }
       }));
     }
@@ -1966,7 +1966,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          painWakesAtNight: optionText === 'Yes'
+          painWakesAtNight: optionText 
         }
       }));
     }
