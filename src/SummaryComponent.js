@@ -361,16 +361,24 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         </div>
       `;
 
+      const medsNone =
+        Array.isArray(userResponses.medications)
+          ? userResponses.medications.every(
+              (m) => m === false || m === 'None' || m === ''
+            )
+          : !userResponses.medications || userResponses.medications.length === 0;
+      const allergiesNone =
+        !userResponses.allergies || userResponses.allergies === 'None' || userResponses.allergies === '';
       const medicationsAllergies = `
         <div class="section-title">Medications & Allergies</div>
         <div class="grid">
           <div class="label">Current Medications:</div>
           <div class="value">
-            ${userResponses.medications.length > 0 ? userResponses.medications.join(', ') : 'None reported'}
+            ${!medsNone ? userResponses.medications.join(', ') : 'None reported'}
           </div>
           <div class="label">Known Allergies:</div>
           <div class="value">
-            ${userResponses.allergies && userResponses.allergies !== "None" ? userResponses.allergies : 'None reported'}
+            ${!allergiesNone ? userResponses.allergies : 'None reported'}
           </div>
         </div>
       `;
@@ -930,8 +938,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               </header>
               <div class="content">
                 <div class="column" style="width: 100%; min-height: 400px;">
-                  ${userResponses.demographics.sex === "Female" ? `
+
                   ${medicationsAllergies}
+                  ${userResponses.demographics.sex === "Female" ? `
                   <div class="section-title">Ovarian Cancer Symptom Screening (Goff Criteria)</div>
                   <div class="grid">
                     <div class="label">Persistent Bloating or Abdominal Swelling:</div>

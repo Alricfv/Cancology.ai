@@ -164,10 +164,11 @@ function App() {
 
   const [gastritisUlcerInput, setGastritisUlcerInput] = useState("");
   const [gastritisUlcerError, setGastritisUlcerError] = useState("");
-  // Handler for chronic gastritis/gastric ulcers submit
-  const handleGastritisUlcerSubmitCall = () => {
+  // Handler for chronic gastritis/gastric ulcers submit (now Yes/No buttons)
+  const handleGastritisUlcerSubmitCall = (answer) => {
+    setGastritisUlcerInput(answer);
     handleGastritisUlcerSubmit(
-      gastritisUlcerInput,
+      answer,
       setGastritisUlcerError,
       setUserResponses,
       setMessages,
@@ -1571,27 +1572,28 @@ function App() {
             </FormControl>
           ) : currentStep === 'gastritisUlcer' ? (
             <FormControl isInvalid={!!gastritisUlcerError}>
-              <Select
-                placeholder="Have you ever been diagnosed with chronic gastritis or gastric ulcers?"
-                value={gastritisUlcerInput || ''}
-                onChange={e => setGastritisUlcerInput(e.target.value)}
-                borderRadius="md"
-                focusBorderColor="blue.400"
-                mb={3}
-                isDisabled={isProcessingSelection}
-              >
-                <option value="Yes">Yes</option>
-                <option value="No">No</option>
-              </Select>
-              <Button
-                colorScheme="blue"
-                onClick={handleGastritisUlcerSubmitCall}
-                isFullWidth
-                borderRadius="full"
-                isDisabled={!gastritisUlcerInput || isProcessingSelection}
-              >
-                Submit
-              </Button>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleGastritisUlcerSubmitCall(opt)}
+                    isDisabled={isProcessingSelection}
+                    bg={gastritisUlcerInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={gastritisUlcerInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && gastritisUlcerInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
               {gastritisUlcerError && <FormErrorMessage>{gastritisUlcerError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'perniciousAnemia' ? (

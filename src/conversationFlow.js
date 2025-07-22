@@ -118,7 +118,7 @@ const conversationFlow = {
     nextId: "saltySmokedFoods"
   },
   saltySmokedFoods: {
-    question: "Do you often eat very salty/smoked foods?",
+    question: "How often do you eat very salty/smoked foods?",
     options: [
       { text: "Never", nextId: "fruitVegServings" },
       { text: "less than one time a week", nextId: "fruitVegServings" },
