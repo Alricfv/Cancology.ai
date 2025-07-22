@@ -353,9 +353,10 @@ function App() {
   }, [messages]);
 
   // List of ethnicities
-  const ethnicities = [
-    "Asian", 
+  const ethnicities = [ 
     "Black or African American", 
+    "East Asian/South East Asian",
+    "South Asian",
     "Hispanic or Latino", 
     "Native American", 
     "Pacific Islander", 

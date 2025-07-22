@@ -143,7 +143,119 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
   const riskScore = calculateRiskScore();
   const healthStatus = getHealthCategory(riskScore);
   const recommendations = getRecommendations();
-  const prescribedTests = getPrescribedTests(userResponses);
+
+  // Enhanced prescribed tests logic for ovarian cancer risk
+  const getEnhancedPrescribedTests = (userResponses) => {
+    const tests = getPrescribedTests(userResponses) || [];
+    const isFemale = userResponses.demographics.sex === 'Female';
+    const age = userResponses.demographics.age;
+    let hasBRCA = false;
+    let hasOvarianFamilyHistory = false;
+
+    // Check BRCA1/2 mutation
+    if (
+      userResponses.medicalHistory &&
+      (userResponses.medicalHistory.brcaMutationStatus === 'Yes' || userResponses.medicalHistory.brcaMutationStatus === true)
+    ) {
+      hasBRCA = true;
+    }
+
+    // Check family history for ovarian cancer
+    if (
+      userResponses.medicalHistory &&
+      userResponses.medicalHistory.familyCancer &&
+      userResponses.medicalHistory.familyCancer.diagnosed &&
+      userResponses.medicalHistory.familyCancer.type &&
+      typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+      userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('ovarian')
+    ) {
+      hasOvarianFamilyHistory = true;
+    }
+
+    if (isFemale && age > 30 && (hasBRCA || hasOvarianFamilyHistory)) {
+      // Build reason string based on which risk factors apply
+      let reasons = [];
+      if (hasBRCA) reasons.push('BRCA1/2 mutation');
+      if (hasOvarianFamilyHistory) reasons.push('family history of ovarian cancer');
+      let reasonText = 'Ovarian cancer risk' + (reasons.length > 0 ? ' (' + reasons.join(', ') + ')' : '');
+      // Only add if not already present
+      if (!tests.some(t => t.name && t.name.toLowerCase().includes('transvaginal ultrasound'))) {
+        tests.push({
+          name: 'Transvaginal ultrasound',
+          frequency: 'Every 6 months',
+          reason: reasonText,
+          priority: 'high',
+        });
+      }
+      if (!tests.some(t => t.name && t.name.toLowerCase().includes('ca-125'))) {
+        tests.push({
+          name: 'CA-125',
+          frequency: 'Every 6 months',
+          reason: reasonText,
+          priority: 'high',
+        });
+      }
+    }
+
+    // Upper GI Endoscopy recommendation for both genders above 40 with risk factors
+    if (age > 40) {
+      let ethnicity = (userResponses.demographics.ethnicity || '').toLowerCase();
+      let ethnicityRisk = [
+        'black or african american',
+        'east asian',
+        'south east asian',
+        'east asian/south east asian',
+        'hispanic or latino'
+      ];
+      let ethnicityMatch = ethnicityRisk.some(e => ethnicity.includes(e));
+
+      // Family history of gastric cancer
+      let familyGastricCancer = false;
+      if (
+        userResponses.medicalHistory &&
+        userResponses.medicalHistory.familyCancer &&
+        userResponses.medicalHistory.familyCancer.diagnosed &&
+        userResponses.medicalHistory.familyCancer.type &&
+        typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+        userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('gastric')
+      ) {
+        familyGastricCancer = true;
+      }
+
+      // H.Pylori infection
+      let hPyloriYes = false;
+      if (
+        userResponses.lifestyle &&
+        (userResponses.lifestyle.hPylori === 'Yes' || userResponses.lifestyle.hPylori === true)
+      ) {
+        hPyloriYes = true;
+      }
+
+      if (ethnicityMatch || familyGastricCancer || hPyloriYes) {
+        if (!tests.some(t => t.name && t.name.toLowerCase().includes('upper gastrointestinal endoscopy'))) {
+          let reasons = [];
+          if (ethnicityMatch) {
+            reasons.push('high-risk ethnicity');
+          }
+          if (familyGastricCancer) {
+            reasons.push('family history of gastric cancer');
+          }
+          if (hPyloriYes) {
+            reasons.push('history of H.Pylori infection');
+          }
+          tests.push({
+            name: 'Upper Gastrointestinal Endoscopy',
+            frequency: 'Every 2-3 years',
+            reason: 'Risk factor' + (reasons.length > 1 ? 's' : '') + ': ' + reasons.join(', '),
+            priority: 'high',
+          });
+        }
+      }
+    }
+    return tests;
+  };
+
+  const prescribedTests = getEnhancedPrescribedTests(userResponses);
   
   // Navigation functions
   const goToNextPage = () => {
@@ -178,7 +290,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       document.body.appendChild(printIframe);
       
       // Get the current theme colors for styling
-      const accentColorVal = accentColor;
       
       // Prepare the data for printing
       const formatBadge = (condition, trueText, falseText, trueColor, falseColor) => {
@@ -188,10 +299,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       };
       
       // Get health risk and recommendations
-      const riskLevel = healthStatus.category;
-      const riskColor = healthStatus.color === "red" ? "red" : 
-                         healthStatus.color === "orange" ? "orange" : 
-                         healthStatus.color === "yellow" ? "yellow" : "green";
       
       // Format all the user data for display
       const personalInfo = `
@@ -207,11 +314,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           </div>
           <div class="info-pair">
             <span class="label">Ethnicity:</span>
-            <span class="value">${userResponses.demographics.ethnicity === 'Middle Eastern or North African' ? 'MENA' : (userResponses.demographics.ethnicity || 'Not specified')}</span>
+            <span class="value">${userResponses.demographics.ethnicity === "Middle Eastern or North African" ? "MENA" : (userResponses.demographics.ethnicity || "Not specified")}</span>
           </div>
           <div class="info-pair">
             <span class="label">Location:</span>
-            <span class="value">${userResponses.demographics.country || 'Not specified'}</span>
+            <span class="value">${userResponses.demographics.country || "Not specified"}</span>
           </div>
         </div>
       `;
@@ -224,8 +331,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <span class="mh-value">
               ${userResponses.medicalHistory.personalCancer.diagnosed
                 ? (userResponses.medicalHistory.personalCancer.type
-                    ? `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.personalCancer.type}
-                        ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
+                    ? `<span style="margin-left:5px;">${userResponses.medicalHistory.personalCancer.type}
+                        ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
                       </span>`
                     : formatBadge(true, 'Yes', '', 'red', 'green'))
                 : formatBadge(false, '', 'No', 'red', 'green')}
@@ -236,9 +343,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <span class="mh-value">
               ${userResponses.medicalHistory.familyCancer.diagnosed
                 ? (userResponses.medicalHistory.familyCancer.type
-                    ? `<span style=\"margin-left:5px;\">${userResponses.medicalHistory.familyCancer.type}
-                        ${userResponses.medicalHistory.familyCancer.relation ? ` <span style=\"font-weight:bold;\">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
-                        ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? `<span style=\"font-style:italic;\">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
+                    ? `<span style="margin-left:5px;">${userResponses.medicalHistory.familyCancer.type}
+                        ${userResponses.medicalHistory.familyCancer.relation ? ` <span style="font-weight:bold;">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
+                        ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
                       </span>`
                     : formatBadge(true, 'Yes', '', 'red', 'green'))
                 : formatBadge(false, '', 'No', 'red', 'green')}
@@ -248,8 +355,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             <span class="mh-label">Chronic Conditions:</span>
             <span class="mh-value">
               ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
-                `<span style=\"font-weight:500;\">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
-                '<span style=\"color:#38A169;\">None</span>'}
+                `<span style="font-weight:500;">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
+                '<span style="color:#38A169;">None</span>'}
             </span>
           </div>
         </div>
