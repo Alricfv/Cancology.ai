@@ -1779,6 +1779,17 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
     ]);
 
     // Update user responses based on current step
+    if (currentStep === 'hypertension') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          hypertension: optionText === 'Yes'
+        }
+      }));
+    }
+
+    // Update user responses based on current step
     // Goff Symptom Index questions
     if (currentStep === 'goffBloating') {
       setUserResponses(prev => ({

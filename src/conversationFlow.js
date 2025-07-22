@@ -59,7 +59,14 @@ const conversationFlow = {
     question: "Please provide details about your family member's cancer diagnosis:",
     options: [],
     inputType: "familyCancer",
-    nextId: "partialGastrectomy"
+    nextId: "hypertension"
+  },
+  hypertension: {
+    question: "Have you ever been diagnosed of high blood pressure?",
+    options: [
+      { text: "Yes", nextId: "partialGastrectomy" },
+      { text: "No", nextId: "partialGastrectomy" }
+    ]
   },
   partialGastrectomy: {
     question: "Have you ever had part of your stomach surgically removed (partial gastrectomy), more than 15 years ago?",

@@ -478,14 +478,18 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         !userResponses.allergies || userResponses.allergies === 'None' || userResponses.allergies === '';
       const medicationsAllergies = `
         <div class="section-title">Medications & Allergies</div>
-        <div class="grid">
-          <div class="label">Current Medications:</div>
-          <div class="value">
-            ${!medsNone ? userResponses.medications.join(', ') : 'None reported'}
+        <div class="meds-allergies-block">
+          <div class="meds-row">
+            <span class="meds-label">Current Medications:</span>
+            <span class="meds-value meds-value-right">
+              ${!medsNone ? `<ul class="meds-list meds-list-right">${userResponses.medications.map(med => `<li>${med}</li>`).join('')}</ul>` : 'None reported'}
+            </span>
           </div>
-          <div class="label">Known Allergies:</div>
-          <div class="value">
-            ${!allergiesNone ? userResponses.allergies : 'None reported'}
+          <div class="meds-row">
+            <span class="meds-label">Known Allergies:</span>
+            <span class="meds-value meds-value-right">
+              ${!allergiesNone ? `<ul class="meds-list meds-list-right">${userResponses.allergies.split(',').map(allergy => `<li>${allergy.trim()}</li>`).join('')}</ul>` : 'None reported'}
+            </span>
           </div>
         </div>
       `;
@@ -644,6 +648,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             ${userResponses.cancerScreening.hadScreening && userResponses.cancerScreening.details ? 
               `<div style="font-size:8pt; margin-top:5px;">"${userResponses.cancerScreening.details}"</div>` : ''}
           </div>
+          
+          <div class="label">Hypertension Diagnosis:</div>
+          <div class="value">
+            ${userResponses.medicalHistory && typeof userResponses.medicalHistory.hypertension !== 'undefined' 
+              ? (userResponses.medicalHistory.hypertension 
+                  ? '<span class="badge badge-red">Yes</span>' 
+                  : '<span class="badge badge-green">No</span>')
+              : '<span class="not-specified">Not specified</span>'}
+          </div>
         </div>
       `;
       
@@ -674,6 +687,61 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <title>Cancer Screening Test Results</title>
           <link rel="stylesheet" href="/printStyles.css">
           <style>
+            .meds-allergies-block {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .meds-row {
+              display: flex;
+              flex-direction: row;
+              align-items: flex-start;
+              justify-content: flex-start;
+              gap: 12px;
+              min-height: 28px;
+            }
+            .meds-label {
+              font-size: 14pt;
+              color: #4A5568;
+              font-weight: 400;
+              min-width: 180px;
+              text-align: left;
+              margin-right: 10px;
+            }
+            .meds-value {
+              font-size: 14pt;
+              color: #2D3748;
+              font-weight: 500;
+              text-align: left;
+              display: block;
+              flex: 1;
+            }
+            .meds-value-right {
+              text-align: right;
+              display: block;
+            }
+            .meds-list {
+              margin: 0;
+              padding-left: 18px;
+              list-style-type: disc;
+            }
+            .meds-list-right {
+              text-align: right;
+              padding-left: 0;
+              padding-right: 18px;
+              list-style-type: disc;
+            }
+            .meds-list li {
+              margin-bottom: 2px;
+              font-size: 13pt;
+              line-height: 1.3;
+              color: #2D3748;
+              text-align: right;
+            }
             .simple-medical-history {
               display: flex;
               flex-direction: column;
@@ -1014,46 +1082,29 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         <body>
           <article style="page-break-after: avoid; break-after: avoid;">
 
-            <!-- First Page -->
+
+
+            <!-- First Page (Single Column, All Sections) -->
             <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
                 <h2>Cancer Screening Test</h2>
               </header>
-              <div class="content">
-                <div class="column">
-                  ${personalInfo}
-                  ${medicalHistory}
-                  ${lifestyleFactors}
-                  ${gastrointestinalSurgery}
-                </div>
-                <div class="column">
-                  ${geneticInfectionRisk}
-                  ${sexSpecificInfo}
-                  ${vaccinationsScreening}
-                  <!-- Risk Assessment removed from PDF printout as requested -->
-                </div>
-              </div>
-            </section>
-
-
-            <!-- Second Page: Ovarian Cancer Symptom Screening (Goff Criteria) for Females Only, plus Symptom screening for all -->
-            <section class="page" style="page-break-after: always; break-after: page;">
-              <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
-                <h1 style="font-weight:900;">Sky Premium Hospital</h1>
-                <h2>Cancer Screening Test</h2>
-              </header>
-              <div class="content">
-                <div class="column" style="width: 100%; min-height: 400px;">
-
-                  ${medicationsAllergies}
-                  ${userResponses.demographics.sex === "Female" ? `
+              <div class="column" style="width: 100%;">
+                ${personalInfo}
+                ${medicalHistory}
+                ${lifestyleFactors}
+                ${gastrointestinalSurgery}
+                ${geneticInfectionRisk}
+                ${sexSpecificInfo}
+                ${vaccinationsScreening}
+                ${medicationsAllergies}
+                ${userResponses.demographics.sex === "Female" ? `
                   <div class="section-title">Ovarian Cancer Symptom Screening (Goff Criteria)</div>
                   <div class="grid">
                     <div class="label">Persistent Bloating or Abdominal Swelling:</div>
                     <div class="value">
                       ${(() => {
-                        // Use the exact key as set in HandlerFunctions.js
                         const val = userResponses.symptoms?.goffSymptomIndex?.bloating;
                         if (val === undefined || val === null || val === '') {
                           return '<span class="not-specified">Not specified</span>';
@@ -1086,7 +1137,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                     <div class="label">Felt Full Quickly or Been Unable to Finish Meals:</div>
                     <div class="value">
                       ${(() => {
-                        // Use only the correct key for this symptom
                         const val = userResponses.symptoms?.goffSymptomIndex?.fullness;
                         if (val === true) {
                           return '<span class="badge badge-red">Yes</span>';
@@ -1103,7 +1153,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                     <div class="label">Frequent Need To Pass Urine:</div>
                     <div class="value">
                       ${(() => {
-                        // Use the correct key for this symptom (urinary)
                         const val = userResponses.symptoms?.goffSymptomIndex?.urinary;
                         if (val === true) {
                           return '<span class="badge badge-red">Yes</span>';
@@ -1120,7 +1169,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                     <div class="label">An Increase in abdomen size or clothes have become tight:</div>
                     <div class="value">
                       ${(() => {
-                        // Use the correct key for this symptom (abdomenSize)
                         const val = userResponses.symptoms?.goffSymptomIndex?.abdomenSize;
                         if (val === true) {
                           return '<span class="badge badge-red">Yes</span>';
@@ -1137,114 +1185,113 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                   </div>
                   ` : ''}
 
-                  <div class="section-title">Symptom screening</div>
-                  <div class="grid">
-                    <div class="label">Pain/Difficulty While Swallowing</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms.swallowingDifficulty;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Black, Sticky/Tar-Like Stools (Melena):</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.blackStool;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Unintentional Weight Loss</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.weightLoss;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Persistent vomiting &gt;1 week for no reason:</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.vomiting;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Persistent Upper Stomach (Epigastric) Pain &gt;1 Month</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.epigastricPain;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Frequency of Indigestion or heartburn</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.indigestion;
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
-                    <div class="label">Sleep Disturbed By Pain:</div>
-                    <div class="value">
-                      ${(() => {
-                        const val = userResponses.symptoms?.painWakesAtNight;
-                        if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
-                          return '<span class="badge badge-red">Yes</span>';
-                        }
-                        if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
-                          return '<span class="badge badge-green">No</span>';
-                        }
-                        if (val === undefined || val === null || val === '') {
-                          return '<span class="not-specified">Not specified</span>';
-                        }
-                        return val;
-                      })()}
-                    </div>
+                <div class="section-title">Symptom screening</div>
+                <div class="grid">
+                  <div class="label">Pain/Difficulty While Swallowing</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms.swallowingDifficulty;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Black, Sticky/Tar-Like Stools (Melena):</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.blackStool;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Unintentional Weight Loss</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.weightLoss;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Persistent vomiting &gt;1 week for no reason:</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.vomiting;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Persistent Upper Stomach (Epigastric) Pain &gt;1 Month</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.epigastricPain;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Frequency of Indigestion or heartburn</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.indigestion;
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Sleep Disturbed By Pain:</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.painWakesAtNight;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
                   </div>
                 </div>
               </div>
