@@ -310,12 +310,34 @@ export const getPrescribedTests = (userResponses) => {
   let isHighRiskForOralCancer = false;
   
   // 1. HPV status (no vaccination, known infection or high-risk sexual behavior)
-  if ((userResponses.vaccinations && !userResponses.vaccinations.hpv) || 
-      (sexSpecificInfo.female && !sexSpecificInfo.female.hpvVaccine) ||
-      (userResponses.lifestyle && userResponses.lifestyle.sexualHealth && 
-       userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv)) {
-    oralCancerRiskFactors.push(userResponses.lifestyle?.sexualHealth?.unprotectedSexOrHpvHiv ? 
-      "unprotected sex or HPV/HIV diagnosis" : "no HPV vaccination");
+  // Determine HPV vaccination status based on sex
+  let hasNoHpvVaccine = false;
+  
+  // For males, only check the general vaccination data
+  if (demographics.sex === 'Male') {
+    // The value is a boolean (true if 'Yes', false if 'No')
+    // If userResponses.vaccinations.hpv is true, then the user has HPV vaccine
+    // If userResponses.vaccinations.hpv is false, then the user does not have HPV vaccine
+    hasNoHpvVaccine = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
+  } 
+  // For females, check both general and female-specific vaccination data
+  else if (demographics.sex === 'Female') {
+    const generalVaccineStatus = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
+    const femaleSpecificStatus = sexSpecificInfo.female ? (sexSpecificInfo.female.hpvVaccine === false) : false;
+    hasNoHpvVaccine = generalVaccineStatus || femaleSpecificStatus;
+  }
+  
+  const hasHpvRiskBehavior = userResponses.lifestyle && 
+      userResponses.lifestyle.sexualHealth && 
+      userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv;
+  
+  if (hasNoHpvVaccine || hasHpvRiskBehavior) {
+    if (hasNoHpvVaccine) {
+      oralCancerRiskFactors.push("no HPV vaccination");
+    }
+    if (hasHpvRiskBehavior) {
+      oralCancerRiskFactors.push("unprotected sex or HPV/HIV diagnosis");
+    }
     isHighRiskForOralCancer = true;
   }
   
@@ -364,8 +386,58 @@ export const getPrescribedTests = (userResponses) => {
   }
     // Add oral/throat cancer screening if high risk is determined and age is between 30-65
   if (isHighRiskForOralCancer && demographics.age >= 30 && demographics.age <= 65) {
-    // Create risk reason message
-    let riskReason = `Oral/throat cancer screening recommended due to risk factors: ${oralCancerRiskFactors.join(", ")}`;
+    // Create risk reason message that only includes the specific risk factors the user has
+    const userRiskFactors = oralCancerRiskFactors.filter(factor => {
+      // Only include risk factors that actually apply to this user
+      if (factor === "tobacco use" && userResponses.lifestyle && userResponses.lifestyle.smoking && userResponses.lifestyle.smoking.current) {
+        return true;
+      }
+      if (factor === "high alcohol consumption" && userResponses.lifestyle && userResponses.lifestyle.alcohol && 
+          userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
+        return true;
+      }
+      if (factor === "unprotected sex or HPV/HIV diagnosis" && userResponses.lifestyle && 
+          userResponses.lifestyle.sexualHealth && 
+          userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
+        return true;
+      }
+      
+      if (factor === "no HPV vaccination") {
+        // For males, only check the general vaccination data
+        if (demographics.sex === 'Male') {
+          const hasNoVaccine = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
+          return hasNoVaccine;
+        } 
+        // For females, check both general and female-specific vaccination data
+        else if (demographics.sex === 'Female') {
+          const generalVaccineStatus = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
+          const femaleSpecificStatus = sexSpecificInfo.female ? (sexSpecificInfo.female.hpvVaccine === false) : false;
+          return generalVaccineStatus || femaleSpecificStatus;
+        }
+        return false;
+      }
+      if (factor === "family history of oral/throat cancer" && userResponses.medicalHistory && 
+          userResponses.medicalHistory.familyCancer && userResponses.medicalHistory.familyCancer.diagnosed && 
+          userResponses.medicalHistory.familyCancer.type && 
+          (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('oral') || 
+           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat') ||
+           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('head and neck'))) {
+        return true;
+      }
+      if (factor === "immunosuppression" && userResponses.medicalHistory && 
+          userResponses.medicalHistory.chronicConditions && 
+          userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
+        return true;
+      }
+      if (factor === "history of oral lesions" && userResponses.medicalHistory && 
+          userResponses.medicalHistory.oralHealth && 
+          userResponses.medicalHistory.oralHealth.lesions) {
+        return true;
+      }
+      return false;
+    });
+    
+    let riskReason = `Oral/throat cancer screening recommended due to risk factors: ${userRiskFactors.join(", ")}`;
     
     // Set priority based on number of risk factors
     let priority = "standard";
