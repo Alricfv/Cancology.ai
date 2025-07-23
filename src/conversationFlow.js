@@ -46,7 +46,8 @@ const conversationFlow = {
   cancerDetails: {
     question: "Please provide details about your cancer diagnosis:",
     options: [],
-    inputType: "cancer"
+    inputType: "cancer",
+    nextId: "familyHistory"
   },
   familyHistory: {
     question: "Has a first-degree relative (parent, sibling, child) ever been diagnosed with cancer?",
@@ -92,7 +93,8 @@ const conversationFlow = {
   chronicConditions: {
     question: "Do you have any of the following chronic conditions?",
     options: [],
-    inputType: "chronic"
+    inputType: "chronic",
+    nextId: "smokingStatus"
   },  
   smokingStatus: {
     question: "Do you currently smoke or have you smoked in the past?",
@@ -109,7 +111,8 @@ const conversationFlow = {
   },  smokingAmount: {
     question: "How many years have you smoked?",
     options: [],
-    inputType: "smokingYears"
+    inputType: "smokingYears",
+    nextId: "alcoholConsumption"
   },
   alcoholConsumption: {
     question: "Do you drink alcohol?",
@@ -190,7 +193,8 @@ const conversationFlow = {
   medications: {
     question: "Are you currently taking any of the following medications?",
     options: [],
-    inputType: "medications"
+    inputType: "medications",
+    nextId: "allergies"
   },
   allergies: {
     question: "Do you have any known drug allergies?",
@@ -460,7 +464,8 @@ const conversationFlow = {
   pastCancerScreeningDetails: {
     question: "What type of cancer screening did you have and when?",
     options: [],
-    inputType: "cancerScreeningDetails"
+    inputType: "cancerScreeningDetails",
+    nextId: "hpvVaccine"
   },
   hpvVaccine: {
     question: "Have you received the HPV vaccine?",

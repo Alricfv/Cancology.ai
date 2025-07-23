@@ -1469,7 +1469,8 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
     
     // Move to the next step using nextId from conversationFlow.allergies, or call routeBasedOnSex if specified
     setTimeout(() => {
-      const nextId = conversationFlow.allergies?.nextId;
+      // Use nextId from allergyDetails step for custom input progression
+      const nextId = conversationFlow.allergyDetails?.nextId;
       if (nextId && nextId !== 'routeBasedOnSex') {
         const nextStep = conversationFlow[nextId];
         if (nextStep) {
