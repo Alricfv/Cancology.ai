@@ -1,15 +1,15 @@
 {
   "files": {
     "main.css": "/Cancology.ai/static/css/main.77b3383f.css",
-    "main.js": "/Cancology.ai/static/js/main.afe2ce00.js",
+    "main.js": "/Cancology.ai/static/js/main.eaa579ed.js",
     "static/js/453.d85a2596.chunk.js": "/Cancology.ai/static/js/453.d85a2596.chunk.js",
     "index.html": "/Cancology.ai/index.html",
     "main.77b3383f.css.map": "/Cancology.ai/static/css/main.77b3383f.css.map",
-    "main.afe2ce00.js.map": "/Cancology.ai/static/js/main.afe2ce00.js.map",
+    "main.eaa579ed.js.map": "/Cancology.ai/static/js/main.eaa579ed.js.map",
     "453.d85a2596.chunk.js.map": "/Cancology.ai/static/js/453.d85a2596.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.77b3383f.css",
-    "static/js/main.afe2ce00.js"
+    "static/js/main.eaa579ed.js"
   ]
 }
