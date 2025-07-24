@@ -489,7 +489,7 @@ const conversationFlow = {
     ]
   },
   end: {
-    question: "Thank you for completing the medical screening. Your health information has been recorded. Have a great day!",
+    question: "Have a great day! If you have any further questions or need assistance, feel free to contact Sky Premium Hospital!.",
     options: [
       { text: "Start a new screening", nextId: "start" }
     ]

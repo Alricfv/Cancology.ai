@@ -2110,7 +2110,7 @@ function App() {
               </InputGroup>
             </FormControl>
           ) : currentStep === 'summary' ? (
-            <Box id="summary-scroll-container" h="calc(100vh - 50px)" overflowY="auto" pt={2}>
+            <Box id="summary-scroll-container" pt={2}>
               <SummaryComponentWrapper userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
             </Box>
           ) : (
