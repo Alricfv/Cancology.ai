@@ -1374,18 +1374,16 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             printIframe.contentWindow.focus();
             printIframe.contentWindow.print();
             
-            // Remove the iframe when printing dialog is closed or after a timeout
-            setTimeout(() => {
-              try {
-                // Check if the iframe still exists in the document before removing
-                if (printIframe && printIframe.parentNode === document.body) {
-                  document.body.removeChild(printIframe);
-                }
-              } catch (err) {
-                console.log("Iframe already removed or not found:", err);
-                // No need to show an error to the user as this is just cleanup
-              }
-            }, 5000);
+            // Do not remove the iframe here; keep it permanent until explicitly removed
+            // setTimeout(() => {
+            //   try {
+            //     if (printIframe && printIframe.parentNode === document.body) {
+            //       document.body.removeChild(printIframe);
+            //     }
+            //   } catch (err) {
+            //     console.log("Iframe already removed or not found:", err);
+            //   }
+            // }, 5000);
           } else {
             console.error("Cannot access iframe content window");
             toast({

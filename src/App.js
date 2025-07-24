@@ -702,44 +702,82 @@ function App() {
 
   // Helper function to calculate progress percentage based on current step
   const calculateProgress = () => {
-    // Define the main path through the questionnaire
-    
     // Map steps to their progress points (0-100%)
     const stepProgressMap = {
       'start': 0,
       'info': 0,
-      'age': 5,
-      'sex': 10,
-      'ethnicity': 15, 
-      'location': 20,
-      'cancer': 25,
-      'cancerDetails': 30,
-      'familyHistory': 35,
-      'familyHistoryDetails': 40,
-      'chronicConditions': 45,
-      'smokingStatus': 50,
-      'alcoholConsumption': 55,
-      'sexualHealth': 60,
-      'transplant': 65,
-      'medications': 70,
-      'allergies': 75,
-      // Gender specific questions branch
-      'maleQuestions': 80,
-      'urinarySymptoms': 82,
-      'prostateTest': 85,
-      'testicularIssues': 88,
-      'femaleQuestions': 80,
-      'menarcheAge': 82,
-      'menstruationStatus': 85,
-      'pregnancy': 88,
-      'hormoneTreatment': 90,
-      // Rejoin common path
-      'pastCancerScreening': 90,
-      'hpvVaccine': 93,
-      'hepBVaccine': 96,
+      'age': 2,
+      'sex': 4,
+      'ethnicity': 6,
+      'location': 8,
+      'cancer': 10,
+      'cancerDetails': 12,
+      'familyHistory': 14,
+      'familyHistoryDetails': 16,
+      'hypertension': 18,
+      'partialGastrectomy': 20,
+      'perniciousAnemia': 22,
+      'gastricGeneMutation': 24,
+      'chronicConditions': 26,
+      'smokingStatus': 28,
+      'smokingYears': 30,
+      'smokingAmount': 32,
+      'alcoholConsumption': 34,
+      'alcoholAmount': 36,
+      'saltySmokedFoods': 38,
+      'fruitVegServings': 40,
+      'sexualHealth': 42,
+      'transplant': 44,
+      'brcaMutation': 46,
+      'hPylori': 48,
+      'hPyloriEradication': 50,
+      'gastritisUlcer': 52,
+      'medications': 54,
+      'allergies': 56,
+      'allergyDetails': 58,
+      'symptomScreenIntro': 60,
+      'swallowingDifficulty': 62,
+      'blackStool': 64,
+      'weightLoss': 66,
+      'vomiting': 68,
+      'epigastricPain': 70,
+      'indigestion': 72,
+      'painWakesAtNight': 74,
+      // Male branch
+      'maleQuestions': 76,
+      'urinarySymptoms': 78,
+      'prostateTest': 80,
+      'prostateTestAge': 82,
+      'testicularIssues': 84,
+      // Female branch
+      'femaleQuestions': 76,
+      'menarcheAge': 78,
+      'menstruationStatus': 80,
+      'menopauseAge': 82,
+      'pregnancy': 84,
+      'numberOfBirths': 86,
+      'firstPregnancyAge': 88,
+      'birthControl': 90,
+      'pillYears': 91,
+      'hormoneReplacementTherapy': 92,
+      'tubalLigation': 93,
+      'ovaryRemoved': 94,
+      'endometriosis': 95,
+      'fertilityDrugs': 96,
+      'goffSymptomIntro': 97,
+      'goffBloating': 97.5,
+      'goffPain': 98,
+      'goffFullness': 98.5,
+      'goffUrinary': 99,
+      'goffAbdomenSize': 99.5,
+      // Rejoin
+      'pastCancerScreening': 99.7,
+      'pastCancerScreeningDetails': 99.8,
+      'hpvVaccine': 99.9,
+      'hepBVaccine': 99.95,
       'summary': 100,
-      'end': 100};
-    
+      'end': 100
+    };
     return stepProgressMap[currentStep] || 0;
   };
 
@@ -1886,7 +1924,7 @@ function App() {
               <InputGroup size="md">
                 <Input 
                   type="number"
-                  placeholder="Enter age at first period (8-18)"
+                  placeholder="Enter age at first period"
                   value={menarcheAgeInput}
                   onChange={(e) => setMenarcheAgeInput(e.target.value)}
                   onKeyPress={(e) => {
@@ -1965,7 +2003,7 @@ function App() {
               <InputGroup size="md">
                 <Input
                   type="number"
-                  placeholder="Enter age when your periods stopped (30-60)"
+                  placeholder="Enter age when your periods stopped"
                   value={menopauseAgeInput}
                   onChange={(e) => setMenopauseAgeInput(e.target.value)}
                   onKeyPress={(e) => {
