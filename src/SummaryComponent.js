@@ -21,7 +21,7 @@ import { FaCheckCircle, FaPrint, FaArrowRight, FaArrowLeft, FaHome, FaRedo } fro
 import { getPrescribedTests } from './testPrescription';
 
 // Create a SummaryComponent to show at the end with multiple pages
-const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
+const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScreening }) => {
   const toast = useToast();
   const accentColor = useColorModeValue('blue.500', 'blue.300');
   const summaryRef = useRef(null);
@@ -265,9 +265,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
 
   // Handler for Start New Screening: just go back to chatbot flow and set to start
   const handleStartNewScreening = () => {
-    setCurrentPage(1); // Go to chatbot screen
-    if (typeof handleOptionSelectCall === 'function') {
-      handleOptionSelectCall('start'); // Set to start of flow (assuming 'start' is the first step ID)
+    if (typeof onStartNewScreening === 'function') {
+      onStartNewScreening();
+    } else {
+      if (typeof handleOptionSelectCall === 'function') {
+        handleOptionSelectCall('start'); // fallback
+      }
+      setCurrentPage(1);
     }
   };
 

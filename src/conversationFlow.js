@@ -491,8 +491,14 @@ const conversationFlow = {
   hepBVaccine: {
     question: "Have you received the Hepatitis B vaccine?",
     options: [
-      { text: "Yes", nextId: "summary" },
-      { text: "No", nextId: "summary" }
+      { text: "Yes", nextId: "disclaimer" },
+      { text: "No", nextId: "disclaimer" }
+    ]
+  },
+  disclaimer: {
+    question: "Disclaimer: The information and test recommendations in this summary are based solely on the answers you provided. This tool does not provide a medical diagnosis or treatment advice. All suggested tests are preliminary and should be discussed and confirmed with a qualified healthcare professional. Any outputs are subject to review against your official medical records and clinical evaluation.",
+    options: [
+      { text: "Continue", nextId: "summary" }
     ]
   },
   summary: {

@@ -2169,7 +2169,11 @@ function App() {
             </FormControl>
           ) : currentStep === 'summary' ? (
             <Box id="summary-scroll-container" pt={2}>
-              <SummaryComponentWrapper userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
+              <SummaryComponentWrapper 
+                userResponses={userResponses} 
+                handleOptionSelectCall={handleOptionSelectCall}
+                onStartNewScreening={() => setCurrentStep('start')}
+              />
             </Box>
           ) : (
             <VStack spacing={3} align="stretch">

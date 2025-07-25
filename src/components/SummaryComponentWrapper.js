@@ -33,9 +33,10 @@ const SummaryComponentWrapper = (props) => {
   }
   
   // Render the appropriate component based on the detected platform
+
   return isMobile ? 
-    <MobileSummaryComponent {...props} /> : 
-    <SummaryComponent {...props} />;
+    <MobileSummaryComponent {...props} onStartNewScreening={props.onStartNewScreening} /> : 
+    <SummaryComponent {...props} onStartNewScreening={props.onStartNewScreening} />;
 };
 
 export default SummaryComponentWrapper;
