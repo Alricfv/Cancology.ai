@@ -65,6 +65,20 @@ const conversationFlow = {
   hypertension: {
     question: "Have you ever been diagnosed of high blood pressure?",
     options: [
+      { text: "Yes", nextId: "kidneyIssue" },
+      { text: "No", nextId: "kidneyIssue" }
+    ]
+  },
+  kidneyIssue: {
+    question: "Have you ever been diagnosed with a kidney cyst, kidney tumor, or had blood in your urine?",
+    options: [
+      { text: "Yes", nextId: "brainSpinalEyeTumor" },
+      { text: "No", nextId: "brainSpinalEyeTumor" }
+    ]
+  },
+  brainSpinalEyeTumor: {
+    question: "Have you ever been diagnosed with a brain, spinal cord, or eye tumor (such as a hemangioblastoma or retinal angioma)?",
+    options: [
       { text: "Yes", nextId: "partialGastrectomy" },
       { text: "No", nextId: "partialGastrectomy" }
     ]

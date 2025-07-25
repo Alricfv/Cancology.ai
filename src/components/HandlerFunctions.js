@@ -1789,6 +1789,27 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // Handle kidney issue (Yes/No)
+    else if (currentStep === 'kidneyIssue') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          kidneyIssue: optionText === 'Yes'
+        }
+      }));
+    }
+
+    // Handle brain/spinal/eye tumor (Yes/No)
+    else if (currentStep === 'brainSpinalEyeTumor') {
+      setUserResponses(prev => ({
+        ...prev,
+        medicalHistory: {
+          ...prev.medicalHistory,
+          brainSpinalEyeTumor: optionText === 'Yes'
+        }
+      }));
+    }
 
     // Update user responses based on current step
     // Goff Symptom Index questions
@@ -2248,3 +2269,5 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }
     }, 1000);
   };
+
+// Handle kidney issue (Yes/No)

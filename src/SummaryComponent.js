@@ -263,10 +263,15 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     setCurrentPage(2);
   };
 
-  const goToPreviousPage = () => {
-    setCurrentPage(1);
+  // Handler for Start New Screening: just go back to chatbot flow and set to start
+  const handleStartNewScreening = () => {
+    setCurrentPage(1); // Go to chatbot screen
+    if (typeof handleOptionSelectCall === 'function') {
+      handleOptionSelectCall('start'); // Set to start of flow (assuming 'start' is the first step ID)
+    }
   };
-  
+
+
   // PDF generation function removed - using print functionality only
   // Function to print the summary using browser's print API with iframe approach
   const printSummary = () => {
@@ -358,6 +363,26 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
                 `<span style="font-weight:500;">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
                 '<span style="color:#38A169;">None</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">History of Kidney cyst, Tumor, or Blood in Urine:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.kidneyIssue === 'boolean'
+                ? (userResponses.medicalHistory.kidneyIssue
+                    ? '<span class="badge badge-red">Yes</span>'
+                    : '<span class="badge badge-green">No</span>')
+                : '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">History of Brain, Spinal, or Eye Tumor:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.brainSpinalEyeTumor === 'boolean'
+                ? (userResponses.medicalHistory.brainSpinalEyeTumor
+                    ? '<span class="badge badge-red">Yes</span>'
+                    : '<span class="badge badge-green">No</span>')
+                : '<span style="color:#718096;">Not specified</span>'}
             </span>
           </div>
         </div>
@@ -1509,11 +1534,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           fontWeight="bold"
           fontSize="md"
           ml={{ base: 0, md: 2 }}
-          onClick={() => {
-            if (typeof handleOptionSelectCall === 'function') {
-              handleOptionSelectCall('restart');
-            }
-          }}
+          onClick={handleStartNewScreening}
           _hover={{ bg: 'rgba(255,255,255,0.08)' }}
           _active={{ bg: 'rgba(255,255,255,0.16)' }}
         >
@@ -1559,6 +1580,16 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         <SummaryLine label="Personal Cancer" value={userResponses.medicalHistory.personalCancer.diagnosed ? (userResponses.medicalHistory.personalCancer.type ? `${userResponses.medicalHistory.personalCancer.type}${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? ` (Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})` : ''}` : 'Yes') : 'No'} />
         <SummaryLine label="Family Cancer" value={userResponses.medicalHistory.familyCancer.diagnosed ? (userResponses.medicalHistory.familyCancer.type ? `${userResponses.medicalHistory.familyCancer.type}${userResponses.medicalHistory.familyCancer.relation ? ` in ${userResponses.medicalHistory.familyCancer.relation}` : ''}${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? ` (Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})` : ''}` : 'Yes') : 'No'} />
         <SummaryLine label="Chronic Conditions" value={userResponses.medicalHistory.chronicConditions.length > 0 ? userResponses.medicalHistory.chronicConditions.join(', ') : 'None'} />
+        <SummaryLine label="History of Kidney cyst, Tumor, or Blood in Urine" value={
+          typeof userResponses.medicalHistory.kidneyIssue === 'boolean'
+            ? (userResponses.medicalHistory.kidneyIssue ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+        <SummaryLine label="History of Brain, Spinal, or Eye Tumor" value={
+          typeof userResponses.medicalHistory.brainSpinalEyeTumor === 'boolean'
+            ? (userResponses.medicalHistory.brainSpinalEyeTumor ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
       </Box>
       <Box mb={6}>
         <SectionTitle>Lifestyle</SectionTitle>
