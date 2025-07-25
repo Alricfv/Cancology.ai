@@ -1481,7 +1481,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
   const SummaryLine = ({ label, value }) => (
     <Flex mb={1} align="center">
       <Text fontWeight="semibold" minW="160px">{label}:</Text>
-      <Text ml={2}>{value}</Text>
+      <Text ml={2} textAlign="right" flex={1}>{value}</Text>
     </Flex>
   );
 
@@ -1511,20 +1511,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           _active={{ bg: 'rgba(255,255,255,0.16)' }}
         >
           Home
-        </Button>
-        {/* Start New Screening: always show */}
-        <Button
-          leftIcon={<FaRedo />}
-          variant="ghost"
-          color="white"
-          fontWeight="bold"
-          fontSize="md"
-          ml={{ base: 0, md: 2 }}
-          onClick={handleStartNewScreening}
-          _hover={{ bg: 'rgba(255,255,255,0.08)' }}
-          _active={{ bg: 'rgba(255,255,255,0.16)' }}
-        >
-          Start New Screening
         </Button>
         <Spacer />
         {/* Download PDF: always show */}

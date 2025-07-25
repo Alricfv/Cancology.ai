@@ -509,7 +509,7 @@ const conversationFlow = {
     ]
   },
   end: {
-    question: "Have a great day! If you have any further questions or need assistance, feel free to contact Sky Premium Hospital!.",
+    question: "This tool is intended to support early triage, not replace clinical judgment. It helps highlight potential screening needs so you can take informed next steps with a medical professional.",
     options: [
       { text: "Start a new screening", nextId: "start" }
     ]
