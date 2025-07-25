@@ -79,12 +79,13 @@ import {
 } from './components/HandlerFunctions';
 
 function App() {
+  const [hasSubmittedPerniciousAnemia, setHasSubmittedPerniciousAnemia] = useState(false);
   // Pernicious Anemia state and handler
   const [perniciousAnemiaInput, setPerniciousAnemiaInput] = useState("");
   const [perniciousAnemiaError, setPerniciousAnemiaError] = useState("");
   const handlePerniciousAnemiaSubmitCall = (answer) => {
+    if (hasSubmittedPerniciousAnemia) return;
     setPerniciousAnemiaInput(answer);
-    // Find the nextId from the selected option in conversationFlow.perniciousAnemia.options
     const nextId = conversationFlow.perniciousAnemia.options.find(opt => opt.text === answer)?.nextId;
     handlePerniciousAnemiaSubmit(
       answer,
@@ -96,6 +97,7 @@ function App() {
       setPerniciousAnemiaInput,
       nextId
     );
+    setHasSubmittedPerniciousAnemia(true);
   };
   const [appState, setAppState] = useState('landing'); // State to track app state
   const [messages, setMessages] = useState([
@@ -164,8 +166,10 @@ function App() {
 
   const [gastritisUlcerInput, setGastritisUlcerInput] = useState("");
   const [gastritisUlcerError, setGastritisUlcerError] = useState("");
-  // Handler for chronic gastritis/gastric ulcers submit (now Yes/No buttons)
+  const [hasSubmittedGastritisUlcer, setHasSubmittedGastritisUlcer] = useState(false);
+  // Handler for chronic gastritis/gastric ulcers submit (single click only)
   const handleGastritisUlcerSubmitCall = (answer) => {
+    if (hasSubmittedGastritisUlcer) return;
     setGastritisUlcerInput(answer);
     handleGastritisUlcerSubmit(
       answer,
@@ -176,6 +180,7 @@ function App() {
       setCurrentStep,
       setGastritisUlcerInput
     );
+    setHasSubmittedGastritisUlcer(true);
   };
 
   // State for H. pylori infection question
@@ -187,6 +192,7 @@ function App() {
   // State for gastric cancer gene mutation question
   const [gastricGeneMutationInput, setGastricGeneMutationInput] = useState("");
   const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
+  const [hasSubmittedGastricGeneMutation, setHasSubmittedGastricGeneMutation] = useState(false);
   // Handler for H. pylori infection submit
   const handleHPyloriSubmitCall = () => {
     // Find nextId from the selected option in conversationFlow.hPylori.options
@@ -217,11 +223,13 @@ function App() {
       nextId
     );
   };
-  // Handler for gastric gene mutation submit
-  const handleGastricGeneMutationSubmitCall = () => {
-    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === gastricGeneMutationInput)?.nextId;
+  // Handler for gastric gene mutation submit (single click only)
+  const handleGastricGeneMutationSubmitCall = (answer) => {
+    if (hasSubmittedGastricGeneMutation) return;
+    setGastricGeneMutationInput(answer);
+    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === answer)?.nextId;
     handleGastricGeneMutationSubmit(
-      gastricGeneMutationInput,
+      answer,
       setGastricGeneMutationError,
       setUserResponses,
       setMessages,
@@ -230,6 +238,7 @@ function App() {
       setGastricGeneMutationInput,
       nextId
     );
+    setHasSubmittedGastricGeneMutation(true);
   };
   const messagesEndRef = useRef(null);
   const toast = useToast();
@@ -1621,8 +1630,8 @@ function App() {
                     borderRadius="full"
                     isFullWidth
                     _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                    onClick={() => !isProcessingSelection && handleGastritisUlcerSubmitCall(opt)}
-                    isDisabled={isProcessingSelection}
+                    onClick={() => handleGastritisUlcerSubmitCall(opt)}
+                    isDisabled={isProcessingSelection || hasSubmittedGastritisUlcer}
                     bg={gastritisUlcerInput === opt ? 'blue.50' : 'transparent'}
                     borderColor={gastritisUlcerInput === opt ? 'blue.400' : 'gray.200'}
                     justifyContent="flex-start"
@@ -1634,6 +1643,31 @@ function App() {
                 ))}
               </VStack>
               {gastritisUlcerError && <FormErrorMessage>{gastritisUlcerError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hypertension' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.hypertension.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    bg={selectedOption === opt.text ? 'blue.50' : 'transparent'}
+                    borderColor={selectedOption === opt.text ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
             </FormControl>
           ) : currentStep === 'perniciousAnemia' ? (
             <FormControl isInvalid={!!perniciousAnemiaError}>
@@ -1648,7 +1682,7 @@ function App() {
                     isFullWidth
                     _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
                     onClick={() => handlePerniciousAnemiaSubmitCall(opt)}
-                    isDisabled={isProcessingSelection}
+                    isDisabled={isProcessingSelection || hasSubmittedPerniciousAnemia}
                     bg={perniciousAnemiaInput === opt ? 'blue.50' : 'transparent'}
                     borderColor={perniciousAnemiaInput === opt ? 'blue.400' : 'gray.200'}
                     justifyContent="flex-start"
@@ -1699,22 +1733,8 @@ function App() {
                     borderRadius="full"
                     isFullWidth
                     _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
-                    onClick={() => {
-                      if (!isProcessingSelection) {
-                        setGastricGeneMutationInput(opt);
-                        handleGastricGeneMutationSubmit(
-                          opt,
-                          setGastricGeneMutationError,
-                          setUserResponses,
-                          setMessages,
-                          conversationFlow,
-                          setCurrentStep,
-                          setGastricGeneMutationInput,
-                          conversationFlow.gastricGeneMutation.options.find(o => o.text === opt)?.nextId
-                        );
-                      }
-                    }}
-                    isDisabled={isProcessingSelection}
+                    onClick={() => handleGastricGeneMutationSubmitCall(opt)}
+                    isDisabled={isProcessingSelection || hasSubmittedGastricGeneMutation}
                     bg={gastricGeneMutationInput === opt ? 'blue.50' : 'transparent'}
                     borderColor={gastricGeneMutationInput === opt ? 'blue.400' : 'gray.200'}
                     justifyContent="flex-start"

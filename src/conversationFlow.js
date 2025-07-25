@@ -53,7 +53,7 @@ const conversationFlow = {
     question: "Has a first-degree relative (parent, sibling, child) ever been diagnosed with cancer?",
     options: [
       { text: "Yes", nextId: "familyHistoryDetails" },
-      { text: "No", nextId: "partialGastrectomy" }
+      { text: "No", nextId: "hypertension" }
     ]
   },
   familyHistoryDetails: {
