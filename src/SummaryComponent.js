@@ -173,30 +173,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
       hasOvarianFamilyHistory = true;
     }
 
-    if (isFemale && age > 30 && (hasBRCA || hasOvarianFamilyHistory)) {
-      // Build reason string based on which risk factors apply
-      let reasons = [];
-      if (hasBRCA) reasons.push('BRCA1/2 mutation');
-      if (hasOvarianFamilyHistory) reasons.push('family history of ovarian cancer');
-      let reasonText = 'Ovarian cancer risk' + (reasons.length > 0 ? ' (' + reasons.join(', ') + ')' : '');
-      // Only add if not already present
-      if (!tests.some(t => t.name && t.name.toLowerCase().includes('transvaginal ultrasound'))) {
-        tests.push({
-          name: 'Transvaginal ultrasound',
-          frequency: 'Every 6 months',
-          reason: reasonText,
-          priority: 'high',
-        });
-      }
-      if (!tests.some(t => t.name && t.name.toLowerCase().includes('ca-125'))) {
-        tests.push({
-          name: 'CA-125',
-          frequency: 'Every 6 months',
-          reason: reasonText,
-          priority: 'high',
-        });
-      }
-    }
+    // ...existing code...
 
     // Upper GI Endoscopy recommendation for both genders above 40 with risk factors
     if (age > 40) {
@@ -1137,7 +1114,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
             <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
-                <h2>Cancer Screening Test</h2>
+                <h2>Cancer Screening Report</h2>
               </header>
               <div class="column" style="width: 100%;">
                 ${personalInfo}
@@ -1376,6 +1353,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
               </div>
             </section>
             ` : ''}
+            <div class="pdf-disclaimer-divider" style="height:2px; background-color:#2B6CB0; margin:30px 0 20px 0;"></div>
+            <div class="pdf-disclaimer-text" style="font-size:13pt; color:#9B2C2C; font-weight:500; text-align:center; padding:10px 0 20px 0;">
+              Disclaimer: The information and test recommendations in this summary are based solely on the answers you provided. This tool does not provide a medical diagnosis or treatment advice. All suggested tests are preliminary and should be discussed and confirmed with a qualified healthcare professional. Any outputs are subject to review against your official medical records and clinical evaluation.<br><br>
+              This tool is intended to support early triage, not replace clinical judgment. It helps highlight potential screening needs so you can take informed next steps with a medical professional.
+            </div>
           </article>
         </body>
         </html>
@@ -1568,7 +1550,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
       {/* PDF-style header */}
       <Box as="header" textAlign="center" mb={6} borderBottom="3px solid" borderColor={accentColor} pb={3}>
         <Text fontWeight="900" fontSize="2xl" color={accentColor} letterSpacing="-0.5px">Sky Premium Hospital</Text>
-        <Text fontWeight="500" fontSize="lg" color="gray.700" mt={1}>Cancer Screening Test</Text>
+        <Text fontWeight="500" fontSize="lg" color="gray.700" mt={1}>Cancer Screening Report</Text>
       </Box>
       {/* PDF-style summary: each field on its own line, label and value side by side */}
       <Box mb={6}>

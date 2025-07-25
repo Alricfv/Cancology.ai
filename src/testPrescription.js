@@ -62,6 +62,30 @@ export const getPrescribedTests = (userResponses) => {
         urgency: "Schedule within 3 months"
       });
     }
+
+    // Ovarian Cancer Screening (Goff et al. symptoms)
+    if (userResponses.symptoms && userResponses.symptoms.goffSymptomIndex) {
+      const goff = userResponses.symptoms.goffSymptomIndex;
+      const goffSymptomPositive = [goff.bloating, goff.pain, goff.fullness, goff.urinary, goff.abdomenSize].some(v => v === true);
+      if (goffSymptomPositive) {
+        tests.push({
+          name: "Transvaginal ultrasound",
+          type: "ovarian",
+          priority: "high",
+          reason: "One or more Goff et al. symptoms positive. Early detection is critical.",
+          frequency: "As soon as possible",
+          urgency: "Schedule within 1 month"
+        });
+        tests.push({
+          name: "CA-125",
+          type: "ovarian",
+          priority: "high",
+          reason: "One or more Goff et al. symptoms positive. Early detection is critical.",
+          frequency: "As soon as possible",
+          urgency: "Schedule within 1 month"
+        });
+      }
+    }
   }
 
     // Colorectal Cancer Screening for both males and females starting at age 45
