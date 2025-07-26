@@ -7,6 +7,7 @@ export const maleCancerTypes = [
   "Oral/Throat cancer (HPV-related)",
   "Liver cancer",
   "Gastric (stomach) cancer",
+  "Renal (Kidney) Cancer",
   "Other"
 ];
 
@@ -20,5 +21,6 @@ export const femaleCancerTypes = [
   "Oral/Throat cancer (HPV-related)",
   "Liver cancer",
   "Gastric (stomach) cancer",
+  "Renal (Kidney) Cancer",
   "Other"
 ];

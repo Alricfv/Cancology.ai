@@ -525,7 +525,7 @@ const SummaryComponent = ({ userResponses}) => {
             <div class="value">${userResponses.sexSpecificInfo.female.menstruationStatus || 'Not specified'}</div>
 
             <div class="label">Last Period Age:</div>
-            <div class="value">${userResponses.sexSpecificInfo.female.menopauseAge || 'Not specified'}</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.menopauseAge || 'N/A'}</div>
 
             <div class="label">Pregnancy History:</div>
             <div class="value">
@@ -535,10 +535,10 @@ const SummaryComponent = ({ userResponses}) => {
             </div>
 
             <div class="label">Births at/after 24 weeks:</div>
-            <div class="value">${userResponses.sexSpecificInfo.female.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'Not specified'}</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'N/A'}</div>
 
             <div class="label">Oral contraceptive:</div>
-            <div class="value">${userResponses.sexSpecificInfo.female.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'Not specified'}</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'N/A'}</div>
             
             <div class="label">Hormone Replacement Therapy:</div>
             <div class="value">
@@ -1499,11 +1499,11 @@ const SummaryComponent = ({ userResponses}) => {
           <SectionTitle>Female-Specific Screening</SectionTitle>
           <SummaryLine label="First Period Age" value={userResponses.sexSpecificInfo?.female?.menarcheAge || 'Not specified'} />
           <SummaryLine label="Menstruation Status" value={userResponses.sexSpecificInfo?.female?.menstruationStatus || 'Not specified'} />
-          <SummaryLine label="Last Period Age" value={userResponses.sexSpecificInfo?.female?.menopauseAge || 'Not specified'} />
-          <SummaryLine label="Pregnancy History" value={userResponses.sexSpecificInfo?.female?.pregnancy?.hadPregnancy ? `YES${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst ? ` (First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst})` : ''}` : 'NO'} />
-          <SummaryLine label="Births at/after 24 weeks" value={userResponses.sexSpecificInfo?.female?.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'Not specified'} />
-          <SummaryLine label="Oral contraceptive" value={userResponses.sexSpecificInfo?.female?.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'Not specified'} />
-          <SummaryLine label="Hormone Replacement Therapy" value={userResponses.sexSpecificInfo?.female?.hormoneReplacementTherapy ? 'YES' : 'NO'} />
+          <SummaryLine label="Last Period Age" value={userResponses.sexSpecificInfo?.female?.menopauseAge || 'N/A'} />
+          <SummaryLine label="Pregnancy History" value={userResponses.sexSpecificInfo?.female?.pregnancy?.hadPregnancy ? `Yes${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst ? ` (First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst})` : ''}` : 'None'} />
+          <SummaryLine label="Births at/after 24 weeks" value={userResponses.sexSpecificInfo?.female?.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'N/A'} />
+          <SummaryLine label="Oral contraceptive" value={userResponses.sexSpecificInfo?.female?.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'N/A'} />
+          <SummaryLine label="Hormone Replacement Therapy" value={userResponses.sexSpecificInfo?.female?.hormoneReplacementTherapy ? 'Yes' : 'No'} />
           <SummaryLine label="Tubal ligation" value={userResponses.sexSpecificInfo?.female?.tubalLigation === true ? 'Yes' : 'No'} />
           <SummaryLine label="Ovary Removal" value={userResponses.sexSpecificInfo?.female?.ovaryRemoved !== undefined && userResponses.sexSpecificInfo.female.ovaryRemoved !== null && userResponses.sexSpecificInfo.female.ovaryRemoved !== '' ? userResponses.sexSpecificInfo.female.ovaryRemoved : 'Not specified'} />
           <SummaryLine label="Endometriosis diagnosis" value={userResponses.medicalHistory?.endometriosis === 'Yes' ? 'Yes' : 'No'} />
