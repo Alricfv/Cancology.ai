@@ -1,33 +1,23 @@
-import React, { useRef, useState } from 'react';
+import React, {useRef} from 'react';
 import {
   Box,
   Text,
   Button,
-  Icon,
-  Heading,
   useColorModeValue,
   useToast,
-  Divider,
-  Badge,
-  List,
-  ListItem,
-  ListIcon,
   Flex,
-  Grid,
-  GridItem,
   Spacer
 } from '@chakra-ui/react';
-import { FaCheckCircle, FaPrint, FaArrowRight, FaArrowLeft, FaHome, FaRedo } from 'react-icons/fa';
+import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
 
 // Create a SummaryComponent to show at the end with multiple pages
-const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScreening }) => {
+const SummaryComponent = ({ userResponses}) => {
   const toast = useToast();
   const accentColor = useColorModeValue('blue.500', 'blue.300');
   const summaryRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page (1: Medical & Risk Data, 2: Cancer Tests)
   
-  // Calculate risk factors
+  
   const calculateRiskScore = () => {
     let riskScore = 0;
     
@@ -148,7 +138,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
   // Enhanced prescribed tests logic for ovarian cancer risk
   const getEnhancedPrescribedTests = (userResponses) => {
     const tests = getPrescribedTests(userResponses) || [];
-    const isFemale = userResponses.demographics.sex === 'Female';
     const age = userResponses.demographics.age;
     let hasBRCA = false;
     let hasOvarianFamilyHistory = false;
@@ -235,59 +224,27 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
 
   const prescribedTests = getEnhancedPrescribedTests(userResponses);
   
-  // Navigation functions
-  const goToNextPage = () => {
-    setCurrentPage(2);
-  };
 
-  // Handler for Start New Screening: just go back to chatbot flow and set to start
-  const handleStartNewScreening = () => {
-    if (typeof onStartNewScreening === 'function') {
-      onStartNewScreening();
-    } else {
-      if (typeof handleOptionSelectCall === 'function') {
-        handleOptionSelectCall('start'); // fallback
-      }
-      setCurrentPage(1);
-    }
-  };
-
-
-  // PDF generation function removed - using print functionality only
   // Function to print the summary using browser's print API with iframe approach
   const printSummary = () => {
-    // Variable to track if we've created an iframe that needs cleanup
     let printIframe = null;
-    
     try {
-      // Create a hidden iframe for printing (no popup)
       printIframe = document.createElement('iframe');
       printIframe.style.position = 'fixed';
       printIframe.style.right = '0';
       printIframe.style.bottom = '0';
-      // Not setting width/height to 0 to help with rendering
       printIframe.style.width = '100%';
       printIframe.style.height = '100%';
       printIframe.style.border = 'none';
       printIframe.style.opacity = '0';
       printIframe.style.visibility = 'hidden';
       printIframe.style.overflow = 'hidden';
-      
-      // Append the iframe to document body
       document.body.appendChild(printIframe);
-      
-      // Get the current theme colors for styling
-      
-      // Prepare the data for printing
       const formatBadge = (condition, trueText, falseText, trueColor, falseColor) => {
         const color = condition ? trueColor : falseColor;
         const text = condition ? trueText : falseText;
         return `<span class="badge badge-${color}">${text}</span>`;
       };
-      
-      // Get health risk and recommendations
-      
-      // Format all the user data for display
       const personalInfo = `
         <div class="section-title">Personal Information</div>
         <div class="personal-info-grid">
@@ -501,7 +458,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
         </div>
       `;
       
-      // Gastrointestinal Surgery section (moved below lifestyleFactors)
+      // Gastrointestinal Surgery section 
       const gastrointestinalSurgery = `
         <div class="section-title">Gastrointestinal Surgery</div>
         <div class="simple-medical-history">
@@ -666,27 +623,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           </div>
         </div>
       `;
-      
-      // We'll skip the risk assessment since we're using our enhanced version directly in the HTML
-      
-      // Using our enhanced layout directly in the HTML
-      
-      // We'll use the prescribedTests that were already declared at the component level
-      
-      // We already have recommendations computed earlier
-      // No need to recompute
-
-      // Helper for badge color and text (same as online summary)
-      const getBadgeColor = (priority) => {
-        if (priority === 'high') return { bg: '#FEDED2', color: '#9B2C2C' };
-        if (priority === 'medium') return { bg: '#FEEBC8', color: '#7B341E' };
-        return { bg: '#C6F6D5', color: '#22543D' };
-      };
-      const getBadgeText = (priority) => {
-        if (priority === 'high') return 'SCHEDULE WITHIN 1 MONTH';
-        if (priority === 'medium') return 'SCHEDULE WITHIN 3 MONTHS';
-        return 'SCHEDULE WITHIN 6 MONTHS';
-      };
 
       // Get the iframe's document
       const printDocument = printIframe.contentDocument || 
@@ -1366,17 +1302,14 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
       // Close the document for writing
       printDocument.close();
       
-      // We need to wait for images and styles to load
       // Flag to prevent multiple print dialogs
       let hasPrintBeenTriggered = false;
       
       const triggerPrint = () => {
-        // Check if print has already been triggered to avoid duplicate dialogs
         if (hasPrintBeenTriggered) {
           return;
         }
         
-        // Mark print as triggered
         hasPrintBeenTriggered = true;
         
         try {
@@ -1384,17 +1317,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           if (printIframe.contentWindow) {
             printIframe.contentWindow.focus();
             printIframe.contentWindow.print();
-            
-            // Do not remove the iframe here; keep it permanent until explicitly removed
-            // setTimeout(() => {
-            //   try {
-            //     if (printIframe && printIframe.parentNode === document.body) {
-            //       document.body.removeChild(printIframe);
-            //     }
-            //   } catch (err) {
-            //     console.log("Iframe already removed or not found:", err);
-            //   }
-            // }, 5000);
+
           } else {
             console.error("Cannot access iframe content window");
             toast({
@@ -1419,15 +1342,12 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
         }
       };
       
-      // Use onload as the primary method to trigger print
       printIframe.onload = () => {
-        // Give browsers more time to properly render the content before printing
         // This helps avoid blank pages in the print output
         setTimeout(triggerPrint, 1000);
       };
       
       // Fallback in case onload doesn't fire, but with a longer delay
-      // This prevents racing with the onload handler
       setTimeout(triggerPrint, 2000);
 
     } catch (error) {
@@ -1441,7 +1361,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
         position: "top-right"
       });
     }
-  };  // Apply styling for badge alignment in the UI (these styles will apply to the printed version through printStyles.css)
+  };
   React.useEffect(() => {
     // Fix badges in the UI
     const fixBadges = () => {
@@ -1449,7 +1369,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
       
       // Fix badge styling directly
       badges.forEach(badge => {
-        // Apply critical styles directly to badge elements
         badge.style.display = 'inline-flex';
         badge.style.alignItems = 'center';
         badge.style.justifyContent = 'center';
@@ -1473,11 +1392,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
       });
     };
     
-    // Fix badges after component renders
     setTimeout(fixBadges, 500);
   }, []);
   
-  // Helper to render a summary line (label and value)
   const SummaryLine = ({ label, value }) => (
     <Flex mb={1} align="center">
       <Text fontWeight="semibold" minW="160px">{label}:</Text>
@@ -1485,27 +1402,24 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
     </Flex>
   );
 
-  // Helper to render a section title
   const SectionTitle = ({ children }) => (
     <Text fontWeight="bold" fontSize="lg" mt={4} mb={2} color={accentColor}>{children}</Text>
   );
 
-  // Render
-  // NAVY BLUE for Download button
   const navyBlue = '#1A237E';
 
   // Navigation bar (matches landing page theme)
   return (
     <Box maxW="700px" mx="auto" my={10} borderRadius="2xl" boxShadow="2xl" bg="white" overflow="hidden">
       <Flex as="nav" align="center" bg={navyBlue} px={6} py={3} borderTopRadius="2xl" borderBottomRadius="none" boxShadow="md">
-        {/* Home button: only show on md+ screens */}
+        {/* Home button*/}
         <Button
           leftIcon={<FaHome />}
           variant="ghost"
           color="white"
           fontWeight="bold"
           fontSize="md"
-          display={{ base: 'none', md: 'flex' }}
+          display="flex"
           onClick={() => window.location.href = '/'}
           _hover={{ bg: 'rgba(255,255,255,0.08)' }}
           _active={{ bg: 'rgba(255,255,255,0.16)' }}
@@ -1513,7 +1427,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           Home
         </Button>
         <Spacer />
-        {/* Download PDF: always show */}
+        {/* Download PDF */}
         <Button
           leftIcon={<FaPrint />}
           bg="white"
@@ -1723,7 +1637,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           : 'Not specified'
       } />
     </Box>
-      {/* Add more sections as needed, e.g., Vaccinations, etc. */}
       {/* Recommended Cancer Screening Tests section */}
       {prescribedTests && prescribedTests.length > 0 && (
         <Box mb={6}>
@@ -1746,7 +1659,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall, onStartNewScr
           ))}
         </Box>
       )}
-      {/* ...existing code for navigation, print, etc... */}
       </Box>
     </Box>
   );
