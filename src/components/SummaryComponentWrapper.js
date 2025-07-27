@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Spinner, Center } from '@chakra-ui/react';
+import { Spinner, Center } from '@chakra-ui/react';
 import MobileSummaryComponent from './MobileSummaryComponent';
 import SummaryComponent from '../SummaryComponent';
 import { isMobileDevice } from '../utils/platformDetection';

@@ -83,57 +83,7 @@ const SummaryComponent = ({ userResponses}) => {
     if (score <= 12) return { category: "High Risk", color: "orange" };
     return { category: "Very High Risk", color: "red" };
   };
-    const getRecommendations = () => {
-    const age = userResponses.demographics.age;
-    const sex = userResponses.demographics.sex;
-    const hasFamilyCancer = userResponses.medicalHistory.familyCancer.diagnosed;
-    const recommendations = [];
-    
-    // General recommendations
-    if (hasFamilyCancer) {
-      recommendations.push("Consider genetic counseling for inherited cancer risk");
-    }
-
-    if (userResponses.medicalHistory.chronicConditions.includes("Diabetes")) {
-      recommendations.push("Regular HbA1c monitoring");
-    }
-    
-    if (sex === "Male") {
-      if (userResponses.sexSpecificInfo.male.urinarySymptoms) {
-        recommendations.push("Urological evaluation recommended");
-      }
-
-      if (userResponses.sexSpecificInfo.male.testicularIssues) {
-        recommendations.push("Testicular self-examinations and specialist consultation");
-      }
-    }
-      // Vaccination recommendations
-    if (!userResponses.vaccinations.hpv && age < 45) {
-      recommendations.push("Consider HPV vaccination if eligible");
-    }
-    
-    if (!userResponses.vaccinations.hepB) {
-      recommendations.push("Consider Hepatitis B vaccination");
-    }
-      // Sexual health recommendations
-    if (userResponses.lifestyle && userResponses.lifestyle.sexualHealth && 
-        userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
-      recommendations.push("Practice safe sex to reduce cancer risk");
-    }
-    
-    // Cancer screening recommendations based on screening history
-    if (!userResponses.cancerScreening.hadScreening) {
-      if (age >= 45) {
-        recommendations.push("Discuss appropriate cancer screening tests with your healthcare provider");
-      }
-    }
-    
-    return recommendations;
-  };
-
   const riskScore = calculateRiskScore();
-  const healthStatus = getHealthCategory(riskScore);
-  const recommendations = getRecommendations();
 
   // Enhanced prescribed tests logic for ovarian cancer risk
   const getEnhancedPrescribedTests = (userResponses) => {
@@ -161,8 +111,6 @@ const SummaryComponent = ({ userResponses}) => {
     ) {
       hasOvarianFamilyHistory = true;
     }
-
-    // ...existing code...
 
     // Upper GI Endoscopy recommendation for both genders above 40 with risk factors
     if (age > 40) {
@@ -505,9 +453,8 @@ const SummaryComponent = ({ userResponses}) => {
                 `<span>(Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})</span>` : ''}
               ${formatBadge(userResponses.sexSpecificInfo.male.prostateTest.had, 'YES', 'NO', 'green', 'yellow')}
               ${!userResponses.sexSpecificInfo.male.prostateTest.had && userResponses.demographics.age < 30 ? 
-                `<span style=\"color:#718096; font-size:8pt;\">N/A (Not recommended under 30)</span>` : ''}
+                `<span style="color:#718096; font-size:8pt;">N/A (Not recommended under 30)</span>` : ''}
             </div>
-            
             <div class="label">Testicular Issues:</div>
             <div class="value">
               ${formatBadge(userResponses.sexSpecificInfo.male.testicularIssues, 'YES', 'NO', 'orange', 'green')}
