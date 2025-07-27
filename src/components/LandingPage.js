@@ -1,24 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Heading, Text, VStack, Icon, Image, Flex, Spacer, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Grid, GridItem, Badge, keyframes, ScaleFade, List, ListItem, ListIcon } from '@chakra-ui/react';
+import { Box, Button, Heading, Text, VStack, Icon, Flex, Spacer, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Grid, GridItem, Badge, ScaleFade, List, ListItem} from '@chakra-ui/react';
 import { FaNotesMedical, FaEnvelope, FaInfoCircle, FaShieldAlt, FaFileDownload, FaClipboardList, FaChartLine, FaLock, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
 
-// Define pulse animation for accent elements
-const pulseAnimation = keyframes`
-  0% { box-shadow: 0 0 0 0 rgba(102, 252, 241, 0.4); }
-  70% { box-shadow: 0 0 0 10px rgba(102, 252, 241, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(102, 252, 241, 0); }
-`;
+
 
 const LandingPage = ({ onStart }) => {
   const { isOpen: isAboutOpen, onOpen: onAboutOpen, onClose: onAboutClose } = useDisclosure();
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure();
-  const [hoveredFeature, setHoveredFeature] = useState(null);
   
-  // Create a subtle animation effect that runs on component mount
-  useEffect(() => {
-    // The animation is handled by Chakra UI's ScaleFade component
-  }, []);
-
+  // Animation for the hero section
   return (
     <Box
       display="flex"
@@ -275,7 +264,7 @@ const LandingPage = ({ onStart }) => {
                       borderLeft="4px solid #66FCF1"
                     >
                       <Text fontSize="sm" color="#C5C6C7" fontStyle="italic">
-                        Your data is private and secure. We comply with all medical privacy regulations and use industry-standard security protocols.
+                        We comply with all medical privacy regulations and use industry-standard security protocols.
                       </Text>
                     </Box>
                   </Box>
@@ -571,4 +560,5 @@ const LandingPage = ({ onStart }) => {
   );
 };
 
+//my landing page is goood
 export default LandingPage;
