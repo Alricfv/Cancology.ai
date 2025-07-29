@@ -19,7 +19,7 @@
     display: none !important;
   }
 
-  /* Fix badge display */
+  /* badge display */
   .chakra-badge {
     display: inline-flex !important;
     align-items: center !important;
@@ -31,7 +31,6 @@
     position: relative !important;
   }
 
-  /* Ensure proper page breaks */
   .page-break-before {
     page-break-before: always !important;
   }
@@ -45,7 +44,7 @@
     background-color: white !important;
   }
 
-  /* Adjust spacing for print */
+  /* spacing adjustments for the print functionality */
   h1, h2, h3, h4 {
     margin-top: 10pt !important;
     margin-bottom: 5pt !important;

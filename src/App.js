@@ -1,11 +1,7 @@
 /**
- This file handles all of the UI components, rendering, and user interactions for the medical screening application.
- It uses React hooks for state management and Chakra UI for styling.
- It includes components for user input, displaying messages, and managing the conversation flow.
- It also includes logic for handling user responses, displaying summaries, and managing the conversation state.
- The application is designed to guide users through a series of questions related to their medical history, lifestyle, and demographics,
- ultimately providing a summary of their responses and recommendations for cancer screening based on their inputs
-
+ This file handles all of the UI components, 
+ rendering, and user interactions for the medical 
+ screening application
 **/
 import { useState, useRef, useEffect } from 'react';
 
@@ -80,26 +76,28 @@ import {
 
 function App() {
   const [hasSubmittedPerniciousAnemia, setHasSubmittedPerniciousAnemia] = useState(false);
-  // Pernicious Anemia state and handler
   const [perniciousAnemiaInput, setPerniciousAnemiaInput] = useState("");
   const [perniciousAnemiaError, setPerniciousAnemiaError] = useState("");
-  const handlePerniciousAnemiaSubmitCall = (answer) => {
-    if (hasSubmittedPerniciousAnemia) return;
-    setPerniciousAnemiaInput(answer);
-    const nextId = conversationFlow.perniciousAnemia.options.find(opt => opt.text === answer)?.nextId;
-    handlePerniciousAnemiaSubmit(
-      answer,
-      setPerniciousAnemiaError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setPerniciousAnemiaInput,
-      nextId
-    );
-    setHasSubmittedPerniciousAnemia(true);
-  };
-  const [appState, setAppState] = useState('landing'); // State to track app state
+  const [pillYearsInput, setPillYearsInput] = useState("");
+  const [pillYearsError, setPillYearsError] = useState("");
+  const [numberOfBirthsInput, setNumberOfBirthsInput] = useState("");
+  const [currentStep, setCurrentStep] = useState('start');
+  const [isProcessingSelection, setIsProcessingSelection] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [saltySmokedFoodsInput, setSaltySmokedFoodsInput] = useState("");
+  const [saltySmokedFoodsError, setSaltySmokedFoodsError] = useState("");
+  const [fruitVegServingsInput, setFruitVegServingsInput] = useState("");
+  const [fruitVegServingsError, setFruitVegServingsError] = useState("");
+  const [endometriosisInput, setEndometriosisInput] = useState("");
+  const [endometriosisError, setEndometriosisError] = useState("");
+  const [hPyloriInput, setHPyloriInput] = useState("");
+  const [hPyloriError, setHPyloriError] = useState("");
+  const [hPyloriEradicationInput, setHPyloriEradicationInput] = useState("");
+  const [hPyloriEradicationError, setHPyloriEradicationError] = useState("");
+  const [gastricGeneMutationInput, setGastricGeneMutationInput] = useState("");
+  const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
+  const [hasSubmittedGastricGeneMutation, setHasSubmittedGastricGeneMutation] = useState(false);
+  const [appState, setAppState] = useState('landing'); 
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -107,148 +105,60 @@ function App() {
       sender: 'bot',
       timestamp: new Date()
     }
-  ]);
-  
-  const [currentStep, setCurrentStep] = useState('start');
-  const [isProcessingSelection, setIsProcessingSelection] = useState(false); // Add loading state
-  const [selectedOption, setSelectedOption] = useState(''); // Track the selected option
-
-  // State for salty/smoked foods dropdown
-  const [saltySmokedFoodsInput, setSaltySmokedFoodsInput] = useState("");
-  const [saltySmokedFoodsError, setSaltySmokedFoodsError] = useState("");
-  // Handler for salty/smoked foods submit
-  const handleSaltySmokedFoodsSubmitCall = () => {
-    handleSaltySmokedFoodsSubmit(
-      saltySmokedFoodsInput,
-      setSaltySmokedFoodsError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setSaltySmokedFoodsInput
-    );
-  };
-
-  // State for fruit & vegetable servings dropdown
-  const [fruitVegServingsInput, setFruitVegServingsInput] = useState("");
-  const [fruitVegServingsError, setFruitVegServingsError] = useState("");
-  // Handler for fruit & vegetable servings submit
-  const handleFruitVegServingsSubmitCall = () => {
-    handleFruitVegServingsSubmit(
-      fruitVegServingsInput,
-      setFruitVegServingsError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setFruitVegServingsInput
-    );
-  };
-
-    // Endometriosis state and handler (Yes/No) - grouped with other medical history logic
-  const [endometriosisInput, setEndometriosisInput] = useState("");
-  const [endometriosisError, setEndometriosisError] = useState("");
-  const handleEndometriosisSubmitCall = (answer) => {
-    setEndometriosisInput(answer);
-    // Find the nextId from the selected option in conversationFlow.endometriosis.options
-    const nextId = conversationFlow.endometriosis.options.find(opt => opt.text === answer)?.nextId;
-    handleEndometriosisSubmit(
-      answer,
-      setEndometriosisError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setEndometriosisInput,
-      nextId
-    );
-  };
-
+  ]);  
   const [gastritisUlcerInput, setGastritisUlcerInput] = useState("");
   const [gastritisUlcerError, setGastritisUlcerError] = useState("");
   const [hasSubmittedGastritisUlcer, setHasSubmittedGastritisUlcer] = useState(false);
-  // Handler for chronic gastritis/gastric ulcers submit (single click only)
-  const handleGastritisUlcerSubmitCall = (answer) => {
-    if (hasSubmittedGastritisUlcer) return;
-    setGastritisUlcerInput(answer);
-    handleGastritisUlcerSubmit(
-      answer,
-      setGastritisUlcerError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setGastritisUlcerInput
-    );
-    setHasSubmittedGastritisUlcer(true);
-  };
-
-  // State for H. pylori infection question
-  const [hPyloriInput, setHPyloriInput] = useState("");
-  const [hPyloriError, setHPyloriError] = useState("");
-  // State for H. pylori eradication therapy question
-  const [hPyloriEradicationInput, setHPyloriEradicationInput] = useState("");
-  const [hPyloriEradicationError, setHPyloriEradicationError] = useState("");
-  // State for gastric cancer gene mutation question
-  const [gastricGeneMutationInput, setGastricGeneMutationInput] = useState("");
-  const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
-  const [hasSubmittedGastricGeneMutation, setHasSubmittedGastricGeneMutation] = useState(false);
-  // Handler for H. pylori infection submit
-  const handleHPyloriSubmitCall = () => {
-    // Find nextId from the selected option in conversationFlow.hPylori.options
-    const nextId = conversationFlow.hPylori.options.find(opt => opt.text === hPyloriInput)?.nextId;
-    handleHPyloriSubmit(
-      hPyloriInput,
-      setHPyloriError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setHPyloriInput,
-      nextId
-    );
-  };
-  // Handler for H. pylori eradication therapy submit
-  const handleHPyloriEradicationSubmitCall = () => {
-    // Find nextId from the selected option in conversationFlow.hPyloriEradication.options
-    const nextId = conversationFlow.hPyloriEradication.options.find(opt => opt.text === hPyloriEradicationInput)?.nextId;
-    handleHPyloriEradicationSubmit(
-      hPyloriEradicationInput,
-      setHPyloriEradicationError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setHPyloriEradicationInput,
-      nextId
-    );
-  };
-  // Handler for gastric gene mutation submit (single click only)
-  const handleGastricGeneMutationSubmitCall = (answer) => {
-    if (hasSubmittedGastricGeneMutation) return;
-    setGastricGeneMutationInput(answer);
-    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === answer)?.nextId;
-    handleGastricGeneMutationSubmit(
-      answer,
-      setGastricGeneMutationError,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setGastricGeneMutationInput,
-      nextId
-    );
-    setHasSubmittedGastricGeneMutation(true);
-  };
-  const messagesEndRef = useRef(null);
-  const toast = useToast();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const headerBg = useColorModeValue('blue.800', 'blue.700');
-  const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
-  const messagesBg = useColorModeValue('gray.50', 'gray.900');
-  
-  // State to track all user responses in a consolidated format
+  const [ageInput, setAgeInput] = useState('');
+  const [ageError, setAgeError] = useState('');
+  const [ethnicityInput, setEthnicityInput] = useState('');
+  const [countryInput, setCountryInput] = useState('');
+  const [userSex, setUserSex] = useState('');
+  const [cancerType, setCancerType] = useState('');
+  const [cancerAgeInput, setCancerAgeInput] = useState('');
+  const [cancerAgeError, setCancerAgeError] = useState('');
+  const [chronicConditions, setChronicConditions] = useState({
+    diabetes: false,
+    hiv: false,
+    ibd: false,
+    hepatitisB: false,
+    hepatitisC: false,
+    none: false
+  });
+  const [medications, setMedications] = useState({
+    anticoagulants: false,
+    statins: false,
+    antihypertensives: false,
+    antidepressants: false,
+    opioids: false,
+    steroids: false,
+    antibiotics: false,
+    none: false
+  });
+  const [allergyInput, setAllergyInput] = useState('');
+  const [familyCancerType, setFamilyCancerType] = useState('');
+  const [familyCancerAgeInput, setFamilyCancerAgeInput] = useState('');
+  const [familyCancerAgeError, setFamilyCancerAgeError] = useState('');
+  const [familyRelation, setFamilyRelation] = useState('');
+  const [smokingPacksInput, setSmokingPacksInput] = useState('');
+  const [smokingPacksError, setSmokingPacksError] = useState('');
+  const [smokingYearsInput, setSmokingYearsInput] = useState('');
+  const [smokingYearsError, setSmokingYearsError] = useState('');
+  const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
+  const [alcoholAmountError, setAlcoholAmountError] = useState('');
+  const [PackYears, setPackYears] = useState(0);
+  const [fertilityDrugsInput] = useState('');
+  const [fertilityDrugsError] = useState('');
+  const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
+  const [menarcheAgeError, setMenarcheAgeError] = useState('');
+  const [menstruationStatus, setMenstruationStatus] = useState('');
+  const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
+  const [pregnancyAgeError, setPregnancyAgeError] = useState('');
+  const [menopauseAgeInput, setMenopauseAgeInput] = useState('');
+  const [menopauseAgeError, setMenopauseAgeError] = useState('');
+  const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
+  const [prostateTestAgeError, setProstateTestAgeError] = useState('');
+  const [cancerScreeningInput, setCancerScreeningInput] = useState('');
   const [userResponses, setUserResponses] = useState({
     demographics: {
       age: null,
@@ -321,47 +231,14 @@ function App() {
     }
   });
 
-  // Handler for fertility (IVF) drugs submit
-  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput, nextId) => {
-    handleFertilityDrugsSubmit(
-      fertilityDrugsInput,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      nextId
-    );
-  };
 
-  // Pill-years input state
-  const [pillYearsInput, setPillYearsInput] = useState("");
-  const [pillYearsError, setPillYearsError] = useState("");
+  const messagesEndRef = useRef(null);
+  const toast = useToast();
+  const bg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const headerBg = useColorModeValue('blue.800', 'blue.700');
+  const messagesBg = useColorModeValue('gray.50', 'gray.900');
 
-  // Number of births input state
-  const [numberOfBirthsInput, setNumberOfBirthsInput] = useState("");
-
-
-  // Handler for number of births submit (delegates to HandlerFunctions.js)
-  const handleNumberOfBirthsSubmitCall = () => {
-    handleNumberOfBirthsSubmit(
-      numberOfBirthsInput,
-      setUserResponses,
-      setMessages,
-      conversationFlow,
-      setCurrentStep,
-      setNumberOfBirthsInput
-    );
-  };
-  
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // List of ethnicities
   const ethnicities = [ 
     "Black or African American", 
     "East Asian/South East Asian",
@@ -376,7 +253,6 @@ function App() {
     "Prefer not to say"
   ];
   
-  // List of all countries
   const countries = [
     "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
     "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", 
@@ -401,60 +277,145 @@ function App() {
     "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Prefer not to say"
   ];
 
-  const [ageInput, setAgeInput] = useState('');
-  const [ageError, setAgeError] = useState('');
-  const [ethnicityInput, setEthnicityInput] = useState('');
-  const [countryInput, setCountryInput] = useState('');
-  const [userSex, setUserSex] = useState('');
-  const [cancerType, setCancerType] = useState('');
-  const [cancerAgeInput, setCancerAgeInput] = useState('');
-  const [cancerAgeError, setCancerAgeError] = useState('');
-  const [chronicConditions, setChronicConditions] = useState({
-    diabetes: false,
-    hiv: false,
-    ibd: false,
-    hepatitisB: false,
-    hepatitisC: false,
-    none: false
-  });
-  const [medications, setMedications] = useState({
-    anticoagulants: false,
-    statins: false,
-    antihypertensives: false,
-    antidepressants: false,
-    opioids: false,
-    steroids: false,
-    antibiotics: false,
-    none: false
-  });
-  const [allergyInput, setAllergyInput] = useState('');
-  const [familyCancerType, setFamilyCancerType] = useState('');
-  const [familyCancerAgeInput, setFamilyCancerAgeInput] = useState('');
-  const [familyCancerAgeError, setFamilyCancerAgeError] = useState('');
-  const [familyRelation, setFamilyRelation] = useState('');
-  const [smokingPacksInput, setSmokingPacksInput] = useState('');
-  const [smokingPacksError, setSmokingPacksError] = useState('');
-  const [smokingYearsInput, setSmokingYearsInput] = useState('');
-  const [smokingYearsError, setSmokingYearsError] = useState('');
-  const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
-  const [alcoholAmountError, setAlcoholAmountError] = useState('');
-  const [PackYears, setPackYears] = useState(0);
-  // Fertility drugs (IVF) state
-  const [fertilityDrugsInput, setFertilityDrugsInput] = useState('');
-  const [fertilityDrugsError, setFertilityDrugsError] = useState('');
-  const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
-  const [menarcheAgeError, setMenarcheAgeError] = useState('');
-  const [menstruationStatus, setMenstruationStatus] = useState('');
-  const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
-  const [pregnancyAgeError, setPregnancyAgeError] = useState('');
-  // Menopause age input state
-  const [menopauseAgeInput, setMenopauseAgeInput] = useState('');
-  const [menopauseAgeError, setMenopauseAgeError] = useState('');
-  // Handler for menopause age submit is now in HandlerFunctions.js
-  const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
-  const [prostateTestAgeError, setProstateTestAgeError] = useState('');
-  const [cancerScreeningInput, setCancerScreeningInput] = useState('');
-  // No need for error state for cancer screening as it's free text
+
+
+  const handlePerniciousAnemiaSubmitCall = (answer) => {
+    if (hasSubmittedPerniciousAnemia) return;
+    setPerniciousAnemiaInput(answer);
+    const nextId = conversationFlow.perniciousAnemia.options.find(opt => opt.text === answer)?.nextId;
+    handlePerniciousAnemiaSubmit(
+      answer,
+      setPerniciousAnemiaError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setPerniciousAnemiaInput,
+      nextId
+    );
+    setHasSubmittedPerniciousAnemia(true);
+  };
+
+  
+  const handleSaltySmokedFoodsSubmitCall = () => {
+    handleSaltySmokedFoodsSubmit(
+      saltySmokedFoodsInput,
+      setSaltySmokedFoodsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setSaltySmokedFoodsInput
+    );
+  };
+
+  const handleFruitVegServingsSubmitCall = () => {
+    handleFruitVegServingsSubmit(
+      fruitVegServingsInput,
+      setFruitVegServingsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setFruitVegServingsInput
+    );
+  };
+
+  const handleEndometriosisSubmitCall = (answer) => {
+    setEndometriosisInput(answer);
+    const nextId = conversationFlow.endometriosis.options.find(opt => opt.text === answer)?.nextId;
+    handleEndometriosisSubmit(
+      answer,
+      setEndometriosisError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setEndometriosisInput,
+      nextId
+    );
+  };
+
+
+  const handleGastritisUlcerSubmitCall = (answer) => {
+    if (hasSubmittedGastritisUlcer) return;
+    setGastritisUlcerInput(answer);
+    handleGastritisUlcerSubmit(
+      answer,
+      setGastritisUlcerError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastritisUlcerInput
+    );
+    setHasSubmittedGastritisUlcer(true);
+  };
+
+
+  const handleHPyloriSubmitCall = () => {
+    const nextId = conversationFlow.hPylori.options.find(opt => opt.text === hPyloriInput)?.nextId;
+    handleHPyloriSubmit(
+      hPyloriInput,
+      setHPyloriError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setHPyloriInput,
+      nextId
+    );
+  };
+
+  const handleGastricGeneMutationSubmitCall = (answer) => {
+    if (hasSubmittedGastricGeneMutation) return;
+    setGastricGeneMutationInput(answer);
+    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === answer)?.nextId;
+    handleGastricGeneMutationSubmit(
+      answer,
+      setGastricGeneMutationError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastricGeneMutationInput,
+      nextId
+    );
+    setHasSubmittedGastricGeneMutation(true);
+  };
+
+  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput, nextId) => {
+    handleFertilityDrugsSubmit(
+      fertilityDrugsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      nextId
+    );
+  };
+
+  const handleNumberOfBirthsSubmitCall = () => {
+    handleNumberOfBirthsSubmit(
+      numberOfBirthsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setNumberOfBirthsInput
+    );
+  };
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+
+  
   
   const handleAgeSubmitCall = () => {
     handleAgeSubmit(
@@ -666,13 +627,11 @@ function App() {
   }
 
   
-  // Special routing function based on user sex
   const routeBasedOnSex = () => {
     const nextId = userSex === "Female" ? "femaleQuestions" : "maleQuestions";
     const nextStep = conversationFlow[nextId];
       
     if (nextStep) {
-      // Add bot's next message
       setMessages(prev => [
         ...prev, 
         {
@@ -682,16 +641,11 @@ function App() {
           timestamp: new Date()
         }
       ]);
-      
-      // Update the current step
       setCurrentStep(nextId);
     } 
     
     else {
-      // Fallback in case something goes wrong
       console.error("Could not find next step for " + (userSex === "Female" ? "femaleQuestions" : "maleQuestions"));
-      
-      // Move to summary as a fallback
       const fallbackStep = conversationFlow.summary;
       if (fallbackStep) {
         setMessages(prev => [
@@ -703,13 +657,11 @@ function App() {
             timestamp: new Date()
           }
         ]);
-        
         setCurrentStep('summary');
       }
     }
   };
 
-  // Helper function to calculate progress percentage based on current step
   const calculateProgress = () => {
     // Map steps to their progress points (0-100%)
     const stepProgressMap = {
@@ -790,7 +742,6 @@ function App() {
     return stepProgressMap[currentStep] || 0;
   };
 
-  // Helper function to get the current section name
   const getCurrentSectionName = () => {
     const sectionNames = {
       'start': 'Welcome',
@@ -843,7 +794,6 @@ function App() {
   return (
     <Box id="app-container" w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
       <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
-        {/* Header - Hidden when summary is displayed */}
         <Box 
           py={3} 
           px={6} 
@@ -867,7 +817,6 @@ function App() {
                 </HStack>
               </VStack>
             </Flex>
-            {/* Progress percentage */}
             <Tooltip label="Screening progress" placement="bottom">
               <Text fontSize="sm" fontWeight="bold">
                 {calculateProgress()}% Complete
@@ -2169,7 +2118,7 @@ function App() {
             </FormControl>
           ) : currentStep === 'summary' ? (
             <Box id="summary-scroll-container" pt={2}>
-              <SummaryComponentWrapper 
+              <SummaryComponentWrapper
                 userResponses={userResponses} 
                 handleOptionSelectCall={handleOptionSelectCall}
                 onStartNewScreening={() => setCurrentStep('start')}

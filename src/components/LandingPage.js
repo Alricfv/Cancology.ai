@@ -7,7 +7,7 @@ const LandingPage = ({ onStart }) => {
   const { isOpen: isAboutOpen, onOpen: onAboutOpen, onClose: onAboutClose } = useDisclosure();
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure();
   
-  // Animation for the hero section
+  // Animation for hero section
   return (
     <Box
       display="flex"

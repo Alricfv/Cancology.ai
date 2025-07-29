@@ -120,5 +120,5 @@ body, html {
 
 /* Recommended tests container */
 .tests-container {
-  padding-bottom: 60px; /* Give space for bottom buttons */
+  padding-bottom: 60px; 
 }

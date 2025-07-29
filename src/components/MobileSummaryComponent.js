@@ -1,5 +1,3 @@
-
-import React from 'react';
 import SummaryComponent from '../SummaryComponent';
 
 

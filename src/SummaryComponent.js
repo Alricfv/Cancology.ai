@@ -11,11 +11,24 @@ import {
 import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
 
-// Create a SummaryComponent to show at the end with multiple pages
 const SummaryComponent = ({ userResponses}) => {
   const toast = useToast();
   const accentColor = useColorModeValue('blue.500', 'blue.300');
   const summaryRef = useRef(null);
+  // vhl suspicion logic, checks for renal cancer, kidney issues or brain/spinal/eye tumors
+  // if any of them are found to be true, sets vhlSuspicion to 'Yes'
+  // included at top level just as an experiment, later plans are to make every function declared like this
+  let vhlSuspicion = '';
+  const renalCancerCheck = userResponses.medicalHistory?.personalCancer?.type;
+  if (
+      userResponses.medicalHistory?.kidneyIssue === true ||
+      userResponses.medicalHistory?.brainSpinalEyeTumor === true)
+      {
+        vhlSuspicion = 'Yes';
+      } 
+      else {
+        vhlSuspicion = 'No'
+      }
   
   
   const calculateRiskScore = () => {
@@ -40,7 +53,6 @@ const SummaryComponent = ({ userResponses}) => {
     }
       // Alcohol consumption
     if (userResponses.lifestyle.alcohol?.consumes && userResponses.lifestyle.alcohol?.drinksPerWeek > 5) {
-      // +1 risk score for every 3 drinks above 5 drinks per week
       const excessDrinks = userResponses.lifestyle.alcohol.drinksPerWeek - 5;
       const additionalRiskScore = Math.floor(excessDrinks / 3);
       riskScore += additionalRiskScore;
@@ -48,14 +60,11 @@ const SummaryComponent = ({ userResponses}) => {
     
     // Sexual health risk
     if (userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv) {
-      // High risk sexual behavior or HPV/HIV diagnosis increases risk score
       riskScore += 2;
     }
     
-    // Transplant
     if (userResponses.lifestyle.transplant) riskScore += 2;
     
-    // Sex-specific factors
     if (userResponses.demographics.sex === 'Male') {
       if (userResponses.sexSpecificInfo.male.urinarySymptoms) riskScore += 1;
       if (userResponses.sexSpecificInfo.male.testicularIssues) riskScore += 1;
@@ -63,7 +72,7 @@ const SummaryComponent = ({ userResponses}) => {
     }
     
     if (userResponses.demographics.sex === 'Female') {
-      // Female-specific risk factors
+
       if (userResponses.sexSpecificInfo.female.birthControl) riskScore += 1;
       if (userResponses.sexSpecificInfo.female.hormoneReplacementTherapy) riskScore += 1;
     }
@@ -74,9 +83,9 @@ const SummaryComponent = ({ userResponses}) => {
     
     // Cancer screening history
     if (!userResponses.cancerScreening.hadScreening && userResponses.demographics.age > 40) riskScore += 2;
-    
     return riskScore;
   };
+
   const getHealthCategory = (score) => {
     if (score <= 3) return { category: "Low Risk", color: "green" };
     if (score <= 7) return { category: "Moderate Risk", color: "yellow" };
@@ -92,7 +101,7 @@ const SummaryComponent = ({ userResponses}) => {
     let hasBRCA = false;
     let hasOvarianFamilyHistory = false;
 
-    // Check BRCA1/2 mutation
+    // BRCA1/2 mutation check
     if (
       userResponses.medicalHistory &&
       (userResponses.medicalHistory.brcaMutationStatus === 'Yes' || userResponses.medicalHistory.brcaMutationStatus === true)
@@ -100,7 +109,7 @@ const SummaryComponent = ({ userResponses}) => {
       hasBRCA = true;
     }
 
-    // Check family history for ovarian cancer
+    // Family history for ovarian cancer check
     if (
       userResponses.medicalHistory &&
       userResponses.medicalHistory.familyCancer &&
@@ -137,7 +146,7 @@ const SummaryComponent = ({ userResponses}) => {
         familyGastricCancer = true;
       }
 
-      // H.Pylori infection
+      // H.Pylori
       let hPyloriYes = false;
       if (
         userResponses.lifestyle &&
@@ -173,7 +182,7 @@ const SummaryComponent = ({ userResponses}) => {
   const prescribedTests = getEnhancedPrescribedTests(userResponses);
   
 
-  // Function to print the summary using browser's print API with iframe approach
+  // printSummary using Iframe approach yippee
   const printSummary = () => {
     let printIframe = null;
     try {
@@ -335,7 +344,7 @@ const SummaryComponent = ({ userResponses}) => {
           </div>
         </div>
       `;
-      
+
       const geneticInfectionRisk = `
         <div class="section-title">Genetic & Infection Risk</div>
         <div class="grid">
@@ -376,6 +385,10 @@ const SummaryComponent = ({ userResponses}) => {
                   ? formatBadge(false, 'Yes', 'No', 'orange', 'green')
                   : '<span style="color:#718096;">Not specified</span>'
             }
+          </div>
+          <div class="label">Suspicion of Von Hippel-Lindau (VHL) Syndrome:</div>
+          <div class="value">
+            ${vhlSuspicion === 'Yes' ? '<span class="badge badge-red">Yes</span>' : vhlSuspicion === 'No' ? '<span class="badge badge-green">No</span>' : '<span style="color:#718096;">N/A</span>'}
           </div>
         </div>
       `;
@@ -476,7 +489,7 @@ const SummaryComponent = ({ userResponses}) => {
 
             <div class="label">Pregnancy History:</div>
             <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy, 'YES', 'NO', 'blue', 'gray')}
+              ${formatBadge(userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy, 'Yes', 'No', 'blue', 'gray')}
               ${userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? 
                 `(First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})` : ''}
             </div>
@@ -489,7 +502,7 @@ const SummaryComponent = ({ userResponses}) => {
             
             <div class="label">Hormone Replacement Therapy:</div>
             <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneReplacementTherapy, 'YES', 'NO', 'purple', 'gray')}
+              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneReplacementTherapy, 'Yes', 'No', 'purple', 'gray')}
             </div>
 
             <div class="label">Tubal ligation:</div>
@@ -1290,11 +1303,10 @@ const SummaryComponent = ({ userResponses}) => {
       };
       
       printIframe.onload = () => {
-        // This helps avoid blank pages in the print output
         setTimeout(triggerPrint, 1000);
       };
       
-      // Fallback in case onload doesn't fire, but with a longer delay
+      // Longer Delay just in the event it doesn't trigger
       setTimeout(triggerPrint, 2000);
 
     } catch (error) {
@@ -1327,7 +1339,7 @@ const SummaryComponent = ({ userResponses}) => {
         badge.style.position = 'relative';
       });
       
-      // Fix box elements containing badges to properly align content
+      // Fix box elements containing badges
       const allBoxes = summaryRef.current?.querySelectorAll('.chakra-box') || [];
       allBoxes.forEach(box => {
         const badgesInBox = box.querySelectorAll('.chakra-badge');
@@ -1355,7 +1367,7 @@ const SummaryComponent = ({ userResponses}) => {
 
   const navyBlue = '#1A237E';
 
-  // Navigation bar (matches landing page theme)
+  // Navigation bar 
   return (
     <Box maxW="700px" mx="auto" my={10} borderRadius="2xl" boxShadow="2xl" bg="white" overflow="hidden">
       <Flex as="nav" align="center" bg={navyBlue} px={6} py={3} borderTopRadius="2xl" borderBottomRadius="none" boxShadow="md">
@@ -1489,6 +1501,9 @@ const SummaryComponent = ({ userResponses}) => {
           userResponses.lifestyle?.gastritisUlcer === 'Yes' ? 'Yes'
             : userResponses.lifestyle?.gastritisUlcer === 'No' ? 'No'
             : 'Not specified'
+        } />
+        <SummaryLine label="Suspicion of Von Hippel-Lindau (VHL) Syndrome" value=
+        {vhlSuspicion 
         } />
       </Box>
       {/* Gastrointestinal Surgery section */}
