@@ -16,7 +16,7 @@ const conversationFlow = {
   },
   age: {
     question: "What is your current age? ",
-    options: [], // Empty options because we're using the custom input field
+    options: [], 
     inputType: "age"
   },
   sex: {
@@ -217,14 +217,12 @@ const conversationFlow = {
       { text: "No", nextId: "symptomScreenIntro" }
     ]
   },
-  // This step is kept for backward compatibility but is bypassed in the current flow
   checkSex: {
     question: "Thank you for providing your allergy information.",
     options: [
       { text: "Continue", nextId: "routeBasedOnSex" }
     ]
   },
-  // This step is kept for backward compatibility but is bypassed in the current flow
   // Now directly invoking the routeBasedOnSex() function instead
   routeBasedOnSex: {
     question: "Processing your information...",
@@ -317,7 +315,8 @@ const conversationFlow = {
     question: "What age were you when you took your last prostate antigen test?",
     options: [],
     inputType: "prostateTestAge"
-  },  testicularIssues: {
+  },  
+  testicularIssues: {
     question: "Have you had testicular pain, swelling, or history of undescended testis?",
     options: [
       { text: "Yes", nextId: "pastCancerScreening" },
@@ -333,7 +332,15 @@ const conversationFlow = {
   menarcheAge: {
     question: "At what age did your periods start (menarche)?",
     options: [],
-    inputType: "menarcheAge"
+    inputType: "menarcheAge",
+    nextId: "currentPregnancy"
+  },
+  currentPregnancy: {
+    question: "Are you currently pregnant?",
+    options:[
+      { text: "Yes", nextId: "menstruationStatus"},
+      { text: "No", nextId: "menstruationStatus"}
+    ],
   },
   menstruationStatus: {
     question: "Are you currently menstruating?",

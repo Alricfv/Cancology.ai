@@ -1705,7 +1705,7 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
     const drinksPerWeek = parseInt(alcoholAmountInput);
     
     if (isNaN(drinksPerWeek) || drinksPerWeek < 0 || drinksPerWeek > 100) {
-      setAlcoholAmountError('Please enter a valid number between 0 and 100');
+      setAlcoholAmountError('Please enter a valid number');
       return;
     }
 
@@ -2069,6 +2069,18 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
       setMenstruationStatus(optionText);
     } 
+    else if (currentStep === 'currentPregnancy'){
+      setUserResponses(prev => ({
+        ...prev,
+        sexSpecificInfo: {
+          ...prev.sexSpecificInfo,
+          female: {
+            ...prev.sexSpecificInfo.female,
+            currentPregnancy: optionText === 'Yes'
+          }
+        }
+      }))
+    }
     else if (currentStep === 'pregnancy') {
       setUserResponses(prev => ({
         ...prev,

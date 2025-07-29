@@ -1915,6 +1915,31 @@ function App() {
               </InputGroup>
               {menarcheAgeError && <FormErrorMessage>{menarcheAgeError}</FormErrorMessage>}
             </FormControl>
+          ) : currentStep === 'currentPregnancy' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.currentPregnancy.options.map((option, index) => (
+                  <Button
+                  key={option.text}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="md"
+                  borderRadius="full"
+                  isFullWidth
+                  _hover={{bg: 'blue.50', borderColor: 'blue.400'}}
+                  onClick ={() => handleOptionSelectCall(option.text, option.nextId)}
+                  isDisabled = {isProcessingSelection}
+                  bg={selectedOption === option.text ? 'blue.50' : 'transparent'}
+                  borderColor={selectedOption === option.text ? 'blue.400' : 'gray.200'}
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  >
+                    {option.text}
+                    {isProcessingSelection && selectedOption === option.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
           ) : currentStep === 'firstPregnancyAge' ? (
             <FormControl isInvalid={!!pregnancyAgeError}>
               <InputGroup size="md">

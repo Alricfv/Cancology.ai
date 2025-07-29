@@ -480,6 +480,9 @@ const SummaryComponent = ({ userResponses}) => {
           <div class="grid">
             <div class="label">First Period Age:</div>
             <div class="value">${userResponses.sexSpecificInfo.female.menarcheAge || 'Not specified'}</div>
+
+            <div class="label">Currently Pregnant:</div>
+            <div class="value">${formatBadge(userResponses.sexSpecificInfo.female.currentPregnancy, 'Yes', 'No', 'blue', 'gray')}</div>
             
             <div class="label">Menstruation Status:</div>
             <div class="value">${userResponses.sexSpecificInfo.female.menstruationStatus || 'Not specified'}</div>
@@ -1457,6 +1460,7 @@ const SummaryComponent = ({ userResponses}) => {
         <Box mb={6}>
           <SectionTitle>Female-Specific Screening</SectionTitle>
           <SummaryLine label="First Period Age" value={userResponses.sexSpecificInfo?.female?.menarcheAge || 'Not specified'} />
+          <SummaryLine label="Currently Pregnant" value={userResponses.sexSpecificInfo?.female.currentPregnancy ? 'Yes' : 'No'} />
           <SummaryLine label="Menstruation Status" value={userResponses.sexSpecificInfo?.female?.menstruationStatus || 'Not specified'} />
           <SummaryLine label="Last Period Age" value={userResponses.sexSpecificInfo?.female?.menopauseAge || 'N/A'} />
           <SummaryLine label="Pregnancy History" value={userResponses.sexSpecificInfo?.female?.pregnancy?.hadPregnancy ? `Yes${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst ? ` (First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst})` : ''}` : 'None'} />

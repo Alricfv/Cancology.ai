@@ -11,9 +11,7 @@ export const getPrescribedTests = (userResponses) => {
     if (demographics.sex === 'Female') {
       if (demographics.age >= 21 && demographics.age <= 65) riskScore += 3;
       if (!sexSpecificInfo.female.hpvVaccine) riskScore += 2;
-      if (userResponses.lifestyle && 
-          userResponses.lifestyle.sexualHealth && 
-          userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) riskScore += 3;
+      if (userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) riskScore += 3;
       if (sexSpecificInfo.female.pregnancy.hadPregnancy && 
           sexSpecificInfo.female.pregnancy.ageAtFirst < 20) riskScore += 1;
     }
@@ -316,9 +314,7 @@ export const getPrescribedTests = (userResponses) => {
     hasNoHpvVaccine = generalVaccineStatus || femaleSpecificStatus;
   }
   
-  const hasHpvRiskBehavior = userResponses.lifestyle && 
-      userResponses.lifestyle.sexualHealth && 
-      userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv;
+  const hasHpvRiskBehavior = userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv;
   
   if (hasNoHpvVaccine || hasHpvRiskBehavior) {
     if (hasNoHpvVaccine) {
@@ -331,61 +327,41 @@ export const getPrescribedTests = (userResponses) => {
   }
   
   // 2. Tobacco use (current or former)
-  if (userResponses.lifestyle && 
-      userResponses.lifestyle.smoking &&
-      (userResponses.lifestyle.smoking.current || userResponses.lifestyle.smoking.former)) {
+  if (userResponses.lifestyle.smoking)  {
     oralCancerRiskFactors.push("tobacco use");
     isHighRiskForOralCancer = true;
   }
   
   // 3. Excessive alcohol consumption
-  if (userResponses.lifestyle && 
-      userResponses.lifestyle.alcohol && 
-      userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
+  if (userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
     oralCancerRiskFactors.push("high alcohol consumption");
     isHighRiskForOralCancer = true;
   }
   
   // 4. Family history of oral/throat cancer
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.familyCancer && 
-      userResponses.medicalHistory.familyCancer.diagnosed && 
-      userResponses.medicalHistory.familyCancer.type && 
-      (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('oral') ||
-       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat') ||
-       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('head and neck'))) {
+  if (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Oral')) {
     oralCancerRiskFactors.push("family history of oral/throat cancer");
     isHighRiskForOralCancer = true;
   }
   
   // 5. Immunosuppression
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.chronicConditions && 
-      userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
+  if (userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
     oralCancerRiskFactors.push("immunosuppression");
     isHighRiskForOralCancer = true;
   }
   
-  // 6. Previous oral lesions
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.oralHealth && 
-      userResponses.medicalHistory.oralHealth.lesions) {
-    oralCancerRiskFactors.push("history of oral lesions");
-    isHighRiskForOralCancer = true;
-  }
+  
   if (isHighRiskForOralCancer && demographics.age >= 30 && demographics.age <= 65) {
     const userRiskFactors = oralCancerRiskFactors.filter(factor => {
       // Only include risk factors that actually to a user (ie, give them the basis on which we determined the test for them)
-      if (factor === "tobacco use" && userResponses.lifestyle && userResponses.lifestyle.smoking && userResponses.lifestyle.smoking.current) {
+      if (factor === "tobacco use"  && userResponses.lifestyle.smoking && userResponses.lifestyle.smoking.current) {
         return true;
       }
-      if (factor === "high alcohol consumption" && userResponses.lifestyle && userResponses.lifestyle.alcohol && 
+      if (factor === "high alcohol consumption" && userResponses.lifestyle.alcohol && 
           userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
         return true;
       }
-      if (factor === "unprotected sex or HPV/HIV diagnosis" && userResponses.lifestyle && 
-          userResponses.lifestyle.sexualHealth && 
-          userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
+      if (factor === "unprotected sex or HPV/HIV diagnosis"&& userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
         return true;
       }
       
@@ -451,7 +427,7 @@ export const getPrescribedTests = (userResponses) => {
     ) {
     const reasons = [];
     reasons.push('family history of renal cancer');
-    if (demographics.age >= 40) 
+    if (userResponses.demographics.age >= 40) 
       reasons.push('age 40+');
     if (userResponses.medicalHistory.chronicConditions.includes('Hypertension')) 
       reasons.push('hypertension');
@@ -476,7 +452,7 @@ export const getPrescribedTests = (userResponses) => {
       )) 
       {
         const reasons = [];
-        if (demographics.age >= 40)
+        if (userResponses.demographics.age >= 40)
           reasons.push('age 40+');
         if (userResponses.medicalHistory.chronicConditions.includes('Hepatitis B'))
           reasons.push('Hepatitis B')
@@ -500,7 +476,7 @@ export const getPrescribedTests = (userResponses) => {
     });
     
     // to recommend AFP test only if not currently pregnant
-    const isPregnant = demographics.sex === 'Female' && sexSpecificInfo.female.pregnancy;                   
+    const isPregnant = userResponses.demographics.sex === 'Female' && userResponses.sexSpecificInfo.female.currentPregnancy;                   
       if (!isPregnant) {
       tests.push({
         name: "Alpha-Fetoprotein (AFP) Test",
