@@ -109,11 +109,7 @@ export const getPrescribedTests = (userResponses) => {
     let isHighRisk = false;
     
     // 1. Family history of prostate cancer
-    if (userResponses.medicalHistory && 
-       userResponses.medicalHistory.familyCancer && 
-       userResponses.medicalHistory.familyCancer.diagnosed && 
-       userResponses.medicalHistory.familyCancer.type && 
-       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('prostate')) {
+    if (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('prostate')) {
       highRiskFactors.push("family history of prostate cancer");
       isHighRisk = true;
     }
@@ -134,35 +130,11 @@ export const getPrescribedTests = (userResponses) => {
     // 4. Genetic mutations
     if (userResponses.medicalHistory.geneticMutations && 
         (userResponses.medicalHistory.geneticMutations.includes('BRCA1') || 
-         userResponses.medicalHistory.geneticMutations.includes('BRCA2') || 
-         userResponses.medicalHistory.geneticMutations.includes('Lynch'))) {
+         userResponses.medicalHistory.geneticMutations.includes('BRCA2'))) {
       highRiskFactors.push("genetic mutations associated with increased cancer risk");
       isHighRisk = true;
     }
-    
-    // 5. Previous abnormal PSA test
-    if (userResponses.sexSpecificInfo.male.prostateTest && 
-        userResponses.sexSpecificInfo.male.prostateTest.had && 
-        userResponses.sexSpecificInfo.male.prostateTest.abnormalResult) {
-      highRiskFactors.push("previous abnormal PSA result");
-      isHighRisk = true;
-    }
-    
-    // 6. Chemical exposure
-    if (userResponses.lifestyle && 
-        userResponses.lifestyle.chemicalExposure && 
-        (userResponses.lifestyle.chemicalExposure.agentOrange || 
-         userResponses.lifestyle.chemicalExposure.pesticides)) {
-      highRiskFactors.push("exposure to chemicals linked to prostate cancer");
-      isHighRisk = true;
-    }
-    
-    // 7. Obesity
-    if (userResponses.lifestyle && 
-        userResponses.lifestyle.bmi && 
-        userResponses.lifestyle.bmi >= 30) {
-      highRiskFactors.push("obesity");
-    }
+ 
     
     // Age threshold based on risk level
     const ageThreshold = isHighRisk ? 45 : 50;
@@ -219,46 +191,19 @@ export const getPrescribedTests = (userResponses) => {
   let isHighRiskForSkinCancer = false;
   
   // 1. Family history of skin cancer
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.familyCancer && 
-      userResponses.medicalHistory.familyCancer.diagnosed && 
-      userResponses.medicalHistory.familyCancer.type && 
-      (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('skin') ||
-       userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('melanoma'))) {
+  if (
+      userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Skin')) {
     skinCancerRiskFactors.push("family history of skin cancer");
     isHighRiskForSkinCancer = true;
   }
   
   // 2. Personal history of skin cancer
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.personalCancer && 
-      userResponses.medicalHistory.personalCancer.diagnosed && 
-      userResponses.medicalHistory.personalCancer.type && 
-      (userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('skin') ||
-       userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('melanoma'))) {
+  if (userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('Skin')) {
     skinCancerRiskFactors.push("personal history of skin cancer");
     isHighRiskForSkinCancer = true;
   }
   
-  // 3. Fair skin, light hair, or light eye color
-  if (userResponses.demographics && 
-      userResponses.demographics.skinType && 
-      (userResponses.demographics.skinType.toLowerCase().includes('fair') || 
-       userResponses.demographics.skinType.toLowerCase().includes('light'))) {
-    skinCancerRiskFactors.push("fair skin type");
-    isHighRiskForSkinCancer = true;
-  }
-  
-  // 4. History of sunburns or excessive sun exposure
-  if (userResponses.lifestyle && 
-      userResponses.lifestyle.sunExposure && 
-      (userResponses.lifestyle.sunExposure.frequentBurns || 
-       userResponses.lifestyle.sunExposure.highExposure)) {
-    skinCancerRiskFactors.push("history of sunburns or high sun exposure");
-    isHighRiskForSkinCancer = true;
-  }
-  
-  // 5. Immunosuppression
+  // 3. Immunosuppression
   if (userResponses.medicalHistory && 
       userResponses.medicalHistory.chronicConditions && 
       userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
@@ -507,17 +452,14 @@ export const getTestCategories = () => {
 
 export const getRiskFactorExplanations = (userResponses) => {
   const explanations = [];
-  const { demographics, sexSpecificInfo } = userResponses;
   
   // Cervical cancer risk explanations
-  if (demographics.sex === 'Female' && !sexSpecificInfo.female.hpvVaccine) {
+  if (userResponses.demographics.sex === 'Female' && !userResponses.sexSpecificInfo.female.hpvVaccine) {
     explanations.push("No HPV vaccination increases cervical cancer risk");
   }
   
   // Sexual health risk explanations
-  if (userResponses.lifestyle && 
-      userResponses.lifestyle.sexualHealth && 
-      userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
+  if (userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
     explanations.push("Unprotected sex or HPV/HIV diagnosis increases risk for HPV-related cancers");
   }
   
