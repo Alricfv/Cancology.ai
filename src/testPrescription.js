@@ -173,8 +173,6 @@ export const getPrescribedTests = (userResponses) => {
   }
   // Lung Cancer Screening with Low-dose CT Scan
   if (demographics.age >= 50 && 
-      userResponses.lifestyle && 
-      userResponses.lifestyle.smoking && 
       userResponses.lifestyle.smoking.packYears >= 20) {
     tests.push({
       name: "Low-dose CT Scan",
@@ -204,9 +202,7 @@ export const getPrescribedTests = (userResponses) => {
   }
   
   // 3. Immunosuppression
-  if (userResponses.medicalHistory && 
-      userResponses.medicalHistory.chronicConditions && 
-      userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
+  if (userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
     skinCancerRiskFactors.push("immunosuppression");
     isHighRiskForSkinCancer = true;
   }
@@ -311,34 +307,24 @@ export const getPrescribedTests = (userResponses) => {
       }
       
       if (factor === "no HPV vaccination") {
-        if (demographics.sex === 'Male') {
+        if (userResponses.demographics.sex === 'Male') {
           const hasNoVaccine = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
           return hasNoVaccine;
         } 
 
-        else if (demographics.sex === 'Female') {
+        else if (userResponses.demographics.sex === 'Female') {
           const generalVaccineStatus = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
           const femaleSpecificStatus = sexSpecificInfo.female ? (sexSpecificInfo.female.hpvVaccine === false) : false;
           return generalVaccineStatus || femaleSpecificStatus;
         }
         return false;
       }
-      if (factor === "family history of oral/throat cancer" && userResponses.medicalHistory && 
-          userResponses.medicalHistory.familyCancer && userResponses.medicalHistory.familyCancer.diagnosed && 
-          userResponses.medicalHistory.familyCancer.type && 
+      if (factor === "family history of oral/throat cancer" && 
           (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('oral') || 
-           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat') ||
-           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('head and neck'))) {
+           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat'))) {
         return true;
       }
-      if (factor === "immunosuppression" && userResponses.medicalHistory && 
-          userResponses.medicalHistory.chronicConditions && 
-          userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
-        return true;
-      }
-      if (factor === "history of oral lesions" && userResponses.medicalHistory && 
-          userResponses.medicalHistory.oralHealth && 
-          userResponses.medicalHistory.oralHealth.lesions) {
+      if (factor === "immunosuppression" && userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
         return true;
       }
       return false;
@@ -453,12 +439,10 @@ export const getTestCategories = () => {
 export const getRiskFactorExplanations = (userResponses) => {
   const explanations = [];
   
-  // Cervical cancer risk explanations
   if (userResponses.demographics.sex === 'Female' && !userResponses.sexSpecificInfo.female.hpvVaccine) {
     explanations.push("No HPV vaccination increases cervical cancer risk");
   }
   
-  // Sexual health risk explanations
   if (userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
     explanations.push("Unprotected sex or HPV/HIV diagnosis increases risk for HPV-related cancers");
   }
