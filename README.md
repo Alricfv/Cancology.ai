@@ -2,7 +2,7 @@
 
 # Intro
 
-Cancology.ai is a simple web app for assessing potential patients, determining whether they're in risk of any type cancer and guiding them to the right tests so that when they show up to their first oncology consultation. There is data for the doctor to readily make decisions on.
+Cancology.ai is a simple web app for assessing individuals based on their medical history to determe whether they're in risk of any type cancer and guide them to the right tests so that when they show up to their first oncology consultation. There is data for the doctor to readily make decisions on.
 
 
 ## How it works
