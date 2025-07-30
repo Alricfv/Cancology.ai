@@ -1,11 +1,7 @@
 /**
- This file handles all of the UI components, rendering, and user interactions for the medical screening application.
- It uses React hooks for state management and Chakra UI for styling.
- It includes components for user input, displaying messages, and managing the conversation flow.
- It also includes logic for handling user responses, displaying summaries, and managing the conversation state.
- The application is designed to guide users through a series of questions related to their medical history, lifestyle, and demographics,
- ultimately providing a summary of their responses and recommendations for cancer screening based on their inputs
-
+ This file handles all of the UI components, 
+ rendering, and user interactions for the medical 
+ screening application
 **/
 import { useState, useRef, useEffect } from 'react';
 
@@ -27,10 +23,12 @@ import {
   InputRightElement,
   FormControl,
   FormErrorMessage,
+  FormHelperText,
   Select,
   useToast,
   Progress,
-  Tooltip} from '@chakra-ui/react';
+  Tooltip
+} from '@chakra-ui/react';
 
 import { 
   FaUserMd, 
@@ -44,28 +42,62 @@ import SummaryComponentWrapper from './components/SummaryComponentWrapper';
 import conversationFlow from './conversationFlow';
 
 import {
-handleAgeSubmit,
-handleEthnicitySubmit,
-handleCountrySubmit,
-handleCancerDetailsSubmit,
-handleChronicConditionsSubmit,
-handleFamilyCancerDetailsSubmit,
-handleAlcoholResponse,
-handleTransplantResponse,
-handlePregnancyAgeSubmit,
-handleMenarcheAgeSubmit,
-handleCancerScreeningDetailsSubmit,
-handleMedicationsSubmit,
-handleAllergySubmit,
-handleSmokingPacksSubmit,
-handleProstateTestAgeSubmit,
-handleSmokingYearsSubmit,
-handleAlcoholAmountSubmit,
-handleOptionSelect
-} from './components/HandlerFunctions'
+  handleAgeSubmit,
+  handleEthnicitySubmit,
+  handleCountrySubmit,
+  handleCancerDetailsSubmit,
+  handleChronicConditionsSubmit,
+  handleFamilyCancerDetailsSubmit,
+  handleAlcoholResponse,
+  handleTransplantResponse,
+  handlePregnancyAgeSubmit,
+  handleMenarcheAgeSubmit,
+  handleMenopauseAgeSubmit,
+  handleCancerScreeningDetailsSubmit,
+  handleMedicationsSubmit,
+  handleAllergySubmit,
+  handleSmokingPacksSubmit,
+  handleProstateTestAgeSubmit,
+  handleSmokingYearsSubmit,
+  handleAlcoholAmountSubmit,
+  handleOptionSelect,
+  handlePillYearsSubmit,
+  handleNumberOfBirthsSubmit,
+  handleFertilityDrugsSubmit,
+  handleSaltySmokedFoodsSubmit,
+  handleFruitVegServingsSubmit,
+  handleHPyloriSubmit,
+  handleHPyloriEradicationSubmit,
+  handleGastritisUlcerSubmit,
+  handleGastricGeneMutationSubmit,
+  handlePerniciousAnemiaSubmit,
+  handleEndometriosisSubmit
+} from './components/HandlerFunctions';
 
 function App() {
-  const [appState, setAppState] = useState('landing'); // State to track app state
+  const [hasSubmittedPerniciousAnemia, setHasSubmittedPerniciousAnemia] = useState(false);
+  const [perniciousAnemiaInput, setPerniciousAnemiaInput] = useState("");
+  const [perniciousAnemiaError, setPerniciousAnemiaError] = useState("");
+  const [pillYearsInput, setPillYearsInput] = useState("");
+  const [pillYearsError, setPillYearsError] = useState("");
+  const [numberOfBirthsInput, setNumberOfBirthsInput] = useState("");
+  const [currentStep, setCurrentStep] = useState('start');
+  const [isProcessingSelection, setIsProcessingSelection] = useState(false);
+  const [selectedOption, setSelectedOption] = useState('');
+  const [saltySmokedFoodsInput, setSaltySmokedFoodsInput] = useState("");
+  const [saltySmokedFoodsError, setSaltySmokedFoodsError] = useState("");
+  const [fruitVegServingsInput, setFruitVegServingsInput] = useState("");
+  const [fruitVegServingsError, setFruitVegServingsError] = useState("");
+  const [endometriosisInput, setEndometriosisInput] = useState("");
+  const [endometriosisError, setEndometriosisError] = useState("");
+  const [hPyloriInput, setHPyloriInput] = useState("");
+  const [hPyloriError, setHPyloriError] = useState("");
+  const [hPyloriEradicationInput, setHPyloriEradicationInput] = useState("");
+  const [hPyloriEradicationError, setHPyloriEradicationError] = useState("");
+  const [gastricGeneMutationInput, setGastricGeneMutationInput] = useState("");
+  const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
+  const [hasSubmittedGastricGeneMutation, setHasSubmittedGastricGeneMutation] = useState(false);
+  const [appState, setAppState] = useState('landing'); 
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -73,137 +105,10 @@ function App() {
       sender: 'bot',
       timestamp: new Date()
     }
-  ]);
-  
-  const [currentStep, setCurrentStep] = useState('start');
-  const [isProcessingSelection, setIsProcessingSelection] = useState(false); // Add loading state
-  const [selectedOption, setSelectedOption] = useState(''); // Track the selected option
-  const messagesEndRef = useRef(null);
-  const toast = useToast();
-  const bg = useColorModeValue('white', 'gray.800');
-  const borderColor = useColorModeValue('gray.200', 'gray.700');
-  const headerBg = useColorModeValue('blue.800', 'blue.700');
-  const userBubbleColor = useColorModeValue('#bee3f8', '#2a4365');
-  const messagesBg = useColorModeValue('gray.50', 'gray.900');
-  
-  // State to track all user responses in a consolidated format
-  const [userResponses, setUserResponses] = useState({
-    demographics: {
-      age: null,
-      sex: "",
-      ethnicity: "",
-      country: ""}
-    ,
-    medicalHistory: {
-      personalCancer: {
-        diagnosed: false,
-        type: "",
-        ageAtDiagnosis: null}
-        ,
-
-      familyCancer: {
-        diagnosed: false,
-        relation: "",
-        type: "",
-        ageAtDiagnosis: null}
-        ,
-
-      chronicConditions: []
-    }
-    ,
-    lifestyle: {
-      smoking: {
-        current: false,
-        years: null,
-        packsPerDay: null,
-        packYears: null}
-      ,
-      alcohol: {
-        consumes: false,
-        drinksPerWeek: null}
-      ,
-      sexualHealth: {
-        unprotectedSexOrHpvHiv: false}
-      ,
-      transplant: false}
-    ,
-    medications: [],
-    allergies: "",
-    cancerScreening: {
-      hadScreening: false,
-      details: ""}
-    ,
-    vaccinations: {
-      hpv: false,
-      hepB: false}
-    ,
-    sexSpecificInfo: {
-      male: {
-        urinarySymptoms: false,
-        prostateTest: {
-          had: false,
-          ageAtLast: null}
-        ,
-        testicularIssues: false}
-      ,
-      female: {
-        menarcheAge: null,
-        menstruationStatus: "",
-        pregnancy: {
-          hadPregnancy: false,
-          ageAtFirst: null}
-        ,
-        hormoneTreatment: false}
-    }
-  });
-  
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  // List of ethnicities
-  const ethnicities = [
-    "Asian", 
-    "Black or African American", 
-    "Hispanic or Latino", 
-    "Native American", 
-    "Pacific Islander", 
-    "White or Caucasian", 
-    "Middle Eastern or North African",
-    "Multiracial", 
-    "Other",
-    "Prefer not to say"
-  ];
-  
-  // List of all countries
-  const countries = [
-    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
-    "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", 
-    "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", 
-    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", 
-    "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", 
-    "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", 
-    "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", 
-    "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", 
-    "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", 
-    "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", 
-    "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", 
-    "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", 
-    "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", 
-    "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", 
-    "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
-    "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", 
-    "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", 
-    "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", 
-    "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", 
-    "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", 
-    "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Prefer not to say"
-  ];
-
+  ]);  
+  const [gastritisUlcerInput, setGastritisUlcerInput] = useState("");
+  const [gastritisUlcerError, setGastritisUlcerError] = useState("");
+  const [hasSubmittedGastritisUlcer, setHasSubmittedGastritisUlcer] = useState(false);
   const [ageInput, setAgeInput] = useState('');
   const [ageError, setAgeError] = useState('');
   const [ethnicityInput, setEthnicityInput] = useState('');
@@ -242,15 +147,275 @@ function App() {
   const [alcoholAmountInput, setAlcoholAmountInput] = useState('');
   const [alcoholAmountError, setAlcoholAmountError] = useState('');
   const [PackYears, setPackYears] = useState(0);
+  const [fertilityDrugsInput] = useState('');
+  const [fertilityDrugsError] = useState('');
   const [menarcheAgeInput, setMenarcheAgeInput] = useState('');
   const [menarcheAgeError, setMenarcheAgeError] = useState('');
   const [menstruationStatus, setMenstruationStatus] = useState('');
   const [pregnancyAgeInput, setPregnancyAgeInput] = useState('');
   const [pregnancyAgeError, setPregnancyAgeError] = useState('');
+  const [menopauseAgeInput, setMenopauseAgeInput] = useState('');
+  const [menopauseAgeError, setMenopauseAgeError] = useState('');
   const [prostateTestAgeInput, setProstateTestAgeInput] = useState('');
   const [prostateTestAgeError, setProstateTestAgeError] = useState('');
   const [cancerScreeningInput, setCancerScreeningInput] = useState('');
-  // No need for error state for cancer screening as it's free text
+  const [userResponses, setUserResponses] = useState({
+    demographics: {
+      age: null,
+      sex: "",
+      ethnicity: "",
+      country: ""
+    },
+    medicalHistory: {
+      personalCancer: {
+        diagnosed: false,
+        type: "",
+        ageAtDiagnosis: null
+      },
+      familyCancer: {
+        diagnosed: false,
+        relation: "",
+        type: "",
+        ageAtDiagnosis: null
+      },
+      chronicConditions: []
+    },
+    lifestyle: {
+      smoking: {
+        current: false,
+        years: null,
+        packsPerDay: null,
+        packYears: null
+      },
+      alcohol: {
+        consumes: false,
+        drinksPerWeek: null
+      },
+      sexualHealth: {
+        unprotectedSexOrHpvHiv: false
+      },
+      transplant: false
+    },
+    medications: [],
+    allergies: "",
+    cancerScreening: {
+      hadScreening: false,
+      details: ""
+    },
+    vaccinations: {
+      hpv: false,
+      hepB: false
+    },
+    sexSpecificInfo: {
+      male: {
+        urinarySymptoms: false,
+        prostateTest: {
+          had: false,
+          ageAtLast: null
+        },
+        testicularIssues: false
+      },
+      female: {
+        menarcheAge: null,
+        menstruationStatus: "",
+        pregnancy: {
+          hadPregnancy: false,
+          ageAtFirst: null
+        },
+        pillYears: null,
+        birthControl: null,
+        hormoneReplacementTherapy: null,
+        hormoneTreatment: false,
+        IVF_history: null
+      }
+    }
+  });
+
+
+  const messagesEndRef = useRef(null);
+  const toast = useToast();
+  const bg = useColorModeValue('white', 'gray.800');
+  const borderColor = useColorModeValue('gray.200', 'gray.700');
+  const headerBg = useColorModeValue('blue.800', 'blue.700');
+  const messagesBg = useColorModeValue('gray.50', 'gray.900');
+
+  const ethnicities = [ 
+    "Black or African American", 
+    "East Asian/South East Asian",
+    "South Asian",
+    "Hispanic or Latino", 
+    "Native American", 
+    "Pacific Islander", 
+    "White or Caucasian", 
+    "Middle Eastern or North African",
+    "Multiracial", 
+    "Other",
+    "Prefer not to say"
+  ];
+  
+  const countries = [
+    "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", 
+    "Austria", "Azerbaijan", "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Belize", "Benin", 
+    "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi", 
+    "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", 
+    "Comoros", "Congo", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic", "Denmark", "Djibouti", "Dominica", 
+    "Dominican Republic", "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", 
+    "Ethiopia", "Fiji", "Finland", "France", "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", 
+    "Guatemala", "Guinea", "Guinea-Bissau", "Guyana", "Haiti", "Honduras", "Hungary", "Iceland", "India", "Indonesia", 
+    "Iran", "Iraq", "Ireland", "Israel", "Italy", "Jamaica", "Japan", "Jordan", "Kazakhstan", "Kenya", "Kiribati", 
+    "Korea, North", "Korea, South", "Kosovo", "Kuwait", "Kyrgyzstan", "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", 
+    "Libya", "Liechtenstein", "Lithuania", "Luxembourg", "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", 
+    "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", 
+    "Morocco", "Mozambique", "Myanmar", "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", 
+    "Nigeria", "North Macedonia", "Norway", "Oman", "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", 
+    "Paraguay", "Peru", "Philippines", "Poland", "Portugal", "Qatar", "Romania", "Russia", "Rwanda", "Saint Kitts and Nevis", 
+    "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", 
+    "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", 
+    "South Africa", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria", "Taiwan", 
+    "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", 
+    "Turkmenistan", "Tuvalu", "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", 
+    "Uzbekistan", "Vanuatu", "Vatican City", "Venezuela", "Vietnam", "Yemen", "Zambia", "Zimbabwe", "Prefer not to say"
+  ];
+
+
+
+  const handlePerniciousAnemiaSubmitCall = (answer) => {
+    if (hasSubmittedPerniciousAnemia) return;
+    setPerniciousAnemiaInput(answer);
+    const nextId = conversationFlow.perniciousAnemia.options.find(opt => opt.text === answer)?.nextId;
+    handlePerniciousAnemiaSubmit(
+      answer,
+      setPerniciousAnemiaError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setPerniciousAnemiaInput,
+      nextId
+    );
+    setHasSubmittedPerniciousAnemia(true);
+  };
+
+  
+  const handleSaltySmokedFoodsSubmitCall = () => {
+    handleSaltySmokedFoodsSubmit(
+      saltySmokedFoodsInput,
+      setSaltySmokedFoodsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setSaltySmokedFoodsInput
+    );
+  };
+
+  const handleFruitVegServingsSubmitCall = () => {
+    handleFruitVegServingsSubmit(
+      fruitVegServingsInput,
+      setFruitVegServingsError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setFruitVegServingsInput
+    );
+  };
+
+  const handleEndometriosisSubmitCall = (answer) => {
+    setEndometriosisInput(answer);
+    const nextId = conversationFlow.endometriosis.options.find(opt => opt.text === answer)?.nextId;
+    handleEndometriosisSubmit(
+      answer,
+      setEndometriosisError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setEndometriosisInput,
+      nextId
+    );
+  };
+
+
+  const handleGastritisUlcerSubmitCall = (answer) => {
+    if (hasSubmittedGastritisUlcer) return;
+    setGastritisUlcerInput(answer);
+    handleGastritisUlcerSubmit(
+      answer,
+      setGastritisUlcerError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastritisUlcerInput
+    );
+    setHasSubmittedGastritisUlcer(true);
+  };
+
+
+  const handleHPyloriSubmitCall = () => {
+    const nextId = conversationFlow.hPylori.options.find(opt => opt.text === hPyloriInput)?.nextId;
+    handleHPyloriSubmit(
+      hPyloriInput,
+      setHPyloriError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setHPyloriInput,
+      nextId
+    );
+  };
+
+  const handleGastricGeneMutationSubmitCall = (answer) => {
+    if (hasSubmittedGastricGeneMutation) return;
+    setGastricGeneMutationInput(answer);
+    const nextId = conversationFlow.gastricGeneMutation.options.find(opt => opt.text === answer)?.nextId;
+    handleGastricGeneMutationSubmit(
+      answer,
+      setGastricGeneMutationError,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setGastricGeneMutationInput,
+      nextId
+    );
+    setHasSubmittedGastricGeneMutation(true);
+  };
+
+  const handleFertilityDrugsSubmitCall = (fertilityDrugsInput, nextId) => {
+    handleFertilityDrugsSubmit(
+      fertilityDrugsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      nextId
+    );
+  };
+
+  const handleNumberOfBirthsSubmitCall = () => {
+    handleNumberOfBirthsSubmit(
+      numberOfBirthsInput,
+      setUserResponses,
+      setMessages,
+      conversationFlow,
+      setCurrentStep,
+      setNumberOfBirthsInput
+    );
+  };
+  
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+
+  
   
   const handleAgeSubmitCall = () => {
     handleAgeSubmit(
@@ -462,13 +627,11 @@ function App() {
   }
 
   
-  // Special routing function based on user sex
   const routeBasedOnSex = () => {
     const nextId = userSex === "Female" ? "femaleQuestions" : "maleQuestions";
     const nextStep = conversationFlow[nextId];
       
     if (nextStep) {
-      // Add bot's next message
       setMessages(prev => [
         ...prev, 
         {
@@ -478,16 +641,11 @@ function App() {
           timestamp: new Date()
         }
       ]);
-      
-      // Update the current step
       setCurrentStep(nextId);
     } 
     
     else {
-      // Fallback in case something goes wrong
       console.error("Could not find next step for " + (userSex === "Female" ? "femaleQuestions" : "maleQuestions"));
-      
-      // Move to summary as a fallback
       const fallbackStep = conversationFlow.summary;
       if (fallbackStep) {
         setMessages(prev => [
@@ -499,56 +657,91 @@ function App() {
             timestamp: new Date()
           }
         ]);
-        
         setCurrentStep('summary');
       }
     }
   };
 
-  // Helper function to calculate progress percentage based on current step
   const calculateProgress = () => {
-    // Define the main path through the questionnaire
-    
     // Map steps to their progress points (0-100%)
     const stepProgressMap = {
       'start': 0,
       'info': 0,
-      'age': 5,
-      'sex': 10,
-      'ethnicity': 15, 
-      'location': 20,
-      'cancer': 25,
-      'cancerDetails': 30,
-      'familyHistory': 35,
-      'familyHistoryDetails': 40,
-      'chronicConditions': 45,
-      'smokingStatus': 50,
-      'alcoholConsumption': 55,
-      'sexualHealth': 60,
-      'transplant': 65,
-      'medications': 70,
-      'allergies': 75,
-      // Gender specific questions branch
-      'maleQuestions': 80,
-      'urinarySymptoms': 82,
-      'prostateTest': 85,
-      'testicularIssues': 88,
-      'femaleQuestions': 80,
-      'menarcheAge': 82,
-      'menstruationStatus': 85,
-      'pregnancy': 88,
-      'hormoneTreatment': 90,
-      // Rejoin common path
-      'pastCancerScreening': 90,
-      'hpvVaccine': 93,
-      'hepBVaccine': 96,
+      'age': 2,
+      'sex': 4,
+      'ethnicity': 6,
+      'location': 8,
+      'cancer': 10,
+      'cancerDetails': 12,
+      'familyHistory': 14,
+      'familyHistoryDetails': 16,
+      'hypertension': 18,
+      'partialGastrectomy': 20,
+      'perniciousAnemia': 22,
+      'gastricGeneMutation': 24,
+      'chronicConditions': 26,
+      'smokingStatus': 28,
+      'smokingYears': 30,
+      'smokingAmount': 32,
+      'alcoholConsumption': 34,
+      'alcoholAmount': 36,
+      'saltySmokedFoods': 38,
+      'fruitVegServings': 40,
+      'sexualHealth': 42,
+      'transplant': 44,
+      'brcaMutation': 46,
+      'hPylori': 48,
+      'hPyloriEradication': 50,
+      'gastritisUlcer': 52,
+      'medications': 54,
+      'allergies': 56,
+      'allergyDetails': 58,
+      'symptomScreenIntro': 60,
+      'swallowingDifficulty': 62,
+      'blackStool': 64,
+      'weightLoss': 66,
+      'vomiting': 68,
+      'epigastricPain': 70,
+      'indigestion': 72,
+      'painWakesAtNight': 74,
+      // Male branch
+      'maleQuestions': 76,
+      'urinarySymptoms': 78,
+      'prostateTest': 80,
+      'prostateTestAge': 82,
+      'testicularIssues': 84,
+      // Female branch
+      'femaleQuestions': 76,
+      'menarcheAge': 78,
+      'menstruationStatus': 80,
+      'menopauseAge': 82,
+      'pregnancy': 84,
+      'numberOfBirths': 86,
+      'firstPregnancyAge': 88,
+      'birthControl': 90,
+      'pillYears': 91,
+      'hormoneReplacementTherapy': 92,
+      'tubalLigation': 93,
+      'ovaryRemoved': 94,
+      'endometriosis': 95,
+      'fertilityDrugs': 96,
+      'goffSymptomIntro': 97,
+      'goffBloating': 97.5,
+      'goffPain': 98,
+      'goffFullness': 98.5,
+      'goffUrinary': 99,
+      'goffAbdomenSize': 99.5,
+      // Rejoin
+      'pastCancerScreening': 99.7,
+      'pastCancerScreeningDetails': 99.8,
+      'hpvVaccine': 99.9,
+      'hepBVaccine': 99.95,
       'summary': 100,
-      'end': 100};
-    
+      'end': 100
+    };
     return stepProgressMap[currentStep] || 0;
   };
 
-  // Helper function to get the current section name
   const getCurrentSectionName = () => {
     const sectionNames = {
       'start': 'Welcome',
@@ -601,7 +794,6 @@ function App() {
   return (
     <Box id="app-container" w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
       <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
-        {/* Header - Hidden when summary is displayed */}
         <Box 
           py={3} 
           px={6} 
@@ -625,7 +817,6 @@ function App() {
                 </HStack>
               </VStack>
             </Flex>
-            {/* Progress percentage */}
             <Tooltip label="Screening progress" placement="bottom">
               <Text fontSize="sm" fontWeight="bold">
                 {calculateProgress()}% Complete
@@ -684,21 +875,6 @@ function App() {
                 boxShadow="md"
                 spacing={3}
                 position="relative"
-                _after={
-                  message.sender === 'user' 
-                    ? {
-                        content: '""',
-                        position: 'absolute',
-                        bottom: 0,
-                        right: -5,
-                        borderWidth: '10px',
-                        borderStyle: 'solid',
-                        borderColor: `transparent transparent ${userBubbleColor} transparent`,
-                        transform: 'rotate(-45deg)',
-                        display: 'block'
-                      }
-                    : {}
-                }
               >
                 {message.sender === 'bot' && (
                   <Avatar 
@@ -823,8 +999,10 @@ function App() {
                 <InputGroup size="md">
                   <Input 
                     type="number"
-                    placeholder="Enter your age at diagnosis (0-120)"
+                    placeholder="Enter your age at diagnosis"
                     value={cancerAgeInput}
+                    min={0}
+                    max={userResponses.demographics.age || 120}
                     onChange={(e) => setCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
@@ -869,10 +1047,8 @@ function App() {
                   flex="1"
                   onClick={() => setChronicConditions(prev => ({ ...prev, hiv: !prev.hiv }))}
                   transition="all 0.2s">
-                  HIV
+                  HIV/AIDS
                 </Button>
-              </HStack>
-              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.ibd ? "blue" : "gray"}
                   variant={chronicConditions.ibd ? "solid" : "outline"}
@@ -883,6 +1059,8 @@ function App() {
                   transition="all 0.2s">
                   Inflammatory Bowel Disease (IBD)
                 </Button>
+              </HStack>
+              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.hepatitisB ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisB ? "solid" : "outline"}
@@ -893,8 +1071,6 @@ function App() {
                   transition="all 0.2s">
                   Hepatitis B
                 </Button>
-              </HStack>
-              <HStack spacing={4} w="100%">
                 <Button
                   colorScheme={chronicConditions.hepatitisC ? "blue" : "gray"}
                   variant={chronicConditions.hepatitisC ? "solid" : "outline"}
@@ -924,6 +1100,40 @@ function App() {
                 Submit
               </Button>
             </VStack>
+          ) : currentStep === 'pillYears' ? (
+            <FormControl isInvalid={!!pillYearsError}>
+              <Select
+                placeholder="Select years of pill use"
+                value={pillYearsInput}
+                onChange={(e) => setPillYearsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+              >
+                <option value="0">0</option>
+                <option value="Lesser than a year">Lesser than a year</option>
+                <option value="1-4 years">1-4 years</option>
+                <option value="5-9 years">5-9 years</option>
+                <option value="10+ years">10+ years</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={() => handlePillYearsSubmit(
+                  pillYearsInput,
+                  setPillYearsError,
+                  setUserResponses,
+                  setMessages,
+                  conversationFlow,
+                  setCurrentStep,
+                  setPillYearsInput
+                )}
+                isFullWidth
+                borderRadius="full"
+              >
+                Submit
+              </Button>
+              {pillYearsError && <FormErrorMessage>{pillYearsError}</FormErrorMessage>}
+            </FormControl>
           ) : currentStep === 'transplant' ? (
             <VStack spacing={3} align="stretch">
               {conversationFlow[currentStep]?.options.map((option, index) => (
@@ -1106,6 +1316,8 @@ function App() {
                     type="number"
                     placeholder="Enter their age at diagnosis (0-120)"
                     value={familyCancerAgeInput}
+                    min={0}
+                    max={120}
                     onChange={(e) => setFamilyCancerAgeInput(e.target.value)}
                     onKeyPress={(e) => {
                       if (e.key === 'Enter') {
@@ -1239,6 +1451,418 @@ function App() {
               </InputGroup>
               {alcoholAmountError && <FormErrorMessage>{alcoholAmountError}</FormErrorMessage>}
             </FormControl>
+          ) : currentStep === 'saltySmokedFoods' ? (
+            <FormControl isInvalid={!!saltySmokedFoodsError}>
+              <Select
+                placeholder="Select frequency of salty/smoked foods"
+                value={saltySmokedFoodsInput || ''}
+                onChange={e => setSaltySmokedFoodsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="Never">Never</option>
+                <option value="less than one time a week">less than one time a week</option>
+                <option value="1-3 times a week">1-3 times a week</option>
+                <option value="4 or more times a week">4 or more times a week</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleSaltySmokedFoodsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!saltySmokedFoodsInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {saltySmokedFoodsError && <FormErrorMessage>{saltySmokedFoodsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'fruitVegServings' ? (
+            <FormControl isInvalid={!!fruitVegServingsError}>
+              <Select
+                placeholder="Select daily fruit & vegetable servings"
+                value={fruitVegServingsInput || ''}
+                onChange={e => setFruitVegServingsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="0-1 servings">0-1 servings</option>
+                <option value="2-4 servings">2-4 servings</option>
+                <option value="5+ servings">5+ servings</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleFruitVegServingsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!fruitVegServingsInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {fruitVegServingsError && <FormErrorMessage>{fruitVegServingsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hPylori' ? (
+            <FormControl isInvalid={!!hPyloriError}>
+              <Select
+                placeholder="Have you ever been diagnosed with H. pylori infection?"
+                value={hPyloriInput || ''}
+                onChange={e => setHPyloriInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+                isDisabled={isProcessingSelection}
+              >
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+                <option value="Not sure">Not sure</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleHPyloriSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!hPyloriInput || isProcessingSelection}
+              >
+                Submit
+              </Button>
+              {hPyloriError && <FormErrorMessage>{hPyloriError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hPyloriEradication' ? (
+            <FormControl isInvalid={!!hPyloriEradicationError}>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => {
+                      if (!isProcessingSelection) {
+                        handleHPyloriEradicationSubmit(
+                          opt,
+                          setHPyloriEradicationError,
+                          setUserResponses,
+                          setMessages,
+                          conversationFlow,
+                          setCurrentStep,
+                          setHPyloriEradicationInput,
+                          conversationFlow.hPyloriEradication.options.find(o => o.text === opt)?.nextId
+                        );
+                      }
+                    }}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && hPyloriEradicationInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {hPyloriEradicationError && <FormErrorMessage>{hPyloriEradicationError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'gastritisUlcer' ? (
+            <FormControl isInvalid={!!gastritisUlcerError}>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handleGastritisUlcerSubmitCall(opt)}
+                    isDisabled={isProcessingSelection || hasSubmittedGastritisUlcer}
+                    bg={gastritisUlcerInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={gastritisUlcerInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && gastritisUlcerInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {gastritisUlcerError && <FormErrorMessage>{gastritisUlcerError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'hypertension' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.hypertension.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    bg={selectedOption === opt.text ? 'blue.50' : 'transparent'}
+                    borderColor={selectedOption === opt.text ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'perniciousAnemia' ? (
+            <FormControl isInvalid={!!perniciousAnemiaError}>
+              <VStack spacing={3} align="stretch">
+                {["Yes", "No"].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handlePerniciousAnemiaSubmitCall(opt)}
+                    isDisabled={isProcessingSelection || hasSubmittedPerniciousAnemia}
+                    bg={perniciousAnemiaInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={perniciousAnemiaInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && perniciousAnemiaInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {perniciousAnemiaError && <FormErrorMessage>{perniciousAnemiaError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'endometriosis' ? (
+            <FormControl isInvalid={!!endometriosisError}>
+              <VStack spacing={3} align="stretch">
+                {["Yes", "No"].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleEndometriosisSubmitCall(opt)}
+                    isDisabled={isProcessingSelection}
+                    bg={endometriosisInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={endometriosisInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && endometriosisInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {endometriosisError && <FormErrorMessage>{endometriosisError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'gastricGeneMutation' ? (
+            <FormControl isInvalid={!!gastricGeneMutationError}>
+              <VStack spacing={3} align="stretch">
+                {['Yes', 'No'].map(opt => (
+                  <Button
+                    key={opt}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => handleGastricGeneMutationSubmitCall(opt)}
+                    isDisabled={isProcessingSelection || hasSubmittedGastricGeneMutation}
+                    bg={gastricGeneMutationInput === opt ? 'blue.50' : 'transparent'}
+                    borderColor={gastricGeneMutationInput === opt ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt}
+                    {isProcessingSelection && gastricGeneMutationInput === opt && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {gastricGeneMutationError && <FormErrorMessage>{gastricGeneMutationError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'fertilityDrugs' ? (
+            <FormControl isInvalid={!!fertilityDrugsError}>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.fertilityDrugs.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleFertilityDrugsSubmitCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    bg={fertilityDrugsInput === opt.text ? 'blue.50' : 'transparent'}
+                    borderColor={fertilityDrugsInput === opt.text ? 'blue.400' : 'gray.200'}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && fertilityDrugsInput === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+              {fertilityDrugsError && <FormErrorMessage>{fertilityDrugsError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'goffSymptomIntro' ? (
+            <VStack spacing={3} align="stretch">
+              {conversationFlow.goffSymptomIntro.options.map((option, index) => (
+                <Button
+                  key={option.text}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="md"
+                  borderRadius="full"
+                  _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                  onClick={() => handleOptionSelectCall(option.text, option.nextId)}
+                  transition="all 0.2s"
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  isDisabled={isProcessingSelection}
+                  _disabled={{
+                    opacity: 0.7,
+                    cursor: "not-allowed",
+                    _hover: { bg: "initial", borderColor: "inherit" }
+                  }}
+                >
+                  {option.text}
+                  {isProcessingSelection && option.text === selectedOption && <span> ✓</span>}
+                </Button>
+              ))}
+            </VStack>
+          ) : currentStep === 'goffBloating' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffBloating.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffPain' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffPain.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffFullness' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffFullness.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffUrinary' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffUrinary.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
+          ) : currentStep === 'goffAbdomenSize' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.goffAbdomenSize.options.map(opt => (
+                  <Button
+                    key={opt.text}
+                    colorScheme="blue"
+                    variant="outline"
+                    size="md"
+                    borderRadius="full"
+                    isFullWidth
+                    _hover={{ bg: 'blue.50', borderColor: 'blue.400' }}
+                    onClick={() => !isProcessingSelection && handleOptionSelectCall(opt.text, opt.nextId)}
+                    isDisabled={isProcessingSelection}
+                    justifyContent="flex-start"
+                    textAlign="left"
+                  >
+                    {opt.text}
+                    {isProcessingSelection && selectedOption === opt.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
+            </FormControl>
           ) : currentStep === 'allergyDetails' ? (
             <FormControl>
               <InputGroup size="md">
@@ -1269,7 +1893,7 @@ function App() {
               <InputGroup size="md">
                 <Input 
                   type="number"
-                  placeholder="Enter age at first period (8-18)"
+                  placeholder="Enter age at first period"
                   value={menarcheAgeInput}
                   onChange={(e) => setMenarcheAgeInput(e.target.value)}
                   onKeyPress={(e) => {
@@ -1290,6 +1914,31 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {menarcheAgeError && <FormErrorMessage>{menarcheAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'currentPregnancy' ? (
+            <FormControl>
+              <VStack spacing={3} align="stretch">
+                {conversationFlow.currentPregnancy.options.map((option, index) => (
+                  <Button
+                  key={option.text}
+                  colorScheme="blue"
+                  variant="outline"
+                  size="md"
+                  borderRadius="full"
+                  isFullWidth
+                  _hover={{bg: 'blue.50', borderColor: 'blue.400'}}
+                  onClick ={() => handleOptionSelectCall(option.text, option.nextId)}
+                  isDisabled = {isProcessingSelection}
+                  bg={selectedOption === option.text ? 'blue.50' : 'transparent'}
+                  borderColor={selectedOption === option.text ? 'blue.400' : 'gray.200'}
+                  justifyContent="flex-start"
+                  textAlign="left"
+                  >
+                    {option.text}
+                    {isProcessingSelection && selectedOption === option.text && <span> ✓</span>}
+                  </Button>
+                ))}
+              </VStack>
             </FormControl>
           ) : currentStep === 'firstPregnancyAge' ? (
             <FormControl isInvalid={!!pregnancyAgeError}>
@@ -1317,6 +1966,127 @@ function App() {
                 </InputRightElement>
               </InputGroup>
               {pregnancyAgeError && <FormErrorMessage>{pregnancyAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'numberOfBirths' ? (
+            <FormControl>
+              <Select
+                placeholder="Select number of times you have given birth"
+                value={numberOfBirthsInput || ''}
+                onChange={e => setNumberOfBirthsInput(e.target.value)}
+                borderRadius="md"
+                focusBorderColor="blue.400"
+                mb={3}
+              >
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4+">4+</option>
+              </Select>
+              <Button
+                colorScheme="blue"
+                onClick={handleNumberOfBirthsSubmitCall}
+                isFullWidth
+                borderRadius="full"
+                isDisabled={!numberOfBirthsInput}
+              >
+                Submit
+              </Button>
+            </FormControl>
+          ) : currentStep === 'menopauseAge' ? (
+            <FormControl isInvalid={!!menopauseAgeError}>
+              <InputGroup size="md">
+                <Input
+                  type="number"
+                  placeholder="Enter age when your periods stopped"
+                  value={menopauseAgeInput}
+                  onChange={(e) => setMenopauseAgeInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handleMenopauseAgeSubmit(
+                        menopauseAgeInput,
+                        setMenopauseAgeError,
+                        setUserResponses,
+                        setMessages,
+                        conversationFlow,
+                        setCurrentStep,
+                        setMenopauseAgeInput
+                      );
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="blue.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    colorScheme="blue"
+                  onClick={() => handleMenopauseAgeSubmit(
+                    menopauseAgeInput,
+                    setMenopauseAgeError,
+                    setUserResponses,
+                    setMessages,
+                    conversationFlow,
+                    setCurrentStep,
+                    setMenopauseAgeInput
+                  )}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormHelperText color="gray.500">
+                Please enter the age (in years) when your periods stopped naturally or due to surgery/medical treatment.
+              </FormHelperText>
+              {menopauseAgeError && <FormErrorMessage>{menopauseAgeError}</FormErrorMessage>}
+            </FormControl>
+          ) : currentStep === 'pillYears' ? (
+            <FormControl isInvalid={!!pillYearsError}>
+              <InputGroup size="md">
+                <Input
+                  type="number"
+                  placeholder="Enter total years of pill use (0-50)"
+                  value={pillYearsInput}
+                  onChange={(e) => setPillYearsInput(e.target.value)}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handlePillYearsSubmit(
+                        pillYearsInput,
+                        setPillYearsError,
+                        setUserResponses,
+                        setMessages,
+                        conversationFlow,
+                        setCurrentStep,
+                        setPillYearsInput
+                      );
+                    }
+                  }}
+                  borderRadius="md"
+                  focusBorderColor="blue.400"
+                />
+                <InputRightElement width="4.5rem">
+                  <Button
+                    h="1.75rem"
+                    size="sm"
+                    colorScheme="blue"
+                    onClick={() => handlePillYearsSubmit(
+                      pillYearsInput,
+                      setPillYearsError,
+                      setUserResponses,
+                      setMessages,
+                      conversationFlow,
+                      setCurrentStep,
+                      setPillYearsInput
+                    )}
+                  >
+                    Submit
+                  </Button>
+                </InputRightElement>
+              </InputGroup>
+              <FormHelperText color="gray.500">
+                Please enter a whole number. 1 pill-year = 365 pills, or 12 months of daily use.
+              </FormHelperText>
+              {pillYearsError && <FormErrorMessage>{pillYearsError}</FormErrorMessage>}
             </FormControl>
           ) : currentStep === 'prostateTestAge' ? (
             <FormControl isInvalid={!!prostateTestAgeError}>
@@ -1372,8 +2142,12 @@ function App() {
               </InputGroup>
             </FormControl>
           ) : currentStep === 'summary' ? (
-            <Box id="summary-scroll-container" h="calc(100vh - 50px)" overflowY="auto" pt={2}>
-              <SummaryComponentWrapper userResponses={userResponses} handleOptionSelectCall={handleOptionSelectCall} />
+            <Box id="summary-scroll-container" pt={2}>
+              <SummaryComponentWrapper
+                userResponses={userResponses} 
+                handleOptionSelectCall={handleOptionSelectCall}
+                onStartNewScreening={() => setCurrentStep('start')}
+              />
             </Box>
           ) : (
             <VStack spacing={3} align="stretch">

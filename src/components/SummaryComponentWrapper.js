@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Spinner, Center } from '@chakra-ui/react';
+import { Spinner, Center } from '@chakra-ui/react';
 import MobileSummaryComponent from './MobileSummaryComponent';
 import SummaryComponent from '../SummaryComponent';
 import { isMobileDevice } from '../utils/platformDetection';
@@ -12,13 +12,11 @@ const SummaryComponentWrapper = (props) => {
   const [isMobile, setIsMobile] = useState(false);
   
   useEffect(() => {
-    // Detect if the device is mobile on component mount
     const checkMobile = () => {
       setIsMobile(isMobileDevice());
       setIsLoading(false);
     };
     
-    // Brief delay to ensure all device detection APIs are available
     const timeoutId = setTimeout(checkMobile, 100);
     
     return () => clearTimeout(timeoutId);
@@ -31,11 +29,10 @@ const SummaryComponentWrapper = (props) => {
       </Center>
     );
   }
-  
-  // Render the appropriate component based on the detected platform
+
   return isMobile ? 
-    <MobileSummaryComponent {...props} /> : 
-    <SummaryComponent {...props} />;
+    <MobileSummaryComponent {...props} onStartNewScreening={props.onStartNewScreening} /> : 
+    <SummaryComponent {...props} onStartNewScreening={props.onStartNewScreening} />;
 };
 
 export default SummaryComponentWrapper;

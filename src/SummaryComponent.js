@@ -1,32 +1,36 @@
-import React, { useRef, useState } from 'react';
+import React, {useRef} from 'react';
 import {
   Box,
   Text,
   Button,
-  Icon,
-  Heading,
   useColorModeValue,
   useToast,
-  Divider,
-  Badge,
-  List,
-  ListItem,
-  ListIcon,
   Flex,
-  Grid,
-  GridItem
+  Spacer
 } from '@chakra-ui/react';
-import { FaCheckCircle, FaPrint, FaArrowRight, FaArrowLeft } from 'react-icons/fa';
+import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
 
-// Create a SummaryComponent to show at the end with multiple pages
-const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
+const SummaryComponent = ({ userResponses}) => {
   const toast = useToast();
   const accentColor = useColorModeValue('blue.500', 'blue.300');
   const summaryRef = useRef(null);
-  const [currentPage, setCurrentPage] = useState(1); // Track the current page (1: Medical & Risk Data, 2: Cancer Tests)
+  // vhl suspicion logic, checks for renal cancer, kidney issues or brain/spinal/eye tumors
+  // if any of them are found to be true, sets vhlSuspicion to 'Yes'
+  // included at top level just as an experiment, later plans are to make every function declared like this
+  let vhlSuspicion = '';
+  const renalCancerCheck = userResponses.medicalHistory?.personalCancer?.type;
+  if (
+      userResponses.medicalHistory?.kidneyIssue === true ||
+      userResponses.medicalHistory?.brainSpinalEyeTumor === true)
+      {
+        vhlSuspicion = 'Yes';
+      } 
+      else {
+        vhlSuspicion = 'No'
+      }
   
-  // Calculate risk factors
+  
   const calculateRiskScore = () => {
     let riskScore = 0;
     
@@ -49,7 +53,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     }
       // Alcohol consumption
     if (userResponses.lifestyle.alcohol?.consumes && userResponses.lifestyle.alcohol?.drinksPerWeek > 5) {
-      // +1 risk score for every 3 drinks above 5 drinks per week
       const excessDrinks = userResponses.lifestyle.alcohol.drinksPerWeek - 5;
       const additionalRiskScore = Math.floor(excessDrinks / 3);
       riskScore += additionalRiskScore;
@@ -57,14 +60,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     
     // Sexual health risk
     if (userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv) {
-      // High risk sexual behavior or HPV/HIV diagnosis increases risk score
       riskScore += 2;
     }
     
-    // Transplant
     if (userResponses.lifestyle.transplant) riskScore += 2;
     
-    // Sex-specific factors
     if (userResponses.demographics.sex === 'Male') {
       if (userResponses.sexSpecificInfo.male.urinarySymptoms) riskScore += 1;
       if (userResponses.sexSpecificInfo.male.testicularIssues) riskScore += 1;
@@ -72,8 +72,9 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     }
     
     if (userResponses.demographics.sex === 'Female') {
-      // Female-specific risk factors
-      if (userResponses.sexSpecificInfo.female.hormoneTreatment) riskScore += 1;
+
+      if (userResponses.sexSpecificInfo.female.birthControl) riskScore += 1;
+      if (userResponses.sexSpecificInfo.female.hormoneReplacementTherapy) riskScore += 1;
     }
     
     // Vaccination status
@@ -82,159 +83,202 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
     
     // Cancer screening history
     if (!userResponses.cancerScreening.hadScreening && userResponses.demographics.age > 40) riskScore += 2;
-    
     return riskScore;
   };
+
   const getHealthCategory = (score) => {
     if (score <= 3) return { category: "Low Risk", color: "green" };
     if (score <= 7) return { category: "Moderate Risk", color: "yellow" };
     if (score <= 12) return { category: "High Risk", color: "orange" };
     return { category: "Very High Risk", color: "red" };
   };
-    const getRecommendations = () => {
-    const age = userResponses.demographics.age;
-    const sex = userResponses.demographics.sex;
-    const hasFamilyCancer = userResponses.medicalHistory.familyCancer.diagnosed;
-    const recommendations = [];
-    
-    // General recommendations
-    if (hasFamilyCancer) {
-      recommendations.push("Consider genetic counseling for inherited cancer risk");
-    }
-
-    if (userResponses.medicalHistory.chronicConditions.includes("Diabetes")) {
-      recommendations.push("Regular HbA1c monitoring");
-    }
-    
-    if (sex === "Male") {
-      if (userResponses.sexSpecificInfo.male.urinarySymptoms) {
-        recommendations.push("Urological evaluation recommended");
-      }
-
-      if (userResponses.sexSpecificInfo.male.testicularIssues) {
-        recommendations.push("Testicular self-examinations and specialist consultation");
-      }
-    }
-      // Vaccination recommendations
-    if (!userResponses.vaccinations.hpv && age < 45) {
-      recommendations.push("Consider HPV vaccination if eligible");
-    }
-    
-    if (!userResponses.vaccinations.hepB) {
-      recommendations.push("Consider Hepatitis B vaccination");
-    }
-      // Sexual health recommendations
-    if (userResponses.lifestyle && userResponses.lifestyle.sexualHealth && 
-        userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
-      recommendations.push("Practice safe sex to reduce cancer risk");
-    }
-    
-    // Cancer screening recommendations based on screening history
-    if (!userResponses.cancerScreening.hadScreening) {
-      if (age >= 45) {
-        recommendations.push("Discuss appropriate cancer screening tests with your healthcare provider");
-      }
-    }
-    
-    return recommendations;
-  };
-
   const riskScore = calculateRiskScore();
-  const healthStatus = getHealthCategory(riskScore);
-  const recommendations = getRecommendations();
-  const prescribedTests = getPrescribedTests(userResponses);
-  
-  // Navigation functions
-  const goToNextPage = () => {
-    setCurrentPage(2);
+
+  // Enhanced prescribed tests logic for ovarian cancer risk
+  const getEnhancedPrescribedTests = (userResponses) => {
+    const tests = getPrescribedTests(userResponses) || [];
+    const age = userResponses.demographics.age;
+    let hasBRCA = false;
+    let hasOvarianFamilyHistory = false;
+
+    // BRCA1/2 mutation check
+    if (
+      userResponses.medicalHistory &&
+      (userResponses.medicalHistory.brcaMutationStatus === 'Yes' || userResponses.medicalHistory.brcaMutationStatus === true)
+    ) {
+      hasBRCA = true;
+    }
+
+    // Family history for ovarian cancer check
+    if (
+      userResponses.medicalHistory &&
+      userResponses.medicalHistory.familyCancer &&
+      userResponses.medicalHistory.familyCancer.diagnosed &&
+      userResponses.medicalHistory.familyCancer.type &&
+      typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+      userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('ovarian')
+    ) {
+      hasOvarianFamilyHistory = true;
+    }
+
+    // Upper GI Endoscopy recommendation for both genders above 40 with risk factors
+    if (age > 40) {
+      let ethnicity = (userResponses.demographics.ethnicity || '').toLowerCase();
+      let ethnicityRisk = [
+        'black or african american',
+        'east asian',
+        'south east asian',
+        'east asian/south east asian',
+        'hispanic or latino'
+      ];
+      let ethnicityMatch = ethnicityRisk.some(e => ethnicity.includes(e));
+
+      // Family history of gastric cancer
+      let familyGastricCancer = false;
+      if (
+        userResponses.medicalHistory &&
+        userResponses.medicalHistory.familyCancer &&
+        userResponses.medicalHistory.familyCancer.diagnosed &&
+        userResponses.medicalHistory.familyCancer.type &&
+        typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+        userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('gastric')
+      ) {
+        familyGastricCancer = true;
+      }
+
+      // H.Pylori
+      let hPyloriYes = false;
+      if (
+        userResponses.lifestyle &&
+        (userResponses.lifestyle.hPylori === 'Yes' || userResponses.lifestyle.hPylori === true)
+      ) {
+        hPyloriYes = true;
+      }
+
+      if (ethnicityMatch || familyGastricCancer || hPyloriYes) {
+        if (!tests.some(t => t.name && t.name.toLowerCase().includes('upper gastrointestinal endoscopy'))) {
+          let reasons = [];
+          if (ethnicityMatch) {
+            reasons.push('high-risk ethnicity');
+          }
+          if (familyGastricCancer) {
+            reasons.push('family history of gastric cancer');
+          }
+          if (hPyloriYes) {
+            reasons.push('history of H.Pylori infection');
+          }
+          tests.push({
+            name: 'Upper Gastrointestinal Endoscopy',
+            frequency: 'Every 2-3 years',
+            reason: 'Risk factor' + (reasons.length > 1 ? 's' : '') + ': ' + reasons.join(', '),
+            priority: 'high',
+          });
+        }
+      }
+    }
+    return tests;
   };
 
-  const goToPreviousPage = () => {
-    setCurrentPage(1);
-  };
+  const prescribedTests = getEnhancedPrescribedTests(userResponses);
   
-  // PDF generation function removed - using print functionality only
-  // Function to print the summary using browser's print API with iframe approach
+
+  // printSummary using Iframe approach yippee
   const printSummary = () => {
-    // Variable to track if we've created an iframe that needs cleanup
     let printIframe = null;
-    
     try {
-      // Create a hidden iframe for printing (no popup)
       printIframe = document.createElement('iframe');
       printIframe.style.position = 'fixed';
       printIframe.style.right = '0';
       printIframe.style.bottom = '0';
-      printIframe.style.width = '0';
-      printIframe.style.height = '0';
+      printIframe.style.width = '100%';
+      printIframe.style.height = '100%';
       printIframe.style.border = 'none';
-      
-      // Append the iframe to document body
+      printIframe.style.opacity = '0';
+      printIframe.style.visibility = 'hidden';
+      printIframe.style.overflow = 'hidden';
       document.body.appendChild(printIframe);
-      
-      // Get the current theme colors for styling
-      const accentColorVal = accentColor;
-      
-      // Prepare the data for printing
       const formatBadge = (condition, trueText, falseText, trueColor, falseColor) => {
         const color = condition ? trueColor : falseColor;
         const text = condition ? trueText : falseText;
         return `<span class="badge badge-${color}">${text}</span>`;
       };
-      
-      // Get health risk and recommendations
-      const riskLevel = healthStatus.category;
-      const riskColor = healthStatus.color === "red" ? "red" : 
-                         healthStatus.color === "orange" ? "orange" : 
-                         healthStatus.color === "yellow" ? "yellow" : "green";
-      
-      // Format all the user data for display
       const personalInfo = `
         <div class="section-title">Personal Information</div>
-        <div class="grid">
-          <div class="label">Age:</div>
-          <div class="value"><strong>${userResponses.demographics.age}</strong></div>
-          
-          <div class="label">Sex:</div>
-          <div class="value"><strong>${userResponses.demographics.sex}</strong></div>
-          
-          <div class="label">Ethnicity:</div>
-          <div class="value">${userResponses.demographics.ethnicity || 'Not specified'}</div>
-          
-          <div class="label">Location:</div>
-          <div class="value">${userResponses.demographics.country || 'Not specified'}</div>
+        <div class="personal-info-grid">
+          <div class="info-pair">
+            <span class="label">Age:</span>
+            <span class="value"><strong>${userResponses.demographics.age}</strong></span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Sex:</span>
+            <span class="value"><strong>${userResponses.demographics.sex}</strong></span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Ethnicity:</span>
+            <span class="value">${userResponses.demographics.ethnicity === "Middle Eastern or North African" ? "MENA" : (userResponses.demographics.ethnicity || "Not specified")}</span>
+          </div>
+          <div class="info-pair">
+            <span class="label">Location:</span>
+            <span class="value">${userResponses.demographics.country || "Not specified"}</span>
+          </div>
         </div>
       `;
       
       const medicalHistory = `
         <div class="section-title">Medical History</div>
-        <div class="grid">
-          <div class="label">Personal Cancer:</div>
-          <div class="value">
-            ${formatBadge(userResponses.medicalHistory.personalCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-            ${userResponses.medicalHistory.personalCancer.diagnosed ? 
-              `<span style="margin-left:5px;">${userResponses.medicalHistory.personalCancer.type || "Cancer type"}
-              ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? 
-                `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
-              </span>` : ''}
+        <div class="simple-medical-history">
+          <div class="mh-row">
+            <span class="mh-label">Personal Cancer:</span>
+            <span class="mh-value">
+              ${userResponses.medicalHistory.personalCancer.diagnosed
+                ? (userResponses.medicalHistory.personalCancer.type
+                    ? `<span style="margin-left:5px;">${userResponses.medicalHistory.personalCancer.type}
+                        ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})</span>` : ''}
+                      </span>`
+                    : formatBadge(true, 'Yes', '', 'red', 'green'))
+                : formatBadge(false, '', 'No', 'red', 'green')}
+            </span>
           </div>
-          
-          <div class="label">Family Cancer:</div>
-          <div class="value">
-            ${formatBadge(userResponses.medicalHistory.familyCancer.diagnosed, 'Yes', 'No', 'red', 'green')}
-            ${userResponses.medicalHistory.familyCancer.diagnosed && userResponses.medicalHistory.familyCancer.type ? 
-              `<span style="margin-left:5px;">${userResponses.medicalHistory.familyCancer.type}
-              ${userResponses.medicalHistory.familyCancer.relation ? ` <span style="font-weight:bold;">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
-              ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? 
-                `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
-              </span>` : ''}
+          <div class="mh-row">
+            <span class="mh-label">Family Cancer:</span>
+            <span class="mh-value">
+              ${userResponses.medicalHistory.familyCancer.diagnosed
+                ? (userResponses.medicalHistory.familyCancer.type
+                    ? `<span style="margin-left:5px;">${userResponses.medicalHistory.familyCancer.type}
+                        ${userResponses.medicalHistory.familyCancer.relation ? ` <span style="font-weight:bold;">in ${userResponses.medicalHistory.familyCancer.relation}</span>` : ''}
+                        ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? `<span style="font-style:italic;">(Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})</span>` : ''}
+                      </span>`
+                    : formatBadge(true, 'Yes', '', 'red', 'green'))
+                : formatBadge(false, '', 'No', 'red', 'green')}
+            </span>
           </div>
-          
-          <div class="label">Chronic Conditions:</div>
-          <div class="value">
-            ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
-              `<span style="font-weight:500;">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
-              '<span style="color:#38A169;">None</span>'}
+          <div class="mh-row">
+            <span class="mh-label">Chronic Conditions:</span>
+            <span class="mh-value">
+              ${userResponses.medicalHistory.chronicConditions.length > 0 ? 
+                `<span style="font-weight:500;">${userResponses.medicalHistory.chronicConditions.join(', ')}</span>` : 
+                '<span style="color:#38A169;">None</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">History of Kidney cyst, Tumor, or Blood in Urine:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.kidneyIssue === 'boolean'
+                ? (userResponses.medicalHistory.kidneyIssue
+                    ? '<span class="badge badge-red">Yes</span>'
+                    : '<span class="badge badge-green">No</span>')
+                : '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">History of Brain, Spinal, or Eye Tumor:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.brainSpinalEyeTumor === 'boolean'
+                ? (userResponses.medicalHistory.brainSpinalEyeTumor
+                    ? '<span class="badge badge-red">Yes</span>'
+                    : '<span class="badge badge-green">No</span>')
+                : '<span style="color:#718096;">Not specified</span>'}
+            </span>
           </div>
         </div>
       `;
@@ -246,7 +290,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <div class="value">
             ${formatBadge(userResponses.lifestyle.smoking.current, 'Current Smoker', 'Non-Smoker', 'red', 'green')}
           </div>
-          
+
           <div class="label">Alcohol Consumption:</div>
           <div class="value">
             ${userResponses.lifestyle.alcohol?.consumes ? 
@@ -255,34 +299,157 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                 userResponses.lifestyle.alcohol.drinksPerWeek > 7 ? 'orange' : 'yellow') : 
               formatBadge(false, '', 'No', '', 'green')}
           </div>
-          
+
+          <div class="label">Salty/Smoked Foods:</div>
+          <div class="value">
+            ${(() => {
+              const val = userResponses.lifestyle.saltySmokedFoods;
+              if (!val) return 'Not specified';
+              const normalized = val.trim().toLowerCase();
+              if (normalized === '4 or more times a week') return '4+/week';
+              if (normalized === '>1/week' || normalized === 'less than one time a week') return '>1/week';
+              if (normalized === '1-3 times a week') return '1-3/week';
+              if (normalized === 'once a week') return '1/week';
+              if (normalized === 'rarely' || normalized === 'less than once a week') return 'Rarely';
+              if (normalized === 'never') return 'Never';
+              return val;
+            })()}
+          </div>
+
+          <div class="label">Fruits & Veg (servings):</div>
+          <div class="value">
+            ${(() => {
+              const servings = userResponses.lifestyle.fruitVegServings;
+              if (!servings) return 'Not specified';
+              const normalized = servings.trim().toLowerCase();
+              if (normalized === '5 or more servings') return '5+/day';
+              if (normalized === '3-4 servings') return '3-4/day';
+              if (normalized === '1-2 servings') return '1-2/day';
+              if (normalized === 'rarely' || normalized === 'less than 1 serving') return 'Rarely';
+              if (normalized === 'never') return 'Never';
+              // Try to extract a number from the servings string
+              const match = servings.match(/(\d+\+?)/);
+              return match ? `${match[1]}/day` : `${servings}/day`;
+            })()}
+          </div>
+
           <div class="label">Sexual Health Risk:</div>
           <div class="value">
             ${formatBadge(userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv, 'High Risk', 'Standard Risk', 'red', 'green')}
           </div>
-          
+
           <div class="label">Organ Transplant:</div>
           <div class="value">
             ${formatBadge(userResponses.lifestyle.transplant, 'Yes', 'No', 'orange', 'green')}
           </div>
         </div>
       `;
-      
+
+      const geneticInfectionRisk = `
+        <div class="section-title">Genetic & Infection Risk</div>
+        <div class="grid">
+          <div class="label">BRCA1/BRCA2 mutation:</div>
+          <div class="value">
+            ${(userResponses.medicalHistory.brcaMutationStatus !== undefined && userResponses.medicalHistory.brcaMutationStatus !== null && userResponses.medicalHistory.brcaMutationStatus !== '') ?
+              formatBadge(userResponses.medicalHistory.brcaMutationStatus === 'Yes', 'Yes', 'No', 'orange', 'green') :
+              '<span style="color:#718096;">Not specified</span>'}
+          </div>
+          <div class="label">H.pylori history:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'Yes' ?
+                formatBadge(true, 'Yes', 'No', 'orange', 'green') :
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'No' ?
+                formatBadge(false, 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+          <div class="label">Eradication Therapy:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.hPylori === 'No'
+                ? '<span style="color:#718096;">N/A</span>'
+                : userResponses.lifestyle && userResponses.lifestyle.hPyloriEradication === 'Yes'
+                  ? formatBadge(true, 'Yes', 'No', 'orange', 'green')
+                  : userResponses.lifestyle && userResponses.lifestyle.hPyloriEradication === 'No'
+                    ? formatBadge(false, 'Yes', 'No', 'orange', 'green')
+                    : '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+          <div class="label">Gastritis (chronic) / Ulcers:</div>
+          <div class="value">
+            ${
+              userResponses.lifestyle && userResponses.lifestyle.gastritisUlcer === 'Yes'
+                ? formatBadge(true, 'Yes', 'No', 'orange', 'green')
+                : userResponses.lifestyle && userResponses.lifestyle.gastritisUlcer === 'No'
+                  ? formatBadge(false, 'Yes', 'No', 'orange', 'green')
+                  : '<span style="color:#718096;">Not specified</span>'
+            }
+          </div>
+          <div class="label">Suspicion of Von Hippel-Lindau (VHL) Syndrome:</div>
+          <div class="value">
+            ${vhlSuspicion === 'Yes' ? '<span class="badge badge-red">Yes</span>' : vhlSuspicion === 'No' ? '<span class="badge badge-green">No</span>' : '<span style="color:#718096;">N/A</span>'}
+          </div>
+        </div>
+      `;
+
+      const medsNone =
+        Array.isArray(userResponses.medications)
+          ? userResponses.medications.every(
+              (m) => m === false || m === 'None' || m === ''
+            )
+          : !userResponses.medications || userResponses.medications.length === 0;
+      const allergiesNone =
+        !userResponses.allergies || userResponses.allergies === 'None' || userResponses.allergies === '';
       const medicationsAllergies = `
         <div class="section-title">Medications & Allergies</div>
-        <div class="grid">
-          <div class="label">Current Medications:</div>
-          <div class="value">
-            ${userResponses.medications.length > 0 ? userResponses.medications.join(', ') : 'None reported'}
+        <div class="meds-allergies-block">
+          <div class="meds-row">
+            <span class="meds-label">Current Medications:</span>
+            <span class="meds-value meds-value-right">
+              ${!medsNone ? `<ul class="meds-list meds-list-right">${userResponses.medications.map(med => `<li>${med}</li>`).join('')}</ul>` : 'None reported'}
+            </span>
           </div>
-          
-          <div class="label">Known Allergies:</div>
-          <div class="value">
-            ${userResponses.allergies && userResponses.allergies !== "None" ? userResponses.allergies : 'None reported'}
+          <div class="meds-row">
+            <span class="meds-label">Known Allergies:</span>
+            <span class="meds-value meds-value-right">
+              ${!allergiesNone ? `<ul class="meds-list meds-list-right">${userResponses.allergies.split(',').map(allergy => `<li>${allergy.trim()}</li>`).join('')}</ul>` : 'None reported'}
+            </span>
           </div>
         </div>
       `;
       
+      // Gastrointestinal Surgery section 
+      const gastrointestinalSurgery = `
+        <div class="section-title">Gastrointestinal Surgery</div>
+        <div class="simple-medical-history">
+          <div class="mh-row">
+            <span class="mh-label">Partial Gastrectomy:</span>
+            <span class="mh-value">
+              ${typeof userResponses.surgery !== 'undefined' && typeof userResponses.surgery.partialGastrectomy !== 'undefined' ?
+                formatBadge(userResponses.surgery.partialGastrectomy, 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">Pernicious Anemia:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.perniciousAnemia !== 'undefined' ?
+                formatBadge(userResponses.medicalHistory.perniciousAnemia === 'Yes', 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+          <div class="mh-row">
+            <span class="mh-label">CDH1/Gene Mutation:</span>
+            <span class="mh-value">
+              ${typeof userResponses.medicalHistory.gastricGeneMutation !== 'undefined' ?
+                formatBadge(userResponses.medicalHistory.gastricGeneMutation === 'Yes', 'Yes', 'No', 'orange', 'green') :
+                '<span style="color:#718096;">Not specified</span>'}
+            </span>
+          </div>
+        </div>
+      `;
+
       let sexSpecificInfo = '';
       if (userResponses.demographics.sex === "Male") {
         sexSpecificInfo = `
@@ -294,14 +461,13 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             </div>
             
             <div class="label">Prostate Test:</div>
-            <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.male.prostateTest.had, 'YES', 'NO', 'green', 'yellow')}
+            <div class="value" style="display: flex; justify-content: flex-end; align-items: center; gap: 6px;">
               ${userResponses.sexSpecificInfo.male.prostateTest.had ? 
-                `(Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})` : 
-                userResponses.demographics.age < 30 ? 
+                `<span>(Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})</span>` : ''}
+              ${formatBadge(userResponses.sexSpecificInfo.male.prostateTest.had, 'YES', 'NO', 'green', 'yellow')}
+              ${!userResponses.sexSpecificInfo.male.prostateTest.had && userResponses.demographics.age < 30 ? 
                 `<span style="color:#718096; font-size:8pt;">N/A (Not recommended under 30)</span>` : ''}
             </div>
-            
             <div class="label">Testicular Issues:</div>
             <div class="value">
               ${formatBadge(userResponses.sexSpecificInfo.male.testicularIssues, 'YES', 'NO', 'orange', 'green')}
@@ -314,20 +480,77 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <div class="grid">
             <div class="label">First Period Age:</div>
             <div class="value">${userResponses.sexSpecificInfo.female.menarcheAge || 'Not specified'}</div>
+
+            <div class="label">Currently Pregnant:</div>
+            <div class="value">${formatBadge(userResponses.sexSpecificInfo.female.currentPregnancy, 'Yes', 'No', 'blue', 'gray')}</div>
             
             <div class="label">Menstruation Status:</div>
             <div class="value">${userResponses.sexSpecificInfo.female.menstruationStatus || 'Not specified'}</div>
-            
+
+            <div class="label">Last Period Age:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.menopauseAge || 'N/A'}</div>
+
             <div class="label">Pregnancy History:</div>
             <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy, 'YES', 'NO', 'blue', 'gray')}
+              ${formatBadge(userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy, 'Yes', 'No', 'blue', 'gray')}
               ${userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? 
                 `(First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})` : ''}
             </div>
+
+            <div class="label">Births at/after 24 weeks:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'N/A'}</div>
+
+            <div class="label">Oral contraceptive:</div>
+            <div class="value">${userResponses.sexSpecificInfo.female.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'N/A'}</div>
             
-            <div class="label">Hormone Treatment:</div>
+            <div class="label">Hormone Replacement Therapy:</div>
             <div class="value">
-              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneTreatment, 'YES', 'NO', 'purple', 'gray')}
+              ${formatBadge(userResponses.sexSpecificInfo.female.hormoneReplacementTherapy, 'Yes', 'No', 'purple', 'gray')}
+            </div>
+
+            <div class="label">Tubal ligation:</div>
+            <div class="value">
+              ${formatBadge(
+                userResponses.sexSpecificInfo.female.tubalLigation === true,
+                'Yes',
+                'No',
+                'purple',
+                'gray'
+              )}
+            </div>
+
+            <div class="label">Ovary Removal:</div>
+            <div class="value">
+              ${userResponses.sexSpecificInfo.female.ovaryRemoved !== undefined && userResponses.sexSpecificInfo.female.ovaryRemoved !== null && userResponses.sexSpecificInfo.female.ovaryRemoved !== ''
+                ? userResponses.sexSpecificInfo.female.ovaryRemoved
+                : '<span class="not-specified">Not specified</span>'}
+            </div>
+
+            <div class="label">Endometriosis diagnosis:</div>
+            <div class="value">
+              ${formatBadge(
+                userResponses.medicalHistory.endometriosis === 'Yes',
+                'Yes',
+                'No',
+                'purple',
+                'gray'
+              )}
+            </div>
+            <div class="label">IVF Drugs:</div>
+            <div class="value">
+              ${(() => {
+                const val = userResponses.sexSpecificInfo.female.IVF_history;
+                if (val === undefined || val === null || val === '') {
+                  return '<span class="not-specified">Not specified</span>';
+                }
+                if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                  return '<span class="badge badge-red">Yes</span>';
+                }
+                if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                  return '<span class="badge badge-green">No</span>';
+                }
+                return val;
+              })()}
             </div>
           </div>
         `;
@@ -352,27 +575,27 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             ${userResponses.cancerScreening.hadScreening && userResponses.cancerScreening.details ? 
               `<div style="font-size:8pt; margin-top:5px;">"${userResponses.cancerScreening.details}"</div>` : ''}
           </div>
+          
+          <div class="label">Hypertension Diagnosis:</div>
+          <div class="value">
+            ${userResponses.medicalHistory && typeof userResponses.medicalHistory.hypertension !== 'undefined' 
+              ? (userResponses.medicalHistory.hypertension 
+                  ? '<span class="badge badge-red">Yes</span>' 
+                  : '<span class="badge badge-green">No</span>')
+              : '<span class="not-specified">Not specified</span>'}
+          </div>
         </div>
       `;
-      
-      // We'll skip the risk assessment since we're using our enhanced version directly in the HTML
-      
-      // Using our enhanced layout directly in the HTML
-      
-      // We'll use the prescribedTests that were already declared at the component level
-      
-      // We already have recommendations computed earlier
-      // No need to recompute
-      
+
       // Get the iframe's document
       const printDocument = printIframe.contentDocument || 
                            (printIframe.contentWindow ? printIframe.contentWindow.document : null);
-      
+
       // Check if we successfully got the document
       if (!printDocument) {
         throw new Error("Could not access iframe document");
       }
-      
+
       // Write the complete HTML content to the iframe
       printDocument.open();
       printDocument.write(`
@@ -382,9 +605,117 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           <title>Cancer Screening Test Results</title>
           <link rel="stylesheet" href="/printStyles.css">
           <style>
+            .meds-allergies-block {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .meds-row {
+              display: flex;
+              flex-direction: row;
+              align-items: flex-start;
+              justify-content: flex-start;
+              gap: 12px;
+              min-height: 28px;
+            }
+            .meds-label {
+              font-size: 14pt;
+              color: #4A5568;
+              font-weight: 400;
+              min-width: 180px;
+              text-align: left;
+              margin-right: 10px;
+            }
+            .meds-value {
+              font-size: 14pt;
+              color: #2D3748;
+              font-weight: 500;
+              text-align: left;
+              display: block;
+              flex: 1;
+            }
+            .meds-value-right {
+              text-align: right;
+              display: block;
+            }
+            .meds-list {
+              margin: 0;
+              padding-left: 18px;
+              list-style-type: disc;
+            }
+            .meds-list-right {
+              text-align: right;
+              padding-left: 0;
+              padding-right: 18px;
+              list-style-type: disc;
+            }
+            .meds-list li {
+              margin-bottom: 2px;
+              font-size: 13pt;
+              line-height: 1.3;
+              color: #2D3748;
+              text-align: right;
+            }
+            .simple-medical-history {
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+              width: 100%;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .mh-row {
+              display: flex;
+              flex-direction: row;
+              align-items: center;
+              justify-content: space-between;
+              min-height: 28px;
+            }
+            .mh-label {
+              font-size: 14pt;
+              color: #4A5568;
+              text-align: left;
+              font-weight: 400;
+            }
+            .mh-value {
+              font-size: 14pt;
+              color: #2D3748;
+              text-align: right;
+              font-weight: 500;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .personal-info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              grid-template-rows: 1fr 1fr;
+              gap: 3px 20px;
+              width: 100%;
+              margin-bottom: 8px;
+              background-color: white;
+              border-bottom: 1px solid #E2E8F0;
+              padding: 2px 0;
+            }
+            .info-pair {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              justify-content: flex-start;
+              min-width: 0;
+            }
             @page {
               size: A4 portrait;
               margin: 10mm;
+              /* This helps ensure consistent page breaking */
+              marks: none;
+              bleed: 0;
             }
             
             body {
@@ -410,7 +741,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               border-radius: 5px;
               box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
               background-color: white;
-              margin-bottom: 40mm;
+              /* Removed large margin-bottom that could cause blank space */
+              margin-bottom: 0;
             }
             
             @media print {
@@ -420,6 +752,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
                 padding: 0;
                 border-radius: 0;
                 page-break-inside: avoid;
+                break-inside: avoid;
+              }
+              
+              .page:first-child {
                 page-break-after: always;
                 break-after: page;
               }
@@ -441,37 +777,37 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             
             .header h1 {
               color: #2B6CB0;
-              font-size: 26pt;
+              font-size: 27pt;
               margin: 0;
-              font-weight: 600;
+              font-weight: 900;
               letter-spacing: -0.5px;
             }
-            
+
             .header h2 {
-              font-size: 18pt;
+              font-size: 17pt;
               margin: 8px 0 0 0;
               font-weight: 500;
               color: #4A5568;
             }
-            
+
             .header p {
               color: #718096;
               font-size: 10pt;
               margin: 5px 0 0 0;
               font-style: italic;
             }
-            
+
             .section-title {
-              font-size: 16pt;
+              font-size: 15pt;
               color: #2B6CB0;
-              padding-bottom: 6px;
-              margin-bottom: 12px;
-              margin-top: 18px;
+              padding-bottom: 3px;
+              margin-bottom: 6px;
+              margin-top: 9px;
               font-weight: bold;
               position: relative;
               border-bottom: none;
             }
-            
+
             .section-title:first-child {
               margin-top: 0;
             }
@@ -491,11 +827,11 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             }
             
             .label {
-              font-weight: bold;
               font-size: 14pt;
               color: #4A5568;
               text-align: left;
-              vertical-align: top;
+              display: block;
+              white-space: nowrap;
             }
             
             .value {
@@ -503,6 +839,8 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               margin-bottom: 8px;
               padding-left: 0;
               color: #2D3748;
+              display: block;
+              text-align: right;
             }
             
             .badge {
@@ -528,13 +866,44 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
             .grid {
               display: grid;
               grid-template-columns: 120px 1fr;
-              gap: 10px;
-              align-items: flex-start;
+              gap: 3px 10px;
               width: 100%;
-              margin-bottom: 15px;
+              margin-bottom: 8px;
               background-color: white;
               border-bottom: 1px solid #E2E8F0;
-              padding: 5px 0;
+              padding: 2px 0;
+            }
+            /* Right-align all values except personal info and cancer tests; labels left-aligned */
+            .grid .label {
+              text-align: left;
+              justify-content: flex-start;
+              display: flex;
+              align-items: center;
+              white-space: nowrap;
+            }
+            .grid .value {
+              text-align: right;
+              justify-content: flex-end;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            /* Remove flex/column stacking for label columns */
+            .grid {
+              align-items: center;
+            }
+            /* But keep left alignment for personal info grid */
+            .personal-info-grid .label,
+            .personal-info-grid .value {
+              text-align: left;
+              justify-content: flex-start;
+            }
+            /* And for test cards (cancer tests) */
+            .test-card .test-name,
+            .test-card .test-info,
+            .test-card .test-badge {
+              text-align: left;
+              justify-content: flex-start;
             }
             
             .risk-assessment {
@@ -550,10 +919,10 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               display: inline-block;
               padding: 4px 10px;
               border-radius: 4px;
-              font-size: 13pt;
-              color: #9B2C2C;
-              background-color: #FEDED2;
-              font-weight: bold;
+              font-size: 14pt;
+              margin-bottom: 2px;
+              padding-left: 0;
+              color: #2D3748;
               text-transform: uppercase;
               white-space: nowrap;
               line-height: 1.2;
@@ -594,31 +963,38 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
               padding: 10px 0;
               margin-bottom: 15px;
               border-bottom: 1px solid #E2E8F0;
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
             }
-            
+            .test-row {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              margin-bottom: 2px;
+            }
             .test-name {
               font-weight: bold;
               font-size: 12pt;
               color: #2D3748;
-              margin-bottom: 5px;
+              margin-bottom: 0;
             }
-            
+            .test-badge {
+              display: inline-block;
+              padding: 2px 10px;
+              border-radius: 6px;
+              font-size: 10pt;
+              font-weight: bold;
+              text-transform: uppercase;
+              margin-left: 8px;
+              margin-top: 0;
+              letter-spacing: 0.5px;
+            }
             .test-info {
               color: #4A5568;
               font-size: 11pt;
-              margin: 3px 0;
+              margin: 2px 0 2px 0;
               line-height: 1.4;
-            }
-            
-            .test-badge {
-              display: inline-block;
-              padding: 2px 8px;
-              border-radius: 3px;
-              font-size: 9pt;
-              color: white;
-              margin-top: 5px;
-              font-weight: bold;
-              text-transform: uppercase;
             }
             
             .divider {
@@ -629,68 +1005,258 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           </style>
         </head>
         <body>
-          <article>
-            <!-- First Page -->
-            <section class="page">
+          <article style="page-break-after: avoid; break-after: avoid;">
+
+
+
+            <!-- First Page (Single Column, All Sections) -->
+            <section class="page" style="page-break-after: always; break-after: page;">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900;">Sky Premium Hospital</h1>
-                <h2>Cancer Screening Test</h2>
+                <h2>Cancer Screening Report</h2>
               </header>
-              
-              <div class="content">
-                <div class="column">
-                  ${personalInfo}
-                  ${medicalHistory}
-                  ${lifestyleFactors}
-                </div>
-                
-                <div class="column">
-                  ${medicationsAllergies}
-                  ${sexSpecificInfo}
-                  ${vaccinationsScreening}
-                  
-                  <!-- Risk Assessment - Moved to first page -->
-                  <div class="section-title">Health Risk Assessment</div>
-                  <div class="risk-assessment">
-                    <div class="grid" style="grid-template-columns: 120px 1fr;">
-                      <div class="label">Risk Level:</div>
-                      <div class="value">
-                        <span class="risk-badge badge-${riskColor}" style="white-space: nowrap; display: inline-block; min-width: 90px; text-align: center;">${riskLevel}</span>
-                      </div>
+              <div class="column" style="width: 100%;">
+                ${personalInfo}
+                ${medicalHistory}
+                ${lifestyleFactors}
+                ${gastrointestinalSurgery}
+                ${geneticInfectionRisk}
+                ${sexSpecificInfo}
+                ${vaccinationsScreening}
+                ${medicationsAllergies}
+                ${userResponses.demographics.sex === "Female" ? `
+                  <div class="section-title">Ovarian Cancer Symptom Screening (Goff Criteria)</div>
+                  <div class="grid">
+                    <div class="label">Persistent Bloating or Abdominal Swelling:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.bloating;
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        return val;
+                      })()}
                     </div>
+                    <div class="label">Pelvic or Lower-Abdominal Pain:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.pain;
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Felt Full Quickly or Been Unable to Finish Meals:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.fullness;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">Frequent Need To Pass Urine:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.urinary;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                    <div class="label">An Increase in abdomen size or clothes have become tight:</div>
+                    <div class="value">
+                      ${(() => {
+                        const val = userResponses.symptoms?.goffSymptomIndex?.abdomenSize;
+                        if (val === true) {
+                          return '<span class="badge badge-red">Yes</span>';
+                        }
+                        if (val === false) {
+                          return '<span class="badge badge-green">No</span>';
+                        }
+                        if (val === undefined || val === null || val === '') {
+                          return '<span class="not-specified">Not specified</span>';
+                        }
+                        return val;
+                      })()}
+                    </div>
+                  </div>
+                  ` : ''}
+
+                <div class="section-title">Symptom screening</div>
+                <div class="grid">
+                  <div class="label">Pain/Difficulty While Swallowing</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms.swallowingDifficulty;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Black, Sticky/Tar-Like Stools (Melena):</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.blackStool;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Unintentional Weight Loss</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.weightLoss;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Persistent vomiting &gt;1 week for no reason:</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.vomiting;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Persistent Upper Stomach (Epigastric) Pain &gt;1 Month</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.epigastricPain;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Frequency of Indigestion or heartburn</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.indigestion;
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
+                  </div>
+                  <div class="label">Sleep Disturbed By Pain:</div>
+                  <div class="value">
+                    ${(() => {
+                      const val = userResponses.symptoms?.painWakesAtNight;
+                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                        return '<span class="badge badge-red">Yes</span>';
+                      }
+                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                        return '<span class="badge badge-green">No</span>';
+                      }
+                      if (val === undefined || val === null || val === '') {
+                        return '<span class="not-specified">Not specified</span>';
+                      }
+                      return val;
+                    })()}
                   </div>
                 </div>
               </div>
             </section>
-            
+
             ${prescribedTests.length > 0 ? `
-            <!-- Second Page (only rendered if there are prescribed tests) -->
-            <section class="page" style="margin-top: 50px;">
+            <!-- Third Page (only rendered if there are prescribed tests) -->
+            <section class="page">
               <header class="header" style="border-bottom: 3px solid #2B6CB0; padding-bottom: 15px;">
                 <h1 style="font-weight:900">Recommended Cancer Screening Tests</h1>
               </header>
-              
-              <div class="content">
-                <div class="column" style="width: 100%;">
-                  ${prescribedTests.map(test => `
-                    <div class="test-card">
-                      <div class="test-name">
-                        <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#38A169; margin-right:8px;"></span>
-                        ${test.name}
+              <div class="content" style="page-break-before: avoid; break-before: avoid;">
+                <div class="column" style="width: 100%; page-break-inside: avoid; break-inside: avoid;">
+                  ${prescribedTests.map(test => {
+                    const badge = (() => {
+                      if (test.priority === 'high') return { bg: '#FEDED2', color: '#9B2C2C', text: 'SCHEDULE WITHIN 1 MONTH' };
+                      if (test.priority === 'medium') return { bg: '#FEEBC8', color: '#7B341E', text: 'SCHEDULE WITHIN 3 MONTHS' };
+                      return { bg: '#C6F6D5', color: '#22543D', text: 'SCHEDULE WITHIN 6 MONTHS' };
+                    })();
+                    return `
+                      <div class="test-card" style="page-break-inside: avoid; break-inside: avoid;">
+                        <div class="test-row">
+                          <span style="display:inline-block; width:10px; height:10px; border-radius:50%; background-color:#38A169; margin-right:8px;"></span>
+                          <span class="test-name">${test.name}</span>
+                          <span class="test-badge" style="background-color:${badge.bg}; color:${badge.color};">${badge.text}</span>
+                        </div>
+                        <div class="test-info"><b>Frequency:</b> ${test.frequency}</div>
+                        <div class="test-info"><b>Reason:</b> ${test.reason}</div>
                       </div>
-                      <div class="test-info">Frequency: ${test.frequency}</div>
-                      <div class="test-info">${test.reason}</div>
-                      <div style="margin-top:5px;">
-                        <span class="test-badge" style="background-color:${test.priority === "high" ? "#FEDED2" : test.priority === "medium" ? "#FEEBC8" : "#C6F6D5"}; color:${test.priority === "high" ? "#9B2C2C" : test.priority === "medium" ? "#7B341E" : "#22543D"}">
-                          ${test.priority === "high" ? "SCHEDULE WITHIN 1 MONTH" : test.priority === "medium" ? "SCHEDULE WITHIN 3 MONTHS" : "SCHEDULE WITHIN 6 MONTHS"}
-                        </span>
-                      </div>
-                    </div>
-                  `).join('')}
+                    `;
+                  }).join('')}
                 </div>
               </div>
             </section>
             ` : ''}
+            <div class="pdf-disclaimer-divider" style="height:2px; background-color:#2B6CB0; margin:30px 0 20px 0;"></div>
+            <div class="pdf-disclaimer-text" style="font-size:13pt; color:#9B2C2C; font-weight:500; text-align:center; padding:10px 0 20px 0;">
+              Disclaimer: The information and test recommendations in this summary are based solely on the answers you provided. This tool does not provide a medical diagnosis or treatment advice. All suggested tests are preliminary and should be discussed and confirmed with a qualified healthcare professional. Any outputs are subject to review against your official medical records and clinical evaluation.<br><br>
+              This tool is intended to support early triage, not replace clinical judgment. It helps highlight potential screening needs so you can take informed next steps with a medical professional.
+            </div>
           </article>
         </body>
         </html>
@@ -699,17 +1265,14 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       // Close the document for writing
       printDocument.close();
       
-      // We need to wait for images and styles to load
       // Flag to prevent multiple print dialogs
       let hasPrintBeenTriggered = false;
       
       const triggerPrint = () => {
-        // Check if print has already been triggered to avoid duplicate dialogs
         if (hasPrintBeenTriggered) {
           return;
         }
         
-        // Mark print as triggered
         hasPrintBeenTriggered = true;
         
         try {
@@ -717,19 +1280,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
           if (printIframe.contentWindow) {
             printIframe.contentWindow.focus();
             printIframe.contentWindow.print();
-            
-            // Remove the iframe when printing dialog is closed or after a timeout
-            setTimeout(() => {
-              try {
-                // Check if the iframe still exists in the document before removing
-                if (printIframe && printIframe.parentNode === document.body) {
-                  document.body.removeChild(printIframe);
-                }
-              } catch (err) {
-                console.log("Iframe already removed or not found:", err);
-                // No need to show an error to the user as this is just cleanup
-              }
-            }, 5000);
+
           } else {
             console.error("Cannot access iframe content window");
             toast({
@@ -754,12 +1305,12 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         }
       };
       
-      // Use onload as the primary method to trigger print
-      printIframe.onload = () => setTimeout(triggerPrint, 500);
+      printIframe.onload = () => {
+        setTimeout(triggerPrint, 1000);
+      };
       
-      // Fallback in case onload doesn't fire, but with a longer delay
-      // This prevents racing with the onload handler
-      setTimeout(triggerPrint, 1500);
+      // Longer Delay just in the event it doesn't trigger
+      setTimeout(triggerPrint, 2000);
 
     } catch (error) {
       console.error("Print preparation error:", error);
@@ -772,7 +1323,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         position: "top-right"
       });
     }
-  };  // Apply styling for badge alignment in the UI (these styles will apply to the printed version through printStyles.css)
+  };
   React.useEffect(() => {
     // Fix badges in the UI
     const fixBadges = () => {
@@ -780,7 +1331,6 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       
       // Fix badge styling directly
       badges.forEach(badge => {
-        // Apply critical styles directly to badge elements
         badge.style.display = 'inline-flex';
         badge.style.alignItems = 'center';
         badge.style.justifyContent = 'center';
@@ -792,7 +1342,7 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
         badge.style.position = 'relative';
       });
       
-      // Fix box elements containing badges to properly align content
+      // Fix box elements containing badges
       const allBoxes = summaryRef.current?.querySelectorAll('.chakra-box') || [];
       allBoxes.forEach(box => {
         const badgesInBox = box.querySelectorAll('.chakra-badge');
@@ -804,556 +1354,277 @@ const SummaryComponent = ({ userResponses, handleOptionSelectCall }) => {
       });
     };
     
-    // Fix badges after component renders
     setTimeout(fixBadges, 500);
   }, []);
   
+  const SummaryLine = ({ label, value }) => (
+    <Flex mb={1} align="center">
+      <Text fontWeight="semibold" minW="160px">{label}:</Text>
+      <Text ml={2} textAlign="right" flex={1}>{value}</Text>
+    </Flex>
+  );
+
+  const SectionTitle = ({ children }) => (
+    <Text fontWeight="bold" fontSize="lg" mt={4} mb={2} color={accentColor}>{children}</Text>
+  );
+
+  const navyBlue = '#1A237E';
+
+  // Navigation bar 
   return (
-    <Box ref={summaryRef} width="100%">
-      <Box 
-        width="210mm" 
-        minHeight="297mm"
-        maxHeight="calc(100vh - 40px)"
-        mx="auto" 
-        p={5} 
-        bg="white" 
-        boxShadow="md" 
-        borderRadius="sm"
-        mt={0}
-        className="a4-page"
-        sx={{
-          // A4 proportions and styling
-          aspectRatio: '1 / 1.414',
-          position: 'relative',
-          // Changed from 'hidden' to 'auto' to allow scrolling
-          overflow: 'auto',
-          // Match the clean design of the print version
-          fontFamily: "'Segoe UI', Arial, sans-serif",
-          color: '#2D3748',
-          '@media print': {
-            margin: 0,
-            padding: '10mm 15mm',
-            boxShadow: 'none',
-            fontSize: '11pt',
-            pageBreakAfter: 'always',
-          }
-        }}>
-        
-      {/* Main title */}      
-      <Box 
-        textAlign="center" 
-        mb={6} 
-        width="100%"
-        borderBottom="1px solid"
-        borderColor="gray.200"
-        pb={4}>
-
-        <Heading size="lg" color="#2B6CB0" fontSize="26pt">Sky Premium Hospital</Heading>
-        <Heading size="md" mt={2} fontSize="18pt" color="gray.700">Cancer Screening Test</Heading>
+    <Box maxW="700px" mx="auto" my={10} borderRadius="2xl" boxShadow="2xl" bg="white" overflow="hidden">
+      <Flex as="nav" align="center" bg={navyBlue} px={6} py={3} borderTopRadius="2xl" borderBottomRadius="none" boxShadow="md">
+        {/* Home button*/}
+        <Button
+          leftIcon={<FaHome />}
+          variant="ghost"
+          color="white"
+          fontWeight="bold"
+          fontSize="md"
+          display="flex"
+          onClick={() => window.location.href = '/'}
+          _hover={{ bg: 'rgba(255,255,255,0.08)' }}
+          _active={{ bg: 'rgba(255,255,255,0.16)' }}
+        >
+          Home
+        </Button>
+        <Spacer />
+        {/* Download PDF */}
+        <Button
+          leftIcon={<FaPrint />}
+          bg="white"
+          color={navyBlue}
+          borderWidth={2}
+          borderColor={navyBlue}
+          fontWeight="bold"
+          fontSize="md"
+          px={6}
+          borderRadius="md"
+          boxShadow="md"
+          _hover={{ bg: navyBlue, color: 'white' }}
+          _active={{ bg: '#0D133D', color: 'white' }}
+          onClick={printSummary}
+        >
+          Download PDF
+        </Button>
+      </Flex>
+      <Box ref={summaryRef} p={6} bg="white" borderBottomRadius="2xl" borderTopRadius="none" boxShadow="none" width="100%" overflow="visible">
+      {/* PDF-style header */}
+      <Box as="header" textAlign="center" mb={6} borderBottom="3px solid" borderColor={accentColor} pb={3}>
+        <Text fontWeight="900" fontSize="2xl" color={accentColor} letterSpacing="-0.5px">Sky Premium Hospital</Text>
+        <Text fontWeight="500" fontSize="lg" color="gray.700" mt={1}>Cancer Screening Report</Text>
       </Box>
-        
-      {/* Page 1: Medical Data */}
-      {currentPage === 1 && (
-        <Flex 
-          direction="row" 
-          width="100%" 
-          justifyContent="space-between" 
-          mb={3} 
-          overflowX="hidden"
-          fontSize="10pt" >
-
-          {/* Left column */}        
-          <Box width="48%" pr={3}>
-            {/* Demographics section */}
-            <Box mb={3}>            
-              <Heading size="sm" mb={3} pb={1} fontSize="14pt" color="#2B6CB0" fontWeight="bold">
-                Personal Information
-              </Heading>            
-              <Grid templateColumns="repeat(2, 1fr)" gap={2} width="100%">
-                <GridItem>
-                  <Text fontWeight="bold" fontSize="11pt" color="#4A5568">
-                    Age:
-                  </Text>
-                  <Text fontSize="11pt">
-                    {userResponses.demographics.age}
-                  </Text>
-                </GridItem>
-                <GridItem>
-                  <Text fontWeight="medium" fontSize="10pt">
-                    Sex:
-                  </Text>
-
-                  <Text fontSize="10pt">
-                    {userResponses.demographics.sex}
-                  </Text>
-                </GridItem>
-                <GridItem>
-
-                  <Text fontWeight="medium" fontSize="10pt">
-                    Ethnicity:
-                  </Text>                
-                  <Text fontSize="10pt">
-                    {userResponses.demographics.ethnicity || 'Not specified'}
-                  </Text>
-
-                </GridItem>    
-
-                <GridItem>
-                  <Text fontWeight="medium" fontSize="10pt">
-                    Location:
-                  </Text>
-                  <Text fontSize="10pt">
-                    {userResponses.demographics.country || 'Not specified'}
-                  </Text>
-                </GridItem>
-              </Grid>
-            </Box>
-
-            {/* Medical History */}
-            <Box mb={4}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                Medical History
-              </Heading>            
-              <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Personal Cancer:
-                </Text>              
-                <Box display="flex" alignItems="center" flexWrap="wrap">
-                  {userResponses.medicalHistory.personalCancer.diagnosed ? 
-                    <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Yes</Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
-                  {userResponses.medicalHistory.personalCancer.diagnosed && 
-                    <Text as="span" ml={2} fontWeight="normal" fontSize="9pt">
-                      {userResponses.medicalHistory.personalCancer.type ? 
-                        userResponses.medicalHistory.personalCancer.type : "Cancer type"}
-                      {userResponses.medicalHistory.personalCancer.ageAtDiagnosis && 
-                        ` (Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})`}
-                    </Text>}
-                </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Family Cancer:
-                  </Text>
-                  <Box display="flex" alignItems="center" flexWrap="wrap">
-                  {userResponses.medicalHistory.familyCancer.diagnosed ? 
-                    <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Yes</Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
-                  {userResponses.medicalHistory.familyCancer.diagnosed && userResponses.medicalHistory.familyCancer.type && 
-                    <Text as="span" ml={2} fontWeight="normal" fontSize="9pt">
-                      {userResponses.medicalHistory.familyCancer.type}
-                      {userResponses.medicalHistory.familyCancer.relation && ` in ${userResponses.medicalHistory.familyCancer.relation}`}
-                      {userResponses.medicalHistory.familyCancer.ageAtDiagnosis && 
-                        ` (Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})`}
-                    </Text>}
-                </Box>              
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Chronic Conditions:
-                </Text>              
-                <Text fontSize="9pt">
-                  {userResponses.medicalHistory.chronicConditions.length > 0 ? 
-                    userResponses.medicalHistory.chronicConditions.join(', ') : 'None'}
-                </Text>
-              </Grid>
-            </Box>
-
-            {/* Lifestyle */}
-            <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                Lifestyle Factors
-              </Heading>            
-              <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">              
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Smoking Status:
-                </Text>             
-                <Box display="flex" alignItems="center" flexWrap="wrap">                
-                  {userResponses.lifestyle.smoking.current ? 
-                    <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Current Smoker</Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Non-Smoker</Badge>}
-                </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Alcohol Consumption:
-                </Text>              
-                <Box display="flex" alignItems="center" flexWrap="wrap">                
-                  {userResponses.lifestyle.alcohol?.consumes ? 
-                    <Badge colorScheme={userResponses.lifestyle.alcohol.drinksPerWeek > 14 ? "red" : userResponses.lifestyle.alcohol.drinksPerWeek > 7 ? "orange" : "yellow"} ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">
-                      Yes ({userResponses.lifestyle.alcohol.drinksPerWeek} drinks/week)
-                    </Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">
-                      No
-                    </Badge>}
-                </Box>
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Sexual Health Risk:
-                </Text>              
-                <Box display="flex" alignItems="center" flexWrap="wrap">                
-                  {userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv ? 
-                    <Badge colorScheme="red" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">High Risk</Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Standard Risk</Badge>}
-                </Box>
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Organ Transplant:
-                </Text>              
-                <Box display="flex" alignItems="center" flexWrap="wrap">                
-                  {userResponses.lifestyle.transplant ? 
-                    <Badge colorScheme="orange" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">Yes</Badge> : 
-                    <Badge colorScheme="green" ml={1} fontSize="8pt" display="inline-flex" alignItems="center" height="18px">No</Badge>}
-                </Box>
-              </Grid>
-            </Box>            
-            
-            {/* Medications & Allergies */}
-            <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                Medications & Allergies
-              </Heading>            
-              <Grid templateColumns="auto minmax(0, 1fr)" gap={2} width="100%">              
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Current Medications:
-                </Text>
-
-                <Text fontSize="9pt">
-                  {userResponses.medications.length > 0 ? 
-                  userResponses.medications.join(', ') : 'None reported'}
-                </Text>
-
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Known Allergies:
-                </Text>
-
-                <Text fontSize="9pt">
-                  {userResponses.allergies && userResponses.allergies !== "None" ? 
-                  userResponses.allergies : 'None reported'}
-                </Text>
-              </Grid>          
-            </Box>
-            
-            {/* Gender-specific Information - Moved below Medications & Allergies in left column */}
-            <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                {userResponses.demographics.sex === "Male" ? "Male" : "Female"}-Specific Screening
-              </Heading>
-                {userResponses.demographics.sex === "Male" && (
-                <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Urinary Symptoms:
-                  </Text>                
-                  <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.urinarySymptoms ? "orange" : "green"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.male.urinarySymptoms ? "YES" : "NO"}
-                    </Badge>
-                  </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Prostate Test:
-                  </Text>                
-                  <Box display="flex" alignItems="center" flexWrap="wrap">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.prostateTest.had ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.male.prostateTest.had ? "YES" : "NO"}
-                    </Badge>
-                    {userResponses.sexSpecificInfo.male.prostateTest.had ? 
-                      <Text as="span" ml={2} fontSize="9pt">
-                        (Age {userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})
-                      </Text> : 
-                      userResponses.demographics.age < 30 ? 
-                      <Text as="span" ml={2} fontSize="8pt" color="gray.600">
-                        N/A (Not recommended under 30)
-                      </Text> : null}
-                  </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Testicular Issues:
-                  </Text>               
-                  <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.male.testicularIssues ? "orange" : "green"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.male.testicularIssues ? "YES" : "NO"}
-                    </Badge>
-                  </Box>
-                </Grid>
-              )}
-                {userResponses.demographics.sex === "Female" && (
-                <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    First Period Age:
-                  </Text>
-                  <Text fontSize="9pt">
-                    {userResponses.sexSpecificInfo.female.menarcheAge || 'Not specified'}
-                  </Text>                
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Menstruation Status:
-                  </Text>
-                  <Text fontSize="9pt">
-                    {userResponses.sexSpecificInfo.female.menstruationStatus || 'Not specified'}
-                  </Text>
-                  
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Pregnancy History:
-                  </Text>                
-                  <Box display="flex" alignItems="center" flexWrap="wrap">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "blue" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy ? "YES" : "NO"}
-                    </Badge>
-                    {userResponses.sexSpecificInfo.female.pregnancy.hadPregnancy && 
-                      <Text as="span" ml={2} fontSize="9pt">
-                        (First at age {userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst || 'N/A'})
-                      </Text>}
-                  </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                    Hormone Treatment:
-                  </Text>                
-                  <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.sexSpecificInfo.female.hormoneTreatment ? "purple" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.sexSpecificInfo.female.hormoneTreatment ? "YES" : "NO"}
-                    </Badge>
-                  </Box>
-                  
-                  {/* HPV Vaccine question removed from female section */}              
-                </Grid>
-              )}
-            </Box>
-          </Box>        {/* Center divider */}
-          <Divider orientation="vertical" height="auto" mx={2} />
-          
-          {/* Right column */}
-          <Box width="48%" pl={3}>          
-          
-            {/* Vaccination and Screening History - Moved to top of right column */}
-            <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                Vaccinations & Screening History
-              </Heading>            
-              <Grid templateColumns="auto minmax(0, 1fr)" gap={2} alignItems="center" width="100%">
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  HPV Vaccine:
-                </Text>              
-                <Box display="flex" alignItems="center">
-                  <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.vaccinations.hpv ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
-                    {userResponses.vaccinations.hpv ? "YES" : "NO"}
-                  </Badge>
-                </Box>
-                
-                <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Hepatitis B Vaccine:
-                </Text>              
-                <Box display="flex" alignItems="center">
-                  <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.vaccinations.hepB ? "green" : "yellow"} display="inline-flex" alignItems="center" height="18px">
-                    {userResponses.vaccinations.hepB ? "YES" : "NO"}
-                  </Badge>
-                </Box>
-                  <Text fontWeight="medium" whiteSpace="nowrap" fontSize="10pt">
-                  Cancer Screening History:
-                </Text>              
-                <Box>
-                  <Box display="flex" alignItems="center">
-                    <Badge maxW="100%" fontSize="8pt" colorScheme={userResponses.cancerScreening.hadScreening ? "blue" : "gray"} display="inline-flex" alignItems="center" height="18px">
-                      {userResponses.cancerScreening.hadScreening ? "YES" : "NO"}
-                    </Badge>
-                  </Box>
-                  {userResponses.cancerScreening.hadScreening && userResponses.cancerScreening.details && (
-                    <Text fontSize="8pt" mt={1}>
-                      "{userResponses.cancerScreening.details}"
-                    </Text>
-                  )}
-                </Box>
-              </Grid>
-            </Box>
-            
-            {/* Risk Assessment - Moved from page 2 */}
-            <Box mb={3}>
-              <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                Health Risk Assessment
-              </Heading>            
-              <Flex justify="space-between" align="center" mb={2}>
-                <Box>
-                  <Text fontWeight="medium" fontSize="10pt">
-                    Risk Level:
-                  </Text>                
-                  <Badge 
-                    data-status={healthStatus.color}
-                    className={healthStatus.category === "Very High Risk" ? "very-high-risk" : ""}
-                    fontSize="8pt"
-                    py={1} 
-                    px={2}
-                    display="inline-flex"
-                    alignItems="center"
-                    textTransform="uppercase"
-                    fontWeight="bold"
-                    borderRadius="3px"
-                    whiteSpace="nowrap"
-                    minWidth="90px"
-                    textAlign="center">
-                    {healthStatus.category}
-                  </Badge>
-                </Box>
-                
-                <Box textAlign="right">
-                  <Text fontWeight="medium" fontSize="10pt">
-                    Age Group:
-                  </Text>
-                  <Text fontSize="10pt">
-                    {userResponses.demographics.age < 18 ? 'Pediatric' : 
-                      userResponses.demographics.age < 36 ? 'Young Adult' : 
-                      userResponses.demographics.age < 56 ? 'Middle-Aged' : 
-                      userResponses.demographics.age < 76 ? 'Senior' : 'Elderly'}
-                  </Text>
+      {/* PDF-style summary: each field on its own line, label and value side by side */}
+      <Box mb={6}>
+        <SectionTitle>Personal Information</SectionTitle>
+        <SummaryLine label="Age" value={userResponses.demographics.age || 'Not specified'} />
+        <SummaryLine label="Sex" value={userResponses.demographics.sex || 'Not specified'} />
+        <SummaryLine label="Ethnicity" value={userResponses.demographics.ethnicity || 'Not specified'} />
+        <SummaryLine label="Location" value={userResponses.demographics.country || 'Not specified'} />
+        <SummaryLine label="Risk" value={getHealthCategory(calculateRiskScore()).category} />
+      </Box>
+      <Box mb={6}>
+        <SectionTitle>Medical History</SectionTitle>
+        <SummaryLine label="Personal Cancer" value={userResponses.medicalHistory.personalCancer.diagnosed ? (userResponses.medicalHistory.personalCancer.type ? `${userResponses.medicalHistory.personalCancer.type}${userResponses.medicalHistory.personalCancer.ageAtDiagnosis ? ` (Age ${userResponses.medicalHistory.personalCancer.ageAtDiagnosis})` : ''}` : 'Yes') : 'No'} />
+        <SummaryLine label="Family Cancer" value={userResponses.medicalHistory.familyCancer.diagnosed ? (userResponses.medicalHistory.familyCancer.type ? `${userResponses.medicalHistory.familyCancer.type}${userResponses.medicalHistory.familyCancer.relation ? ` in ${userResponses.medicalHistory.familyCancer.relation}` : ''}${userResponses.medicalHistory.familyCancer.ageAtDiagnosis ? ` (Age ${userResponses.medicalHistory.familyCancer.ageAtDiagnosis})` : ''}` : 'Yes') : 'No'} />
+        <SummaryLine label="Chronic Conditions" value={userResponses.medicalHistory.chronicConditions.length > 0 ? userResponses.medicalHistory.chronicConditions.join(', ') : 'None'} />
+        <SummaryLine label="History of Kidney cyst, Tumor, or Blood in Urine" value={
+          typeof userResponses.medicalHistory.kidneyIssue === 'boolean'
+            ? (userResponses.medicalHistory.kidneyIssue ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+        <SummaryLine label="History of Brain, Spinal, or Eye Tumor" value={
+          typeof userResponses.medicalHistory.brainSpinalEyeTumor === 'boolean'
+            ? (userResponses.medicalHistory.brainSpinalEyeTumor ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+      </Box>
+      <Box mb={6}>
+        <SectionTitle>Lifestyle</SectionTitle>
+        <SummaryLine label="Smoking Status" value={userResponses.lifestyle.smoking.current ? 'Current Smoker' : 'Non-Smoker'} />
+        <SummaryLine label="Alcohol Consumption" value={userResponses.lifestyle.alcohol?.consumes ? `Yes (${userResponses.lifestyle.alcohol.drinksPerWeek || 0} drinks/week)` : 'No'} />
+        <SummaryLine label="Salty/Smoked Foods" value={userResponses.lifestyle.saltySmokedFoods || 'Not specified'} />
+        <SummaryLine label="Fruits & Veg (servings)" value={userResponses.lifestyle.fruitVegServings || 'Not specified'} />
+        <SummaryLine label="Sexual Health Risk" value={userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv ? 'High Risk' : 'Standard Risk'} />
+        <SummaryLine label="Organ Transplant" value={userResponses.lifestyle.transplant ? 'Yes' : 'No'} />
+      </Box>
+      {/* Gender-specific section */}
+      {userResponses.demographics.sex === 'Male' ? (
+        <Box mb={6}>
+          <SectionTitle>Male-Specific Screening</SectionTitle>
+          <SummaryLine label="Urinary Symptoms" value={userResponses.sexSpecificInfo?.male?.urinarySymptoms ? 'Yes' : 'No'} />
+          <SummaryLine label="Prostate Test" value={userResponses.sexSpecificInfo?.male?.prostateTest?.had ? `Yes${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast ? ` (Age ${userResponses.sexSpecificInfo.male.prostateTest.ageAtLast})` : ''}` : (userResponses.demographics.age < 30 ? 'N/A (Not recommended under 30)' : 'No')} />
+          <SummaryLine label="Testicular Issues" value={userResponses.sexSpecificInfo?.male?.testicularIssues ? 'Yes' : 'No'} />
+        </Box>
+      ) : userResponses.demographics.sex === 'Female' ? (
+        <Box mb={6}>
+          <SectionTitle>Female-Specific Screening</SectionTitle>
+          <SummaryLine label="First Period Age" value={userResponses.sexSpecificInfo?.female?.menarcheAge || 'Not specified'} />
+          <SummaryLine label="Currently Pregnant" value={userResponses.sexSpecificInfo?.female.currentPregnancy ? 'Yes' : 'No'} />
+          <SummaryLine label="Menstruation Status" value={userResponses.sexSpecificInfo?.female?.menstruationStatus || 'Not specified'} />
+          <SummaryLine label="Last Period Age" value={userResponses.sexSpecificInfo?.female?.menopauseAge || 'N/A'} />
+          <SummaryLine label="Pregnancy History" value={userResponses.sexSpecificInfo?.female?.pregnancy?.hadPregnancy ? `Yes${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst ? ` (First at age ${userResponses.sexSpecificInfo.female.pregnancy.ageAtFirst})` : ''}` : 'None'} />
+          <SummaryLine label="Births at/after 24 weeks" value={userResponses.sexSpecificInfo?.female?.numberOfBirths !== undefined && userResponses.sexSpecificInfo.female.numberOfBirths !== null && userResponses.sexSpecificInfo.female.numberOfBirths !== '' ? userResponses.sexSpecificInfo.female.numberOfBirths : 'N/A'} />
+          <SummaryLine label="Oral contraceptive" value={userResponses.sexSpecificInfo?.female?.pillYears !== undefined && userResponses.sexSpecificInfo.female.pillYears !== null && userResponses.sexSpecificInfo.female.pillYears !== '' ? userResponses.sexSpecificInfo.female.pillYears : 'N/A'} />
+          <SummaryLine label="Hormone Replacement Therapy" value={userResponses.sexSpecificInfo?.female?.hormoneReplacementTherapy ? 'Yes' : 'No'} />
+          <SummaryLine label="Tubal ligation" value={userResponses.sexSpecificInfo?.female?.tubalLigation === true ? 'Yes' : 'No'} />
+          <SummaryLine label="Ovary Removal" value={userResponses.sexSpecificInfo?.female?.ovaryRemoved !== undefined && userResponses.sexSpecificInfo.female.ovaryRemoved !== null && userResponses.sexSpecificInfo.female.ovaryRemoved !== '' ? userResponses.sexSpecificInfo.female.ovaryRemoved : 'Not specified'} />
+          <SummaryLine label="Endometriosis diagnosis" value={userResponses.medicalHistory?.endometriosis === 'Yes' ? 'Yes' : 'No'} />
+          <SummaryLine label="IVF Drugs" value={(() => {
+            const val = userResponses.sexSpecificInfo?.female?.IVF_history;
+            if (val === undefined || val === null || val === '') return 'Not specified';
+            if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) return 'Yes';
+            if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) return 'No';
+            return val;
+          })()} />
+        </Box>
+      ) : null}
+      {/* Genetic & Infection Risk section */}
+      <Box mb={6}>
+        <SectionTitle>Genetic & Infection Risk</SectionTitle>
+        <SummaryLine label="BRCA1/BRCA2 mutation" value={
+          userResponses.medicalHistory?.brcaMutationStatus !== undefined && userResponses.medicalHistory?.brcaMutationStatus !== null && userResponses.medicalHistory?.brcaMutationStatus !== ''
+            ? (userResponses.medicalHistory.brcaMutationStatus === 'Yes' ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+        <SummaryLine label="H.pylori history" value={
+          userResponses.lifestyle?.hPylori === 'Yes' ? 'Yes'
+            : userResponses.lifestyle?.hPylori === 'No' ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="Eradication Therapy" value={
+          userResponses.lifestyle?.hPylori === 'No'
+            ? 'N/A'
+            : userResponses.lifestyle?.hPyloriEradication === 'Yes'
+              ? 'Yes'
+              : userResponses.lifestyle?.hPyloriEradication === 'No'
+                ? 'No'
+                : 'Not specified'
+        } />
+        <SummaryLine label="Gastritis (chronic) / Ulcers" value={
+          userResponses.lifestyle?.gastritisUlcer === 'Yes' ? 'Yes'
+            : userResponses.lifestyle?.gastritisUlcer === 'No' ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="Suspicion of Von Hippel-Lindau (VHL) Syndrome" value=
+        {vhlSuspicion 
+        } />
+      </Box>
+      {/* Gastrointestinal Surgery section */}
+      <Box mb={6}>
+        <SectionTitle>Gastrointestinal Surgery</SectionTitle>
+        <SummaryLine label="Partial Gastrectomy" value={
+          typeof userResponses.surgery !== 'undefined' && typeof userResponses.surgery.partialGastrectomy !== 'undefined'
+            ? (userResponses.surgery.partialGastrectomy ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+        <SummaryLine label="Pernicious Anemia" value={
+          typeof userResponses.medicalHistory?.perniciousAnemia !== 'undefined'
+            ? (userResponses.medicalHistory.perniciousAnemia === 'Yes' ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+        <SummaryLine label="CDH1/Gene Mutation" value={
+          typeof userResponses.medicalHistory?.gastricGeneMutation !== 'undefined'
+            ? (userResponses.medicalHistory.gastricGeneMutation === 'Yes' ? 'Yes' : 'No')
+            : 'Not specified'
+        } />
+      </Box>
+      <Box mb={6}>
+        <SectionTitle>Medications & Allergies</SectionTitle>
+        <SummaryLine label="Current Medications" value={Array.isArray(userResponses.medications) && userResponses.medications.length > 0 ? userResponses.medications.join(', ') : 'None reported'} />
+        <SummaryLine label="Known Allergies" value={userResponses.allergies && userResponses.allergies !== 'None' ? userResponses.allergies : 'None reported'} />
+      </Box>
+    {/* Symptom Screening section */}
+    {userResponses.demographics.sex === 'Female' && userResponses.symptoms?.goffSymptomIndex ? (
+      <Box mb={6}>
+        <SectionTitle>Ovarian Cancer Symptom Screening (Goff Criteria)</SectionTitle>
+        <SummaryLine label="Persistent Bloating or Abdominal Swelling" value={
+          userResponses.symptoms.goffSymptomIndex.bloating === true ? 'Yes'
+            : userResponses.symptoms.goffSymptomIndex.bloating === false ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="Pelvic or Lower-Abdominal Pain" value={
+          userResponses.symptoms.goffSymptomIndex.pain === true ? 'Yes'
+            : userResponses.symptoms.goffSymptomIndex.pain === false ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="Felt Full Quickly or Been Unable to Finish Meals" value={
+          userResponses.symptoms.goffSymptomIndex.fullness === true ? 'Yes'
+            : userResponses.symptoms.goffSymptomIndex.fullness === false ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="Frequent Need To Pass Urine" value={
+          userResponses.symptoms.goffSymptomIndex.urinary === true ? 'Yes'
+            : userResponses.symptoms.goffSymptomIndex.urinary === false ? 'No'
+            : 'Not specified'
+        } />
+        <SummaryLine label="An Increase in abdomen size or clothes have become tight" value={
+          userResponses.symptoms.goffSymptomIndex.abdomenSize === true ? 'Yes'
+            : userResponses.symptoms.goffSymptomIndex.abdomenSize === false ? 'No'
+            : 'Not specified'
+        } />
+      </Box>
+    ) : null}
+    <Box mb={6}>
+      <SectionTitle>Symptom Screening</SectionTitle>
+      <SummaryLine label="Pain/Difficulty While Swallowing" value={
+        userResponses.symptoms?.swallowingDifficulty === true || (typeof userResponses.symptoms?.swallowingDifficulty === 'string' && userResponses.symptoms.swallowingDifficulty.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.swallowingDifficulty === false || (typeof userResponses.symptoms?.swallowingDifficulty === 'string' && userResponses.symptoms.swallowingDifficulty.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+      <SummaryLine label="Black, Sticky/Tar-Like Stools (Melena)" value={
+        userResponses.symptoms?.blackStool === true || (typeof userResponses.symptoms?.blackStool === 'string' && userResponses.symptoms.blackStool.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.blackStool === false || (typeof userResponses.symptoms?.blackStool === 'string' && userResponses.symptoms.blackStool.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+      <SummaryLine label="Unintentional Weight Loss" value={
+        userResponses.symptoms?.weightLoss === true || (typeof userResponses.symptoms?.weightLoss === 'string' && userResponses.symptoms.weightLoss.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.weightLoss === false || (typeof userResponses.symptoms?.weightLoss === 'string' && userResponses.symptoms.weightLoss.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+      <SummaryLine label="Persistent vomiting >1 week for no reason" value={
+        userResponses.symptoms?.vomiting === true || (typeof userResponses.symptoms?.vomiting === 'string' && userResponses.symptoms.vomiting.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.vomiting === false || (typeof userResponses.symptoms?.vomiting === 'string' && userResponses.symptoms.vomiting.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+      <SummaryLine label="Persistent Upper Stomach (Epigastric) Pain >1 Month" value={
+        userResponses.symptoms?.epigastricPain === true || (typeof userResponses.symptoms?.epigastricPain === 'string' && userResponses.symptoms.epigastricPain.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.epigastricPain === false || (typeof userResponses.symptoms?.epigastricPain === 'string' && userResponses.symptoms.epigastricPain.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+      <SummaryLine label="Frequency of Indigestion or heartburn" value={
+        userResponses.symptoms?.indigestion !== undefined && userResponses.symptoms?.indigestion !== null && userResponses.symptoms?.indigestion !== ''
+          ? userResponses.symptoms.indigestion
+          : 'Not specified'
+      } />
+      <SummaryLine label="Sleep Disturbed By Pain" value={
+        userResponses.symptoms?.painWakesAtNight === true || (typeof userResponses.symptoms?.painWakesAtNight === 'string' && userResponses.symptoms.painWakesAtNight.trim().toLowerCase() === 'yes') ? 'Yes'
+          : userResponses.symptoms?.painWakesAtNight === false || (typeof userResponses.symptoms?.painWakesAtNight === 'string' && userResponses.symptoms.painWakesAtNight.trim().toLowerCase() === 'no') ? 'No'
+          : 'Not specified'
+      } />
+    </Box>
+      {/* Recommended Cancer Screening Tests section */}
+      {prescribedTests && prescribedTests.length > 0 && (
+        <Box mb={6}>
+          <SectionTitle>Recommended Cancer Screening Tests</SectionTitle>
+          {prescribedTests.map((test, idx) => (
+            <Box key={idx} mb={3} p={3} borderWidth={1} borderRadius="md" borderColor="gray.200" bg="gray.50">
+              <Flex align="center" mb={1}>
+                <Text fontWeight="bold" fontSize="md" mr={2}>{test.name}</Text>
+                <Box as="span" px={2} py={0.5} borderRadius="md" fontSize="sm" fontWeight="bold" color={
+                  test.priority === 'high' ? '#9B2C2C' : test.priority === 'medium' ? '#7B341E' : '#22543D'
+                } bg={
+                  test.priority === 'high' ? '#FEDED2' : test.priority === 'medium' ? '#FEEBC8' : '#C6F6D5'
+                } ml={2}>
+                  {test.priority === 'high' ? 'SCHEDULE WITHIN 1 MONTH' : test.priority === 'medium' ? 'SCHEDULE WITHIN 3 MONTHS' : 'SCHEDULE WITHIN 6 MONTHS'}
                 </Box>
               </Flex>
-              
-              <Box mt={3}>
-                <Text fontWeight="medium" fontSize="10pt" mb={1}>
-                  Risk Factors:
-                </Text>
-                <List>
-                  {userResponses.medicalHistory.personalCancer.diagnosed && <ListItem fontSize="9pt">• History of cancer</ListItem>}
-                  {userResponses.medicalHistory.familyCancer.diagnosed && <ListItem fontSize="9pt">• Family history of cancer</ListItem>}
-                  {userResponses.medicalHistory.geneticDisorder && <ListItem fontSize="9pt">• Genetic predisposition</ListItem>}
-                  {userResponses.lifestyle.smoking?.status === 'current' && <ListItem fontSize="9pt">• Current smoker</ListItem>}
-                  {userResponses.lifestyle.smoking?.status === 'former' && <ListItem fontSize="9pt">• Former smoker</ListItem>}
-                  {userResponses.lifestyle.alcohol?.consumes && userResponses.lifestyle.alcohol?.drinksPerWeek > 7 && 
-                    <ListItem fontSize="9pt">• Alcohol consumption ({userResponses.lifestyle.alcohol.drinksPerWeek} drinks/week)</ListItem>}
-                  {userResponses.lifestyle.sexualHealth?.unprotectedSexOrHpvHiv && <ListItem fontSize="9pt">• Sexual health risk factors</ListItem>}
-                </List>
-              </Box>
+              <Text fontSize="sm" color="gray.700" mb={1}><b>Frequency:</b> {test.frequency}</Text>
+              <Text fontSize="sm" color="gray.700"><b>Reason:</b> {test.reason}</Text>
             </Box>
-            
-              {/* General Recommendations - Moved from page 2 */}
-              <Box mb={3}>
-                <Heading size="sm" mb={2} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="11pt" color={accentColor}>
-                  General Recommendations
-                </Heading>
-                <List spacing={1}>
-                  {recommendations.map((recommendation, index) => (
-                    <ListItem key={`rec-${index}`} display="flex" alignItems="flex-start" mb={1}>
-                      <ListIcon as={FaCheckCircle} color="blue.500" mt={0.5} flexShrink={0} fontSize="8pt" />
-                      <Text fontSize="9pt">{recommendation}</Text>
-                    </ListItem>
-                  ))}
-                </List>
-              </Box>
-            </Box>
-          </Flex>
-        )}
-        
-        {/* Page 2: Cancer Screening Tests */}
-        {currentPage === 2 && (
-          <Box width="100%" px={4} py={3} maxHeight="calc(297mm - 180px)" overflow="auto">
-            {/* Page title */}
-            <Box textAlign="center" mb={6} width="100%" borderBottom="1px solid" borderColor="gray.200" pb={4}>
-              <Heading size="md" color="#2B6CB0" fontSize="18pt">Cancer Screening Tests</Heading>
-              <Text mt={2} fontSize="12pt" color="gray.700">Recommended Screenings Based on Risk Assessment</Text>
-            </Box>
-            
-            {/* Recommended Tests Section */}
-            <Box mb={6} className="tests-container">
-              <Heading size="sm" mb={4} pb={1} borderBottom="1px solid" borderColor="gray.200" fontSize="14pt" color={accentColor}>
-                Recommended Cancer Screening Tests
-              </Heading>
-              
-              {prescribedTests.length > 0 ? (
-                <Grid templateColumns="1fr" gap={4} width="100%">
-                  {prescribedTests.map((test, index) => (
-                    <Box 
-                      key={`test-${index}`} 
-                      p={4} 
-                      borderWidth="1px" 
-                      borderColor="gray.200"
-                      borderRadius="md"
-                      boxShadow="sm"
-                      bg="white">
-                      
-                      <Flex align="center" mb={2}>
-                        <Box w={3} h={3} borderRadius="50%" bg="green.500" mr={2}></Box>
-                        <Heading size="sm" fontSize="16pt" color="gray.800">{test.name}</Heading>
-                      </Flex>
-                      
-                      <Text fontSize="11pt" mb={1}><b>Frequency:</b> {test.frequency}</Text>
-                      <Text fontSize="11pt" mb={3}>{test.reason}</Text>
-                      
-                      <Badge 
-                        bg={
-                          test.priority === "high" ? "#FEDED2" : 
-                          test.priority === "medium" ? "#FEEBC8" : 
-                          "#C6F6D5"
-                        } 
-                        color={
-                          test.priority === "high" ? "#9B2C2C" : 
-                          test.priority === "medium" ? "#7B341E" : 
-                          "#22543D"
-                        }
-                        px={3}
-                        py={1}
-                        fontSize="10pt"
-                        fontWeight="bold">
-                        {test.priority === "high" ? "SCHEDULE WITHIN 1 MONTH" : 
-                         test.priority === "medium" ? "SCHEDULE WITHIN 3 MONTHS" : 
-                         "SCHEDULE WITHIN 6 MONTHS"}
-                      </Badge>
-                    </Box>
-                  ))}
-                </Grid>
-              ) : (
-                <Box textAlign="center" py={8} borderWidth="1px" borderColor="gray.200" borderRadius="md">
-                  <Text fontSize="14pt" color="gray.500">No specific cancer tests recommended at this time.</Text>
-                  <Text fontSize="11pt" mt={2} color="gray.500">Continue regular check-ups with your healthcare provider.</Text>
-                </Box>
-              )}
-            </Box>
-          </Box>
-        )}
-      
-      {/* Action Buttons */}
-        <Flex justifyContent="center" mt={3} gap={4} position="sticky" bottom={0} pb={2} className="no-print" 
-              bg="white" borderTopWidth="1px" borderColor="gray.100" boxShadow="0 -2px 5px rgba(0,0,0,0.05)" p={2} zIndex={100}>
-          {currentPage === 1 && (
-            <>
-              <Button
-                bg="#2B6CB0"
-                color="white"
-                _hover={{ bg: "#2C5282" }}
-                rightIcon={<Icon as={FaArrowRight} />}
-                size="md"
-                onClick={goToNextPage}>
-                Next: Screening Tests
-              </Button>
-              
-              <Button
-                colorScheme="blue"
-                leftIcon={<Icon as={FaPrint} />}
-                variant="solid"
-                size="md"
-                onClick={printSummary}>
-                Print Summary
-              </Button>
-            </>
-          )}
-          
-          {currentPage === 2 && (
-            <>
-              <Button
-                bg="#2B6CB0"
-                color="white"
-                _hover={{ bg: "#2C5282" }}
-                leftIcon={<Icon as={FaArrowLeft} />}
-                size="md"
-                onClick={goToPreviousPage}>
-                Back to Medical Data
-              </Button>
-              
-              <Button
-                colorScheme="blue"
-                leftIcon={<Icon as={FaPrint} />}
-                variant="solid"
-                size="md"
-                onClick={printSummary}>
-                Print Summary
-              </Button>
-              
-              <Button
-                colorScheme="gray"
-                variant="outline"
-                size="md"
-                onClick={() => handleOptionSelectCall("Start a new screening", "start")}>
-                Start New Screening
-              </Button>
-            </>
-          )}
-        </Flex>
+          ))}
+        </Box>
+      )}
       </Box>
     </Box>
   );
