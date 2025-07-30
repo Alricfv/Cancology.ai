@@ -328,7 +328,7 @@ export const handleFruitVegServingsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Find nextId from options array or from conversationFlow
+
   const nextId = conversationFlow.fruitVegServings.options.find(opt => opt.text === fruitVegServingsInput)?.nextId || conversationFlow.fruitVegServings.nextId || 'sexualHealth';
   setTimeout(() => {
     if (conversationFlow[nextId]) {
@@ -355,7 +355,6 @@ export const handleFertilityDrugsSubmit = (
   setCurrentStep,
   nextId
 ) => {
-  // Save to userResponses.sexSpecificInfo.female.IVF_history
   setUserResponses(prev => ({
     ...prev,
     sexSpecificInfo: {
@@ -366,7 +365,6 @@ export const handleFertilityDrugsSubmit = (
       }
     }
   }));
-  // Add user's answer to messages
   setMessages(prev => ([
     ...prev,
     {
@@ -376,7 +374,6 @@ export const handleFertilityDrugsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Advance to next step using nextId from the selected option
   setTimeout(() => {
     if (conversationFlow[nextId]) {
       setMessages(prev => ([
@@ -401,7 +398,6 @@ export const handleNumberOfBirthsSubmit = (
   setCurrentStep,
   setNumberOfBirthsInput
 ) => {
-  // Save to userResponses.sexSpecificInfo.female.numberOfBirths
   setUserResponses(prev => ({
     ...prev,
     sexSpecificInfo: {
@@ -412,7 +408,6 @@ export const handleNumberOfBirthsSubmit = (
       }
     }
   }));
-  // Add user's answer to messages
   setMessages(prev => ([
     ...prev,
     {
@@ -422,7 +417,6 @@ export const handleNumberOfBirthsSubmit = (
       timestamp: new Date()
     }
   ]));
-  // Advance to next step using nextId from conversationFlow.numberOfBirths
   const nextId = conversationFlow.numberOfBirths.nextId || conversationFlow.numberOfBirths?.options?.[0]?.nextId || 'summary';
   setTimeout(() => {
     if (conversationFlow[nextId]) {
@@ -445,14 +439,12 @@ export const handleNumberOfBirthsSubmit = (
 
 // Handler for menopause age submit
 export const handleMenopauseAgeSubmit = (menopauseAgeInput, setMenopauseAgeError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setMenopauseAgeInput) => {
-  // Validate input: must be integer between 30 and 60 (typical menopause range)
   const age = parseInt(menopauseAgeInput, 10);
   if (isNaN(age) || age < 30 || age > 60) {
     setMenopauseAgeError('Please enter a valid age between 30 and 60.');
     return;
   }
   setMenopauseAgeError('');
-  // Update userResponses
   setUserResponses(prev => ({
     ...prev,
     sexSpecificInfo: {
@@ -463,7 +455,6 @@ export const handleMenopauseAgeSubmit = (menopauseAgeInput, setMenopauseAgeError
       }
     }
   }));
-  // Add user's answer to messages
   setMessages(prev => ([
     ...prev,
     {
@@ -473,12 +464,10 @@ export const handleMenopauseAgeSubmit = (menopauseAgeInput, setMenopauseAgeError
       timestamp: new Date()
     }
   ]));
-  // Advance to next step and add bot message for next question after a delay
-  const nextId = conversationFlow.menopauseAge.nextId || 'pregnancy'; // Default to 'pregnancy' if not defined
+  const nextId = conversationFlow.menopauseAge.nextId || 'pregnancy'; 
   setTimeout(() => {
     setCurrentStep(nextId);
     setMenopauseAgeInput('');
-    // Add bot message for next question (pregnancy)
     const nextStep = conversationFlow[nextId];
     if (nextStep && nextStep.question) {
       setMessages(prev => ([
@@ -495,7 +484,6 @@ export const handleMenopauseAgeSubmit = (menopauseAgeInput, setMenopauseAgeError
 };
 // Handle pill-years input for birth control use
 export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setPillYearsInput) => {
-  // Validate pill-years input (dropdown)
   const allowedOptions = [
     '0',
     'Lesser than a year',
@@ -518,7 +506,6 @@ export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUser
       }
     }
   }));
-  // Add user's answer to messages
   setMessages(prev => ([
     ...prev,
     {
@@ -536,7 +523,7 @@ export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUser
       setMessages(prev => [
         ...prev,
         {
-          id: prev.length + 2, // +2 because user message was just added
+          id: prev.length + 2, 
           text: nextStep.question,
           sender: 'bot',
           timestamp: new Date()
@@ -546,10 +533,8 @@ export const handlePillYearsSubmit = (pillYearsInput, setPillYearsError, setUser
     }
   }, 1000);
 };
-// No imports needed from App.js as all dependencies should be passed as parameters
 
 export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, setCurrentStep, conversationFlow, userResponses, setUserResponses, setAgeInput) => {
-    // Validate age input
     if (!ageInput.trim()) {
       setAgeError('Age is required');
       return;
@@ -562,10 +547,8 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
       return;
     }
     
-    // Clear error
     setAgeError('');
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       demographics: {
@@ -574,7 +557,6 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
       }
     }));
     
-    // Add user's age as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -585,15 +567,12 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
       }
     ]);
     
-    // Clear input
     setAgeInput('');
     
-    // Move to the next step using nextId from conversationFlow.age
     setTimeout(() => {
       const nextId = conversationFlow.age?.nextId || 'sex';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -603,7 +582,6 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
@@ -611,7 +589,6 @@ export const handleAgeSubmit = (ageInput, setAgeError, setMessages, messages, se
   
 // Handle submitting the ethnicity selection
 export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setEthnicityInput) => {
-    // Validate ethnicity input
     if (!ethnicityInput) {
       toast({
         title: "Error",
@@ -624,7 +601,6 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
       return;
     }
     
-    // Update consolidated responses with ethnicity
     setUserResponses(prev => ({
       ...prev,
       demographics: {
@@ -633,7 +609,6 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
       }
     }));
     
-    // Add user's ethnicity as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -644,15 +619,10 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
       }
     ]);
     
-    // Clear input
-    // Note: setEthnicityInput needs to be passed as a parameter
-    
-    // Move to the next step using nextId from conversationFlow.ethnicity
     setTimeout(() => {
       const nextId = conversationFlow.ethnicity?.nextId || 'location';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -662,7 +632,6 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
@@ -670,7 +639,6 @@ export const handleEthnicitySubmit = (ethnicityInput, toast, setUserResponses, s
   
 // Handle submitting the country selection
 export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setCountryInput) => {
-    // Validate country input
     if (!countryInput) {
       toast({
         title: "Error",
@@ -683,7 +651,6 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
       return;
     }
     
-    // Update consolidated responses with country
     setUserResponses(prev => ({
       ...prev,
       demographics: {
@@ -691,8 +658,7 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
         country: countryInput
       }
     }));
-    
-    // Add user's country as a message
+
     setMessages(prev => [
       ...prev, 
       {
@@ -702,16 +668,13 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
         timestamp: new Date()
       }
     ]);
-    
-    // Clear input
+
     setCountryInput('');
     
-    // Move to the next step using nextId from conversationFlow.country
     setTimeout(() => {
       const nextId = conversationFlow.country?.nextId || 'cancer';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -721,7 +684,6 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
@@ -729,7 +691,6 @@ export const handleCountrySubmit = (countryInput, toast, setUserResponses, setMe
 
 // Handle submitting cancer details
 export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerAgeError, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setCancerType, setCancerAgeInput) => {
-    // Validate cancer inputs
     if (!cancerType) {
       toast({
         title: "Error",
@@ -754,10 +715,9 @@ export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerA
       return;
     }
 
-    // Clear error
     setCancerAgeError('');
     
-    // Add user's cancer details as a message
+
     setMessages(prev => [
       ...prev, 
       {
@@ -768,30 +728,26 @@ export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerA
       }
     ]);
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       medicalHistory: {
         ...prev.medicalHistory,
         personalCancer: {
           ...prev.medicalHistory.personalCancer,
-          diagnosed: true, // Ensure diagnosed is set to true
+          diagnosed: true, 
           type: cancerType,
           ageAtDiagnosis: age
         }
       }
     }));
     
-    // Clear inputs
     setCancerType('');
     setCancerAgeInput('');
     
-    // Move to the next step using nextId from conversationFlow.cancerDetails
     setTimeout(() => {
       const nextId = conversationFlow.cancerDetails?.nextId || 'familyHistory';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -801,7 +757,6 @@ export const handleCancerDetailsSubmit = (cancerType, cancerAgeInput, setCancerA
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
@@ -835,7 +790,6 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
       return;
     }
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       medicalHistory: {
@@ -844,7 +798,6 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
       }
     }));
     
-    // Add user's chronic conditions as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -857,7 +810,6 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
       }
     ]);
     
-    // Reset chronic conditions
     setChronicConditions({
       diabetes: false,
       hiv: false,
@@ -867,7 +819,6 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
       none: false
     });
     
-    // Move to the next step using nextId from conversationFlow.chronicConditions
     setTimeout(() => {
       const nextId = conversationFlow.chronicConditions.nextId || 'smokingStatus';
       const nextStep = conversationFlow[nextId];
@@ -888,7 +839,6 @@ export const handleChronicConditionsSubmit = (chronicConditions, toast, setUserR
 
 // Handle family cancer history details submission
 export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation, familyCancerAgeInput, setFamilyCancerAgeError, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, setFamilyCancerType, setFamilyRelation, setFamilyCancerAgeInput, userResponses) => {
-    // Validate family cancer inputs
     if (!familyCancerType) {
       toast({
         title: "Error",
@@ -925,10 +875,8 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
       return;
     }
 
-    // Clear error
     setFamilyCancerAgeError('');
     
-    // Add user's family cancer details as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -939,14 +887,13 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
       }
     ]);
     
-    // Update consolidated responses with family cancer details
     setUserResponses(prev => ({
       ...prev,
       medicalHistory: {
         ...prev.medicalHistory,
         familyCancer: {
           ...prev.medicalHistory.familyCancer,
-          diagnosed: true, // Ensure diagnosed is set to true
+          diagnosed: true, 
           relation: familyRelation,
           type: familyCancerType,
           ageAtDiagnosis: age
@@ -954,12 +901,10 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
       }
     }));
     
-    // Clear inputs
     setFamilyCancerType('');
     setFamilyRelation('');
     setFamilyCancerAgeInput('');
     
-    // Move to the next step using static nextId from conversationFlow.familyHistoryDetails
     setTimeout(() => {
       const nextId = conversationFlow.familyHistoryDetails.nextId || 'partialGastrectomy';
       const nextStep = conversationFlow[nextId];
@@ -980,16 +925,12 @@ export const handleFamilyCancerDetailsSubmit = (familyCancerType, familyRelation
    
 // Handle alcohol consumption response 
 export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection, setIsProcessingSelection, setSelectedOption, setMessages, setUserResponses, conversationFlow, setCurrentStep) => {
-   // Prevent multiple clicks by setting processing state
    if (isProcessingSelection) return;
   
-   // Set processing state to true to disable all buttons
    setIsProcessingSelection(true);
   
-   // Set the selected option
    setSelectedOption(optionText);
   
-   // Add user's alcohol response as a message
    setMessages(prev => [
      ...prev,
      {
@@ -1000,7 +941,6 @@ export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection,
      }
    ]);
   
-   // Update user responses with alcohol consumption information
    setUserResponses(prev => ({
      ...prev,
       lifestyle: {
@@ -1013,14 +953,10 @@ export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection,
    }));
   
 
-  // Move to the next step based on response
   setTimeout(() => {
-    // Reset processing state after UI updates are complete
     setIsProcessingSelection(false);
 
-    // If user drinks alcohol, go to alcoholAmount step, otherwise skip to transplant
     if (optionText === 'Yes') {
-      // Insert salty/smoked foods question after alcoholAmount
       const nextStep = conversationFlow.alcoholAmount;
       if (nextStep) {
         setMessages(prev => [
@@ -1035,7 +971,6 @@ export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection,
         setCurrentStep('alcoholAmount');
       }
     } else {
-      // For non-drinkers, go to salty/smoked foods question
       const saltyStep = conversationFlow.saltySmokedFoods;
       if (saltyStep) {
         setMessages(prev => [
@@ -1055,7 +990,6 @@ export const handleAlcoholResponse = (optionText, nextId, isProcessingSelection,
 
 // Handle salty/smoked foods frequency question (dropdown)
 export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmokedFoodsError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setSaltySmokedFoodsInput) => {
-  // Validate input
   const allowedOptions = [
     'Never',
     'less than one time a week',
@@ -1084,7 +1018,6 @@ export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmok
     }
   ]));
   setSaltySmokedFoodsInput('');
-  // Move to the next step using nextId from conversationFlow.saltySmokedFoods
   setTimeout(() => {
     const nextId = conversationFlow.saltySmokedFoods?.nextId || 'fruitVegServings';
     const nextStep = conversationFlow[nextId];
@@ -1105,16 +1038,12 @@ export const handleSaltySmokedFoodsSubmit = (saltySmokedFoodsInput, setSaltySmok
 
 // Handle submitting the transplant response
 export const handleTransplantResponse = (optionText, nextId, isProcessingSelection, setIsProcessingSelection, setSelectedOption, setMessages, setUserResponses, conversationFlow, setCurrentStep) => {
-    // Prevent multiple clicks by setting processing state
     if (isProcessingSelection) return;
     
-    // Set processing state to true to disable all buttons
     setIsProcessingSelection(true);
     
-    // Set the selected option
     setSelectedOption(optionText);
     
-    // Add user's transplant response as a message
     setMessages(prev => [
       ...prev,
       {
@@ -1125,7 +1054,6 @@ export const handleTransplantResponse = (optionText, nextId, isProcessingSelecti
       }
     ]);
     
-    // Update user responses with transplant information
     setUserResponses(prev => ({
       ...prev,
       lifestyle: {
@@ -1134,9 +1062,7 @@ export const handleTransplantResponse = (optionText, nextId, isProcessingSelecti
       }
     }));
     
-    // Move to the next step (use nextId from conversationFlow)
     setTimeout(() => {
-      // Reset processing state after UI updates are complete
       setIsProcessingSelection(false);
       
       const nextStep = conversationFlow[nextId];
@@ -1160,7 +1086,6 @@ export const handleTransplantResponse = (optionText, nextId, isProcessingSelecti
 
 // Handle pregnancy age input
 export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setPregnancyAgeInput) => {
-  // Validate pregnancy age input
   if (!pregnancyAgeInput.trim()) {
     setPregnancyAgeError('Age at first pregnancy is required');
     return;
@@ -1173,10 +1098,8 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
     return;
   }
   
-  // Clear error
   setPregnancyAgeError('');
   
-  // Update user responses with pregnancy age
   setUserResponses(prev => ({
     ...prev,
     sexSpecificInfo: {
@@ -1192,7 +1115,6 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
     }
   }));
   
-  // Add user's pregnancy age as a message
   setMessages(prev => [
     ...prev, 
     {
@@ -1202,16 +1124,13 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
       timestamp: new Date()
     }
   ]);
-  
-  // Clear input
+
   setPregnancyAgeInput('');
-  
-  // Move to the next step (from conversationFlow.firstPregnancyAge.nextId)
+
   setTimeout(() => {
     const nextId = conversationFlow.firstPregnancyAge.nextId || 'birthControl';
     const nextStep = conversationFlow[nextId];
     if (nextStep) {
-      // Add bot's next question
       setMessages(prev => [
         ...prev, 
         {
@@ -1221,7 +1140,6 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
           timestamp: new Date()
         }
       ]);
-      // Update the current step
       setCurrentStep(nextId);
     }
   }, 1000);
@@ -1229,7 +1147,6 @@ export const handlePregnancyAgeSubmit = (pregnancyAgeInput, setPregnancyAgeError
   
 // Handle menarche age input
 export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setMenarcheAgeInput) => {
-  // Validate menarche age input
   if (!menarcheAgeInput.trim()) {
     setMenarcheAgeError('Age at first period is required');
     return;
@@ -1242,10 +1159,8 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
     return;
   }
   
-  // Clear error
   setMenarcheAgeError('');
   
-  // Update user responses
   setUserResponses(prev => ({
     ...prev,
     sexSpecificInfo: {
@@ -1257,7 +1172,6 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
     }
   }));
   
-  // Add user's menarche age as a message
   setMessages(prev => [
     ...prev, 
     {
@@ -1268,15 +1182,12 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
     }
   ]);
   
-  // Clear input
   setMenarcheAgeInput('');
   
-  // Move to the next step using nextId from conversationFlow.menarcheAge
   setTimeout(() => {
     const nextId = conversationFlow.menarcheAge?.nextId || 'menstruationStatus';
     const nextStep = conversationFlow[nextId];
     if (nextStep) {
-      // Add bot's next question
       setMessages(prev => [
         ...prev, 
         {
@@ -1286,7 +1197,6 @@ export const handleMenarcheAgeSubmit = (menarcheAgeInput, setMenarcheAgeError, s
           timestamp: new Date()
         }
       ]);
-      // Update the current step
       setCurrentStep(nextId);
     }
   }, 1000);
@@ -1306,7 +1216,6 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
      return;
    }
   
-   // Update consolidated responses
    setUserResponses(prev => ({
      ...prev,
      cancerScreening: {
@@ -1315,7 +1224,6 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
      }
    }));
   
-   // Add user's cancer screening details as a message
    setMessages(prev => [
      ...prev, 
      {
@@ -1326,15 +1234,12 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
      }
    ]);
   
-  // Clear input
    setCancerScreeningInput('');
   
-  // Move to the next step using nextId from conversationFlow.cancerScreeningDetails
    setTimeout(() => {
      const nextId = conversationFlow.cancerScreeningDetails?.nextId || 'hpvVaccine';
      const nextStep = conversationFlow[nextId];
      if (nextStep) {
-       // Add bot's next question
        setMessages(prev => [
          ...prev, 
          {
@@ -1344,7 +1249,6 @@ export const handleCancerScreeningDetailsSubmit = (cancerScreeningInput, toast, 
            timestamp: new Date()
          }
        ]);
-       // Update the current step
        setCurrentStep(nextId);
      }
    }, 1000);
@@ -1380,13 +1284,11 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
       return;
     }
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       medications: selectedMedications
     }));
-    
-    // Add user's medications as a message
+
     setMessages(prev => [
       ...prev, 
       {
@@ -1399,7 +1301,6 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
       }
     ]);
     
-    // Reset medications
     setMedications({
       anticoagulants: false,
       statins: false,
@@ -1411,12 +1312,10 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
       none: false
     });
     
-    // Move to the next step using nextId from conversationFlow.medications
     setTimeout(() => {
       const nextId = conversationFlow.medications?.nextId || 'allergies';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -1426,15 +1325,12 @@ export const handleMedicationsSubmit = (medications, toast, setUserResponses, se
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
   };
   
-  // Handle allergyDetails submission
 export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMessages, conversationFlow, setCurrentStep, routeBasedOnSex, setAllergyInput) => {
-    // Validate allergy input
     if (!allergyInput.trim()) {
       toast({
         title: "Error",
@@ -1447,13 +1343,11 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
       return;
     }
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       allergies: allergyInput
     }));
     
-    // Add user's allergies as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -1464,12 +1358,9 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
       }
     ]);
     
-    // Clear input
     setAllergyInput('');
     
-    // Move to the next step using nextId from conversationFlow.allergies, or call routeBasedOnSex if specified
     setTimeout(() => {
-      // Use nextId from allergyDetails step for custom input progression
       const nextId = conversationFlow.allergyDetails?.nextId;
       if (nextId && nextId !== 'routeBasedOnSex') {
         const nextStep = conversationFlow[nextId];
@@ -1486,7 +1377,6 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
           setCurrentStep(nextId);
         }
       } else {
-        // Default or explicit routeBasedOnSex
         routeBasedOnSex();
       }
     }, 1000);
@@ -1494,7 +1384,6 @@ export const handleAllergySubmit = (allergyInput, toast, setUserResponses, setMe
         
   // Handle smoking packs per day input
 export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setSmokingPacksInput) => {
-    // Validate packs input
     if (!smokingPacksInput.trim()) {
       setSmokingPacksError('Number of packs per day is required');
       return;
@@ -1506,11 +1395,9 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
       setSmokingPacksError('Please enter a valid number between 0 and 10');
       return;
     }
-    
-    // Clear error
+
     setSmokingPacksError('');
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       lifestyle: {
@@ -1522,7 +1409,6 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
       }
     }));
     
-    // Add user's smoking packs as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -1533,10 +1419,8 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
       }
     ]);
     
-    // Clear input
     setSmokingPacksInput('');
     
-    // Move to the next step: always go to 'smokingAmount' after packs per day
     setTimeout(() => {
       const nextId = 'smokingAmount';
       const nextStep = conversationFlow[nextId];
@@ -1557,7 +1441,6 @@ export const handleSmokingPacksSubmit = (smokingPacksInput, setSmokingPacksError
 
   //Handle prostate test age input
 export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTestAgeError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setProstateTestAgeInput) => {
-    // Validate age input
     if (!prostateTestAgeInput.trim()) {
       setProstateTestAgeError('Age at last prostate test is required');
       return;
@@ -1570,10 +1453,8 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
       return;
     }
 
-    // Clear error
     setProstateTestAgeError('');
 
-    // Update user responses with prostate test age
     setUserResponses(prev => ({
       ...prev,
       sexSpecificInfo: {
@@ -1589,7 +1470,6 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
       }
     }));
 
-    // Add user's prostate test age as a message
     setMessages(prev => [
       ...prev,
       {
@@ -1600,15 +1480,12 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
       }
     ]);
 
-    // Clear input
     setProstateTestAgeInput('');
 
-    // Move to the next step using nextId from conversationFlow.prostateTestAge
     setTimeout(() => {
       const nextId = conversationFlow.prostateTestAge?.nextId || 'testicularIssues';
       const nextStep = conversationFlow[nextId];
       if (nextStep) {
-        // Add bot's next question
         setMessages(prev => [
           ...prev, 
           {
@@ -1618,14 +1495,12 @@ export const handleProstateTestAgeSubmit = (prostateTestAgeInput, setProstateTes
             timestamp: new Date()
           }
         ]);
-        // Update the current step
         setCurrentStep(nextId);
       }
     }, 1000);
   };
   // Handle smoking years input and calculate pack-years
 export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError, setMessages, setCurrentStep, conversationFlow, userResponses, setUserResponses, setSmokingYearsInput, setPackYears) => {
-    // Validate years input
     if (!smokingYearsInput.trim()) {
       setSmokingYearsError('Number of years is required');
       return;
@@ -1638,14 +1513,12 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
       return;
     }
     
-    // Clear error
     setSmokingYearsError('');
     
-    // Calculate pack-years: packs per day × years smoked
+    // pack-years calculation : packs per day × years smoked
     const packsPerDay = userResponses.lifestyle.smoking.packsPerDay || 0;
     const calculatedPackYears = Math.round(packsPerDay * years * 10) / 10; // Round to 1 decimal place
     
-    // Update consolidated responses
     setUserResponses(prev => ({
       ...prev,
       lifestyle: {
@@ -1658,10 +1531,8 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
       }
     }));
     
-    // Set pack-years state
     setPackYears(calculatedPackYears);
     
-    // Add user's smoking years and calculated pack-years as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -1672,10 +1543,8 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
       }
     ]);
     
-    // Clear input
     setSmokingYearsInput('');
     
-    // Move to the next step: always go to 'alcoholConsumption' after years smoked
     setTimeout(() => {
       const nextId = 'alcoholConsumption';
       const nextStep = conversationFlow[nextId];
@@ -1694,9 +1563,8 @@ export const handleSmokingYearsSubmit = (smokingYearsInput, setSmokingYearsError
     }, 1000);
   };
   
-  // Handle alcohol amount input
+  // Handle alcohol amount 
 export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountError, setUserResponses, setMessages, conversationFlow, setCurrentStep, setAlcoholAmountInput) => {
-    // Validate alcohol amount input
     if (!alcoholAmountInput.trim()) {
       setAlcoholAmountError('Number of drinks per week is required');
       return;
@@ -1709,10 +1577,8 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
       return;
     }
 
-    // Clear error
     setAlcoholAmountError('');
-    
-    // Update consolidated responses
+
     setUserResponses(prev => ({
       ...prev,
       lifestyle: {
@@ -1723,8 +1589,7 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
         }
       }
     }));
-    
-    // Add user's alcohol amount as a message
+
     setMessages(prev => [
       ...prev, 
       {
@@ -1734,11 +1599,9 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
         timestamp: new Date()
       }
     ]);
-    
-    // Clear input
+
     setAlcoholAmountInput('');
-    
-    // Move to the next step using nextId from conversationFlow.alcoholAmount
+
     setTimeout(() => {
       const nextId = conversationFlow.alcoholAmount?.nextId || 'saltySmokedFoods';
       const nextStep = conversationFlow[nextId];
@@ -1757,18 +1620,14 @@ export const handleAlcoholAmountSubmit = (alcoholAmountInput, setAlcoholAmountEr
     }, 1000);
   };
 
-  // Handle clicking a response option
+  // Handle clicking a response option (but tbh this is just a default for yes/no)
 export const handleOptionSelect = (optionText, nextId, currentStep, isProcessingSelection, setIsProcessingSelection, setSelectedOption, setMessages, setUserResponses, userResponses, conversationFlow, setCurrentStep, userSex, setUserSex, setMenstruationStatus, routeBasedOnSex) => {
-    // Prevent multiple clicks by setting processing state
     if (isProcessingSelection) return;
     
-    // Set processing state to true to disable all buttons
     setIsProcessingSelection(true);
     
-    // Set the selected option
     setSelectedOption(optionText);
     
-    // Add user's response as a message
     setMessages(prev => [
       ...prev, 
       {
@@ -1778,8 +1637,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         timestamp: new Date()
       }
     ]);
-
-    // Update user responses based on current step
+    //Handle hypertension
     if (currentStep === 'hypertension') {
       setUserResponses(prev => ({
         ...prev,
@@ -1811,7 +1669,6 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
     }
 
-    // Update user responses based on current step
     // Goff Symptom Index questions
     if (currentStep === 'goffBloating') {
       setUserResponses(prev => ({
@@ -1868,6 +1725,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           }
         }
       }));
+      //handle pernicious anemia
     } else if (currentStep === 'perniciousAnemia') {
         setUserResponses(prev => ({
             ...prev,
@@ -1877,6 +1735,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
             }
         }));
     }
+    //Standard stuff
     if (currentStep === 'sex') {
       setUserResponses(prev => ({
         ...prev,
@@ -1899,6 +1758,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes or no to family history of cancer
     else if (currentStep === 'familyHistory') {
       setUserResponses(prev => ({
         ...prev,
@@ -1911,6 +1771,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle smokingstatus (if person smokes)
     else if (currentStep === 'smokingStatus') {
       setUserResponses(prev => ({
         ...prev,
@@ -1923,6 +1784,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes/no transplant
     else if (currentStep === 'transplant') {
       setUserResponses(prev => ({
         ...prev,
@@ -1932,6 +1794,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes/no to allergies
     else if (currentStep === 'allergies') {
       if (optionText === 'No') {
         setUserResponses(prev => ({
@@ -1940,6 +1803,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }));
       }
     }
+    //symptom screening handlers
     else if (currentStep === 'swallowingDifficulty') {
       setUserResponses(prev => ({
         ...prev,
@@ -2003,6 +1867,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    //handle gastrectomy yes/no
     else if (currentStep === 'partialGastrectomy') {
       setUserResponses(prev => ({
         ...prev,
@@ -2013,10 +1878,9 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
     }
     else if (currentStep === 'checkSex') {
-      // This case is kept for backward compatibility, but should no longer be used
-      // as we're now directly calling routeBasedOnSex() from handleAllergySubmit
       routeBasedOnSex();
     } 
+    // handle yes/no urinary symptoms
     else if (currentStep === 'urinarySymptoms') {
       setUserResponses(prev => ({
         ...prev,
@@ -2029,6 +1893,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes/no to prostate test
     else if (currentStep === 'prostateTest') {
       setUserResponses(prev => ({
         ...prev,
@@ -2044,6 +1909,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes/no to testicularissues
     else if (currentStep === 'testicularIssues') {
       setUserResponses(prev => ({
         ...prev,
@@ -2056,6 +1922,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    //handle premenopause/postmenopause
     else if (currentStep === 'menstruationStatus') {
       setUserResponses(prev => ({
         ...prev,
@@ -2069,6 +1936,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }));
       setMenstruationStatus(optionText);
     } 
+    //handle yes/no to currently pregnant
     else if (currentStep === 'currentPregnancy'){
       setUserResponses(prev => ({
         ...prev,
@@ -2096,6 +1964,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     } 
+    // handle yes/no to birth control pills
     else if (currentStep === 'birthControl') {
       setUserResponses(prev => ({
         ...prev,
@@ -2108,6 +1977,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle yes/no to hrt
     else if (currentStep === 'hormoneReplacementTherapy') {
       setUserResponses(prev => ({
         ...prev,
@@ -2120,6 +1990,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle yes/no to tubal ligation
     else if (currentStep === 'tubalLigation') {
       setUserResponses(prev => ({
         ...prev,
@@ -2132,6 +2003,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle yes/no to ovary removal
     else if (currentStep === 'ovaryRemoved') {
       setUserResponses(prev => ({
         ...prev,
@@ -2139,11 +2011,12 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           ...prev.sexSpecificInfo,
           female: {
             ...prev.sexSpecificInfo.female,
-            ovaryRemoved: optionText // "Left", "Right", "Both", or "None"
+            ovaryRemoved: optionText 
           }
         }
       }));
     }
+    //handle yes/no to hpv vaccine
     else if (currentStep === 'hpvVaccine') {
       setUserResponses(prev => ({
         ...prev,
@@ -2153,6 +2026,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    //handle yes/no to hepatitis B vaccine
     else if (currentStep === 'hepBVaccine') {
       setUserResponses(prev => ({
         ...prev,
@@ -2162,6 +2036,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle yes/no to brca mutation
     else if (currentStep === 'brcaMutation') {
       setUserResponses(prev => ({
         ...prev,
@@ -2175,6 +2050,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle yes/no to cdh1 or other gastric gene mutation
     else if (currentStep === 'gastricGeneMutation') {
       setUserResponses(prev => ({
         ...prev,
@@ -2184,6 +2060,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    // handle no. of births
     else if (currentStep === 'numberOfBirths') {
       setUserResponses(prev => ({
         ...prev,
@@ -2196,6 +2073,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         }
       }));
     }
+    //handle menopause age
     else if (currentStep === 'menopauseAge') {
       setUserResponses(prev => ({
         ...prev,
@@ -2203,27 +2081,20 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           ...prev.sexSpecificInfo,
           female: {
             ...prev.sexSpecificInfo.female,
-            menopauseAge: optionText // integer input as string
+            menopauseAge: optionText 
           }
         }
       }));
     }
 
-    // Move to the next step after a short delay
     setTimeout(() => {
-      // Reset processing state after UI updates are complete
       setIsProcessingSelection(false);
-      
-      // Special handling for routeBasedOnSex
       if (nextId === "routeBasedOnSex") {
-        // Directly call the routeBasedOnSex function
         routeBasedOnSex();
       } 
       else {
-        // Special handling for prostateTest for males under 30
         if (nextId === "prostateTest" && userSex === "Male" && userResponses.demographics.age < 30) {
           // Skip prostate test for males under 30
-          // Pre-fill the prostate test data as No and N/A
           setUserResponses(prev => ({
             ...prev,
             sexSpecificInfo: {
@@ -2232,13 +2103,12 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
                 ...prev.sexSpecificInfo.male,
                 prostateTest: {
                   had: false,
-                  ageAtLast: "N/A" // Using "N/A" as a string value for age at last test
+                  ageAtLast: "N/A" 
                 }
               }
             }
           }));
           
-          // Directly go to testicularIssues
           const skipToStep = conversationFlow.testicularIssues;
           
           if (skipToStep) {
@@ -2258,11 +2128,9 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
           }
         } 
         else {
-          // Normal flow - move to the next step in the conversation flow
           const nextStep = conversationFlow[nextId];
           
           if (nextStep) {
-            // Add bot's next question
             setMessages(prev => [
               ...prev, 
               {
@@ -2272,8 +2140,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
                 timestamp: new Date()
               }
             ]);
-            
-            // Update the current step
+
             setCurrentStep(nextId);
             
           }
@@ -2281,5 +2148,3 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
       }
     }, 1000);
   };
-
-// Handle kidney issue (Yes/No)

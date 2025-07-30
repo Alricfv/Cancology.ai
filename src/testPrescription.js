@@ -46,7 +46,7 @@ export const getPrescribedTests = (userResponses) => {
       });
     }
 
-      // Breast Cancer Screening (Mammogram)
+      // Breast Cancer Screening 
     if (demographics.age >= 40) {
       tests.push({
         name: "Mammogram",
@@ -115,9 +115,8 @@ export const getPrescribedTests = (userResponses) => {
     }
     
     // 2. African American ethnicity
-    if (userResponses.demographics.ethnicity && 
-       userResponses.demographics.ethnicity.toLowerCase().includes('black')) {
-      highRiskFactors.push("African American ethnicity");
+    if (userResponses.demographics.ethnicity.toLowerCase().includes('Black')) {
+      highRiskFactors.push("Black/African American ethnicity");
       isHighRisk = true;
     }
     
@@ -128,9 +127,8 @@ export const getPrescribedTests = (userResponses) => {
     }
     
     // 4. Genetic mutations
-    if (userResponses.medicalHistory.geneticMutations && 
-        (userResponses.medicalHistory.geneticMutations.includes('BRCA1') || 
-         userResponses.medicalHistory.geneticMutations.includes('BRCA2'))) {
+    if (userResponses.medicalHistory.geneticMutations.includes('BRCA1') || 
+        userResponses.medicalHistory.geneticMutations.includes('BRCA2')) {
       highRiskFactors.push("genetic mutations associated with increased cancer risk");
       isHighRisk = true;
     }
@@ -244,11 +242,9 @@ export const getPrescribedTests = (userResponses) => {
   // 1. HPV status (no vaccination, known infection or high-risk sexual behavior)
   let hasNoHpvVaccine = false;
   
-  // For males, only check the general vaccination data
   if (demographics.sex === 'Male') {
     hasNoHpvVaccine = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
   } 
-  // For females, check both general and female-specific vaccination data
   else if (demographics.sex === 'Female') {
     const generalVaccineStatus = userResponses.vaccinations ? (userResponses.vaccinations.hpv === false) : false;
     const femaleSpecificStatus = sexSpecificInfo.female ? (sexSpecificInfo.female.hpvVaccine === false) : false;
@@ -320,8 +316,8 @@ export const getPrescribedTests = (userResponses) => {
         return false;
       }
       if (factor === "family history of oral/throat cancer" && 
-          (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('oral') || 
-           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('throat'))) {
+          (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Oral') || 
+           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Throat'))) {
         return true;
       }
       if (factor === "immunosuppression" && userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
