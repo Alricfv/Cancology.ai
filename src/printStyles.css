@@ -44,7 +44,7 @@
     background-color: white !important;
   }
 
-  /* spacing adjustments for the print functionality */
+  /* spacing adjustments for the pdf summary */
   h1, h2, h3, h4 {
     margin-top: 10pt !important;
     margin-bottom: 5pt !important;

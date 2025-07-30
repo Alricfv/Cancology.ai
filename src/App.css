@@ -111,14 +111,14 @@ body, html {
   border: 2px solid #F7FAFC;
 }
 
-/* Ensure tests are fully displayed */
+/* Ensuring that test prescriptions are fully displayed */
 @media screen and (max-height: 900px) {
   .a4-page {
     max-height: 80vh !important;
   }
 }
 
-/* Recommended tests container */
+/* container for prescribed tests */
 .tests-container {
   padding-bottom: 60px; 
 }
