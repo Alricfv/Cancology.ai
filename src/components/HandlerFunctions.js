@@ -1809,7 +1809,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          swallowingDifficulty: optionText 
+          swallowingDifficulty: optionText === 'Yes'
         }
       }));
     }
@@ -1818,7 +1818,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          blackStool: optionText 
+          blackStool: optionText === 'Yes'
         }
       }));
     }
@@ -1827,7 +1827,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          weightLoss: optionText 
+          weightLoss: optionText === 'Yes'
         }
       }));
     }
@@ -1836,7 +1836,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          vomiting: optionText 
+          vomiting: optionText === 'Yes'
         }
       }));
     }
@@ -1845,7 +1845,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          epigastricPain: optionText
+          epigastricPain: optionText === 'Yes'
         }
       }));
     }
@@ -1854,7 +1854,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          indigestion: optionText // Store the frequency string directly
+          indigestion: optionText // because there's 4 options here
         }
       }));
     }
@@ -1863,7 +1863,7 @@ export const handleOptionSelect = (optionText, nextId, currentStep, isProcessing
         ...prev,
         symptoms: {
           ...prev.symptoms,
-          painWakesAtNight: optionText 
+          painWakesAtNight: optionText === 'Yes'
         }
       }));
     }

@@ -8,8 +8,9 @@ import {
   Flex,
   Spacer
 } from '@chakra-ui/react';
-import {FaPrint, FaHome} from 'react-icons/fa';
+import {FaPrint, FaHome, FaAffiliatetheme} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
+import { FaF } from 'react-icons/fa6';
 
 const SummaryComponent = ({ userResponses}) => {
   const toast = useToast();
@@ -103,20 +104,14 @@ const SummaryComponent = ({ userResponses}) => {
 
     // BRCA1/2 mutation check
     if (
-      userResponses.medicalHistory &&
       (userResponses.medicalHistory.brcaMutationStatus === 'Yes' || userResponses.medicalHistory.brcaMutationStatus === true)
     ) {
       hasBRCA = true;
     }
 
     // Family history for ovarian cancer check
-    if (
-      userResponses.medicalHistory &&
-      userResponses.medicalHistory.familyCancer &&
-      userResponses.medicalHistory.familyCancer.diagnosed &&
-      userResponses.medicalHistory.familyCancer.type &&
-      typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
-      userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('ovarian')
+    if (typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+      userResponses.medicalHistory.familyCancer.type.includes('Ovarian')
     ) {
       hasOvarianFamilyHistory = true;
     }
@@ -135,13 +130,8 @@ const SummaryComponent = ({ userResponses}) => {
 
       // Family history of gastric cancer
       let familyGastricCancer = false;
-      if (
-        userResponses.medicalHistory &&
-        userResponses.medicalHistory.familyCancer &&
-        userResponses.medicalHistory.familyCancer.diagnosed &&
-        userResponses.medicalHistory.familyCancer.type &&
-        typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
-        userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('gastric')
+      if (typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
+        userResponses.medicalHistory.familyCancer.type.includes('Gastric')
       ) {
         familyGastricCancer = true;
       }
@@ -149,7 +139,6 @@ const SummaryComponent = ({ userResponses}) => {
       // H.Pylori
       let hPyloriYes = false;
       if (
-        userResponses.lifestyle &&
         (userResponses.lifestyle.hPylori === 'Yes' || userResponses.lifestyle.hPylori === true)
       ) {
         hPyloriYes = true;
@@ -286,9 +275,16 @@ const SummaryComponent = ({ userResponses}) => {
       const lifestyleFactors = `
         <div class="section-title">Lifestyle Factors</div>
         <div class="grid">
-          <div class="label">Smoking Status:</div>
+          <div class="label">Smoking (Pack-Years):</div>
           <div class="value">
-            ${formatBadge(userResponses.lifestyle.smoking.current, 'Current Smoker', 'Non-Smoker', 'red', 'green')}
+            ${(() => {
+              if (userResponses.lifestyle.smoking.packYears === 0 || userResponses.lifestyle.smoking.packYears === null)
+                return '<span class ="badge badge-green">0 (Non-Smoker)</span>';
+              if (0 < userResponses.lifestyle.smoking.packYears && userResponses.lifestyle.smoking.packYears <20)
+                return `<span class ="badge badge-yellow">${userResponses.lifestyle.smoking.packYears} (Low/Moderate)</span>`;
+              if (userResponses.lifestyle.smoking.packYears >= 20)
+                return `<span class="badge badge-red">${userResponses.lifestyle.smoking.packYears} (High Risk)</span>`;
+            })()}
           </div>
 
           <div class="label">Alcohol Consumption:</div>
@@ -304,15 +300,7 @@ const SummaryComponent = ({ userResponses}) => {
           <div class="value">
             ${(() => {
               const val = userResponses.lifestyle.saltySmokedFoods;
-              if (!val) return 'Not specified';
-              const normalized = val.trim().toLowerCase();
-              if (normalized === '4 or more times a week') return '4+/week';
-              if (normalized === '>1/week' || normalized === 'less than one time a week') return '>1/week';
-              if (normalized === '1-3 times a week') return '1-3/week';
-              if (normalized === 'once a week') return '1/week';
-              if (normalized === 'rarely' || normalized === 'less than once a week') return 'Rarely';
-              if (normalized === 'never') return 'Never';
-              return val;
+              return val ? val : 'Not specified';
             })()}
           </div>
 
@@ -320,16 +308,7 @@ const SummaryComponent = ({ userResponses}) => {
           <div class="value">
             ${(() => {
               const servings = userResponses.lifestyle.fruitVegServings;
-              if (!servings) return 'Not specified';
-              const normalized = servings.trim().toLowerCase();
-              if (normalized === '5 or more servings') return '5+/day';
-              if (normalized === '3-4 servings') return '3-4/day';
-              if (normalized === '1-2 servings') return '1-2/day';
-              if (normalized === 'rarely' || normalized === 'less than 1 serving') return 'Rarely';
-              if (normalized === 'never') return 'Never';
-              // Try to extract a number from the servings string
-              const match = servings.match(/(\d+\+?)/);
-              return match ? `${match[1]}/day` : `${servings}/day`;
+              return servings ? servings : 'Not specified';
             })()}
           </div>
 
@@ -578,11 +557,9 @@ const SummaryComponent = ({ userResponses}) => {
           
           <div class="label">Hypertension Diagnosis:</div>
           <div class="value">
-            ${userResponses.medicalHistory && typeof userResponses.medicalHistory.hypertension !== 'undefined' 
-              ? (userResponses.medicalHistory.hypertension 
+            ${userResponses.medicalHistory.hypertension 
                   ? '<span class="badge badge-red">Yes</span>' 
-                  : '<span class="badge badge-green">No</span>')
-              : '<span class="not-specified">Not specified</span>'}
+                  : '<span class="badge badge-green">No</span>'}
           </div>
         </div>
       `;
@@ -1116,10 +1093,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms.swallowingDifficulty;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1132,10 +1109,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms?.blackStool;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1148,10 +1125,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms?.weightLoss;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1164,10 +1141,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms?.vomiting;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1180,10 +1157,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms?.epigastricPain;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1206,10 +1183,10 @@ const SummaryComponent = ({ userResponses}) => {
                   <div class="value">
                     ${(() => {
                       const val = userResponses.symptoms?.painWakesAtNight;
-                      if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                      if (val === true ) {
                         return '<span class="badge badge-red">Yes</span>';
                       }
-                      if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                      if (val === false ) {
                         return '<span class="badge badge-green">No</span>';
                       }
                       if (val === undefined || val === null || val === '') {
@@ -1441,7 +1418,7 @@ const SummaryComponent = ({ userResponses}) => {
       </Box>
       <Box mb={6}>
         <SectionTitle>Lifestyle</SectionTitle>
-        <SummaryLine label="Smoking Status" value={userResponses.lifestyle.smoking.current ? 'Current Smoker' : 'Non-Smoker'} />
+        <SummaryLine label="Smoking (Pack-Years)" value={userResponses.lifestyle.smoking.packYears} />
         <SummaryLine label="Alcohol Consumption" value={userResponses.lifestyle.alcohol?.consumes ? `Yes (${userResponses.lifestyle.alcohol.drinksPerWeek || 0} drinks/week)` : 'No'} />
         <SummaryLine label="Salty/Smoked Foods" value={userResponses.lifestyle.saltySmokedFoods || 'Not specified'} />
         <SummaryLine label="Fruits & Veg (servings)" value={userResponses.lifestyle.fruitVegServings || 'Not specified'} />
@@ -1568,39 +1545,25 @@ const SummaryComponent = ({ userResponses}) => {
     <Box mb={6}>
       <SectionTitle>Symptom Screening</SectionTitle>
       <SummaryLine label="Pain/Difficulty While Swallowing" value={
-        userResponses.symptoms?.swallowingDifficulty === true || (typeof userResponses.symptoms?.swallowingDifficulty === 'string' && userResponses.symptoms.swallowingDifficulty.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.swallowingDifficulty === false || (typeof userResponses.symptoms?.swallowingDifficulty === 'string' && userResponses.symptoms.swallowingDifficulty.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.swallowingDifficulty === true  ? 'Yes' : 'No'
       } />
       <SummaryLine label="Black, Sticky/Tar-Like Stools (Melena)" value={
-        userResponses.symptoms?.blackStool === true || (typeof userResponses.symptoms?.blackStool === 'string' && userResponses.symptoms.blackStool.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.blackStool === false || (typeof userResponses.symptoms?.blackStool === 'string' && userResponses.symptoms.blackStool.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.blackStool === true  ? 'Yes' : 'No'
       } />
       <SummaryLine label="Unintentional Weight Loss" value={
-        userResponses.symptoms?.weightLoss === true || (typeof userResponses.symptoms?.weightLoss === 'string' && userResponses.symptoms.weightLoss.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.weightLoss === false || (typeof userResponses.symptoms?.weightLoss === 'string' && userResponses.symptoms.weightLoss.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.weightLoss === true ? 'Yes' : 'No' 
       } />
       <SummaryLine label="Persistent vomiting >1 week for no reason" value={
-        userResponses.symptoms?.vomiting === true || (typeof userResponses.symptoms?.vomiting === 'string' && userResponses.symptoms.vomiting.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.vomiting === false || (typeof userResponses.symptoms?.vomiting === 'string' && userResponses.symptoms.vomiting.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.vomiting === true ? 'Yes' : 'No'
       } />
       <SummaryLine label="Persistent Upper Stomach (Epigastric) Pain >1 Month" value={
-        userResponses.symptoms?.epigastricPain === true || (typeof userResponses.symptoms?.epigastricPain === 'string' && userResponses.symptoms.epigastricPain.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.epigastricPain === false || (typeof userResponses.symptoms?.epigastricPain === 'string' && userResponses.symptoms.epigastricPain.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.epigastricPain === true ? 'Yes' : 'No'
       } />
       <SummaryLine label="Frequency of Indigestion or heartburn" value={
-        userResponses.symptoms?.indigestion !== undefined && userResponses.symptoms?.indigestion !== null && userResponses.symptoms?.indigestion !== ''
-          ? userResponses.symptoms.indigestion
-          : 'Not specified'
+         userResponses.symptoms.indigestion || 'N/A'
       } />
       <SummaryLine label="Sleep Disturbed By Pain" value={
-        userResponses.symptoms?.painWakesAtNight === true || (typeof userResponses.symptoms?.painWakesAtNight === 'string' && userResponses.symptoms.painWakesAtNight.trim().toLowerCase() === 'yes') ? 'Yes'
-          : userResponses.symptoms?.painWakesAtNight === false || (typeof userResponses.symptoms?.painWakesAtNight === 'string' && userResponses.symptoms.painWakesAtNight.trim().toLowerCase() === 'no') ? 'No'
-          : 'Not specified'
+        userResponses.symptoms?.painWakesAtNight === true ? 'Yes' : 'No'
       } />
     </Box>
       {/* Recommended Cancer Screening Tests section */}

@@ -19,7 +19,6 @@ export const getPrescribedTests = (userResponses) => {
     return riskScore;
   };
   
-  // Cancer Screening recommendations for females
   if (demographics.sex === 'Female') {
     calculateCervicalCancerRisk();
     
@@ -108,25 +107,22 @@ export const getPrescribedTests = (userResponses) => {
     const highRiskFactors = [];
     let isHighRisk = false;
     
-    // 1. Family history of prostate cancer
-    if (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('prostate')) {
+    if (userResponses.medicalHistory.familyCancer.type.includes('Prostate')) {
       highRiskFactors.push("family history of prostate cancer");
       isHighRisk = true;
     }
-    
-    // 2. African American ethnicity
-    if (userResponses.demographics.ethnicity.toLowerCase().includes('Black')) {
+    // the below information is solely due to genetic factors, please do not attribute
+    // it to any other beliefs.
+    if (userResponses.demographics.ethnicity.includes('Black')) {
       highRiskFactors.push("Black/African American ethnicity");
       isHighRisk = true;
     }
-    
-    // 3. Urinary symptoms
+
     if (userResponses.sexSpecificInfo.male.urinarySymptoms) {
       highRiskFactors.push("urinary symptoms");
       isHighRisk = true;
     }
-    
-    // 4. Genetic mutations
+
     if (userResponses.medicalHistory.geneticMutations.includes('BRCA1') || 
         userResponses.medicalHistory.geneticMutations.includes('BRCA2')) {
       highRiskFactors.push("genetic mutations associated with increased cancer risk");
@@ -188,13 +184,13 @@ export const getPrescribedTests = (userResponses) => {
   
   // 1. Family history of skin cancer
   if (
-      userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Skin')) {
+      userResponses.medicalHistory.familyCancer.type.includes('Skin')) {
     skinCancerRiskFactors.push("family history of skin cancer");
     isHighRiskForSkinCancer = true;
   }
   
   // 2. Personal history of skin cancer
-  if (userResponses.medicalHistory.personalCancer.type.toLowerCase().includes('Skin')) {
+  if (userResponses.medicalHistory.personalCancer.type.includes('Skin')) {
     skinCancerRiskFactors.push("personal history of skin cancer");
     isHighRiskForSkinCancer = true;
   }
@@ -348,7 +344,7 @@ export const getPrescribedTests = (userResponses) => {
   // Renal Cancer Screening: Renal ultrasound with/without urinalysis 
   if (
     demographics.age >= 40 &&
-    (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('renal') ||
+    (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Renal') ||
     userResponses.medicalHistory.chronicConditions.includes('Hypertension') ||
     userResponses.vhlSuspicion === 'Yes')
     ) {

@@ -1,8 +1,5 @@
 import SummaryComponent from '../SummaryComponent';
 
-
-
-
 // Method to trigger direct PDF download using html2pdf.js (for mobile)
 const downloadPdfDirect = (summaryHtml) => {
   if (window.html2pdf) {

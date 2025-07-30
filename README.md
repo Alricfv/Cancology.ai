@@ -19,4 +19,4 @@ Cancology.ai is a simple web app for assessing individuals based on their medica
 
 ## License
 
-MIT
+Apache License 2.0
