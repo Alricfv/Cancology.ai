@@ -195,12 +195,6 @@ export const getPrescribedTests = (userResponses) => {
     isHighRiskForSkinCancer = true;
   }
   
-  // 3. Immunosuppression
-  if (userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
-    skinCancerRiskFactors.push("immunosuppression");
-    isHighRiskForSkinCancer = true;
-  }
-  
     // Adds skin cancer screening if high risk is determined
   if (isHighRiskForSkinCancer) {
     let riskReason = `Skin cancer screening recommended due to risk factors: ${skinCancerRiskFactors.join(", ")}`;
@@ -277,21 +271,16 @@ export const getPrescribedTests = (userResponses) => {
     isHighRiskForOralCancer = true;
   }
   
-  // 5. Immunosuppression
-  if (userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
-    oralCancerRiskFactors.push("immunosuppression");
-    isHighRiskForOralCancer = true;
-  }
+
   
   
   if (isHighRiskForOralCancer && demographics.age >= 30 && demographics.age <= 65) {
     const userRiskFactors = oralCancerRiskFactors.filter(factor => {
       // Only include risk factors that actually to a user (ie, give them the basis on which we determined the test for them)
-      if (factor === "tobacco use"  && userResponses.lifestyle.smoking && userResponses.lifestyle.smoking.current) {
+      if (factor === "tobacco use"  && userResponses.lifestyle.smoking.packYears >=20) {
         return true;
       }
-      if (factor === "high alcohol consumption" && userResponses.lifestyle.alcohol && 
-          userResponses.lifestyle.alcohol.drinksPerWeek > 7) {
+      if (factor === "high alcohol consumption") {
         return true;
       }
       if (factor === "unprotected sex or HPV/HIV diagnosis"&& userResponses.lifestyle.sexualHealth.unprotectedSexOrHpvHiv) {
@@ -312,13 +301,9 @@ export const getPrescribedTests = (userResponses) => {
         return false;
       }
       if (factor === "family history of oral/throat cancer" && 
-          (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Oral') || 
-           userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Throat'))) {
+          (userResponses.medicalHistory.familyCancer.type.includes('Oral'))) {
         return true;
-      }
-      if (factor === "immunosuppression" && userResponses.medicalHistory.chronicConditions.includes('Immunosuppression')) {
-        return true;
-      }
+        }
       return false;
     });
     

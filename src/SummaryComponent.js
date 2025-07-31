@@ -507,25 +507,31 @@ const SummaryComponent = ({ userResponses}) => {
 
             <div class="label">Endometriosis diagnosis:</div>
             <div class="value">
-              ${formatBadge(
-                userResponses.medicalHistory.endometriosis === 'Yes',
-                'Yes',
-                'No',
-                'purple',
-                'gray'
-              )}
+            ${(() => {
+              const endometrios = userResponses.medicalHistory.endometriosis;
+              if (endometrios === null){
+                return `<span class="not-specified">Not specified</span>`;
+              }
+              if (endometrios === true){
+                return `<span class="badge badge-red">Yes</span>`;
+              }
+              if (endometrios === false){
+                return `<span class="badge badge-green"No</span>`;
+              }
+              
+            })()}
             </div>
             <div class="label">IVF Drugs:</div>
             <div class="value">
               ${(() => {
                 const val = userResponses.sexSpecificInfo.female.IVF_history;
-                if (val === undefined || val === null || val === '') {
+                if (val === null) {
                   return '<span class="not-specified">Not specified</span>';
                 }
-                if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) {
+                if (val === true ) {
                   return '<span class="badge badge-red">Yes</span>';
                 }
-                if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) {
+                if (val === false ) {
                   return '<span class="badge badge-green">No</span>';
                 }
                 return val;
@@ -1446,12 +1452,15 @@ const SummaryComponent = ({ userResponses}) => {
           <SummaryLine label="Hormone Replacement Therapy" value={userResponses.sexSpecificInfo?.female?.hormoneReplacementTherapy ? 'Yes' : 'No'} />
           <SummaryLine label="Tubal ligation" value={userResponses.sexSpecificInfo?.female?.tubalLigation === true ? 'Yes' : 'No'} />
           <SummaryLine label="Ovary Removal" value={userResponses.sexSpecificInfo?.female?.ovaryRemoved !== undefined && userResponses.sexSpecificInfo.female.ovaryRemoved !== null && userResponses.sexSpecificInfo.female.ovaryRemoved !== '' ? userResponses.sexSpecificInfo.female.ovaryRemoved : 'Not specified'} />
-          <SummaryLine label="Endometriosis diagnosis" value={userResponses.medicalHistory?.endometriosis === 'Yes' ? 'Yes' : 'No'} />
+          <SummaryLine label="Endometriosis diagnosis" value={userResponses.medicalHistory?.endometriosis === true ? 'Yes' : 'No'} />
           <SummaryLine label="IVF Drugs" value={(() => {
             const val = userResponses.sexSpecificInfo?.female?.IVF_history;
-            if (val === undefined || val === null || val === '') return 'Not specified';
-            if (val === true || (typeof val === 'string' && val.trim().toLowerCase() === 'yes')) return 'Yes';
-            if (val === false || (typeof val === 'string' && val.trim().toLowerCase() === 'no')) return 'No';
+            if (val === undefined) 
+              return 'Not specified';
+            if (val === true ) 
+              return 'Yes';
+            if (val === false ) 
+              return 'No';
             return val;
           })()} />
         </Box>
@@ -1491,19 +1500,13 @@ const SummaryComponent = ({ userResponses}) => {
       <Box mb={6}>
         <SectionTitle>Gastrointestinal Surgery</SectionTitle>
         <SummaryLine label="Partial Gastrectomy" value={
-          typeof userResponses.surgery !== 'undefined' && typeof userResponses.surgery.partialGastrectomy !== 'undefined'
-            ? (userResponses.surgery.partialGastrectomy ? 'Yes' : 'No')
-            : 'Not specified'
+          (userResponses.surgery.partialGastrectomy ? 'Yes' : 'No')  
         } />
         <SummaryLine label="Pernicious Anemia" value={
-          typeof userResponses.medicalHistory?.perniciousAnemia !== 'undefined'
-            ? (userResponses.medicalHistory.perniciousAnemia === 'Yes' ? 'Yes' : 'No')
-            : 'Not specified'
+          (userResponses.medicalHistory.perniciousAnemia ? 'Yes' : 'No')
         } />
         <SummaryLine label="CDH1/Gene Mutation" value={
-          typeof userResponses.medicalHistory?.gastricGeneMutation !== 'undefined'
-            ? (userResponses.medicalHistory.gastricGeneMutation === 'Yes' ? 'Yes' : 'No')
-            : 'Not specified'
+          (userResponses.medicalHistory.gastricGeneMutation ? 'Yes' : 'No')   
         } />
       </Box>
       <Box mb={6}>
@@ -1516,29 +1519,20 @@ const SummaryComponent = ({ userResponses}) => {
       <Box mb={6}>
         <SectionTitle>Ovarian Cancer Symptom Screening (Goff Criteria)</SectionTitle>
         <SummaryLine label="Persistent Bloating or Abdominal Swelling" value={
-          userResponses.symptoms.goffSymptomIndex.bloating === true ? 'Yes'
-            : userResponses.symptoms.goffSymptomIndex.bloating === false ? 'No'
-            : 'Not specified'
+          userResponses.symptoms.goffSymptomIndex.bloating === true ? 'Yes' : 'No'
         } />
         <SummaryLine label="Pelvic or Lower-Abdominal Pain" value={
-          userResponses.symptoms.goffSymptomIndex.pain === true ? 'Yes'
-            : userResponses.symptoms.goffSymptomIndex.pain === false ? 'No'
-            : 'Not specified'
+          userResponses.symptoms.goffSymptomIndex.pain === true ? 'Yes' : 'No'
+
         } />
         <SummaryLine label="Felt Full Quickly or Been Unable to Finish Meals" value={
-          userResponses.symptoms.goffSymptomIndex.fullness === true ? 'Yes'
-            : userResponses.symptoms.goffSymptomIndex.fullness === false ? 'No'
-            : 'Not specified'
+          userResponses.symptoms.goffSymptomIndex.fullness === true ? 'Yes' : 'No'
         } />
         <SummaryLine label="Frequent Need To Pass Urine" value={
-          userResponses.symptoms.goffSymptomIndex.urinary === true ? 'Yes'
-            : userResponses.symptoms.goffSymptomIndex.urinary === false ? 'No'
-            : 'Not specified'
+          userResponses.symptoms.goffSymptomIndex.urinary === true ? 'Yes' : 'No'
         } />
         <SummaryLine label="An Increase in abdomen size or clothes have become tight" value={
-          userResponses.symptoms.goffSymptomIndex.abdomenSize === true ? 'Yes'
-            : userResponses.symptoms.goffSymptomIndex.abdomenSize === false ? 'No'
-            : 'Not specified'
+          userResponses.symptoms.goffSymptomIndex.abdomenSize === true ? 'Yes' : 'No'
         } />
       </Box>
     ) : null}

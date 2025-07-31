@@ -18,7 +18,7 @@ export const handleEndometriosisSubmit = (
     ...prev,
     medicalHistory: {
       ...prev.medicalHistory,
-      endometriosis: endometriosisInput
+      endometriosis: endometriosisInput === 'Yes'
     }
   }));
   setMessages(prev => ([
@@ -68,7 +68,7 @@ export const handlePerniciousAnemiaSubmit = (
     ...prev,
     medicalHistory: {
       ...prev.medicalHistory,
-      perniciousAnemia: perniciousAnemiaInput
+      perniciousAnemia: perniciousAnemiaInput === 'Yes'
     }
   }));
   setMessages(prev => ([
@@ -118,7 +118,7 @@ export const handleGastricGeneMutationSubmit = (
     ...prev,
     medicalHistory: {
       ...prev.medicalHistory,
-      gastricGeneMutation: gastricGeneMutationInput
+      gastricGeneMutation: gastricGeneMutationInput === 'Yes'
     }
   }));
   setMessages(prev => ([
@@ -361,7 +361,7 @@ export const handleFertilityDrugsSubmit = (
       ...prev.sexSpecificInfo,
       female: {
         ...prev.sexSpecificInfo.female,
-        IVF_history: fertilityDrugsInput
+        IVF_history: fertilityDrugsInput === "Yes"
       }
     }
   }));
