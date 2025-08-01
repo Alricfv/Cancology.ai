@@ -8,9 +8,9 @@ import {
   Flex,
   Spacer
 } from '@chakra-ui/react';
-import {FaPrint, FaHome, FaAffiliatetheme} from 'react-icons/fa';
+import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
-import { FaF } from 'react-icons/fa6';
+
 
 const SummaryComponent = ({ userResponses}) => {
   const toast = useToast();
