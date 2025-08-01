@@ -217,7 +217,7 @@ export const handleHPyloriEradicationSubmit = (
     ...prev,
     lifestyle: {
       ...prev.lifestyle,
-      hPyloriEradication: hPyloriEradicationInput
+      hPyloriEradication: hPyloriEradicationInput 
     }
   }));
   setMessages(prev => ([

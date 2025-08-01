@@ -329,7 +329,7 @@ export const getPrescribedTests = (userResponses) => {
   // Renal Cancer Screening: Renal ultrasound with/without urinalysis 
   if (
     demographics.age >= 40 &&
-    (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Renal') ||
+    (userResponses.medicalHistory.familyCancer.type.includes('Renal') ||
     userResponses.medicalHistory.chronicConditions.includes('Hypertension') ||
     userResponses.vhlSuspicion === 'Yes')
     ) {

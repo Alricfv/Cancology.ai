@@ -748,7 +748,7 @@ function App() {
             <ModalHeader fontWeight="bold" fontSize="30px" color="#66FCF1" borderBottom="1px solid rgba(102, 252, 241, 0.1)">
               Terms & Conditions
             </ModalHeader>
-            <ModalBody overflowY="auto" maxH="60vh" className="custom-scrollbar">
+            <ModalBody overflowY="auto" maxH="60vh">
               <Text fontSize="20px" mb={4} color="#C5C6C7">
                 <strong>Please read and accept our Terms & Conditions before proceeding with our assessment.</strong>
               </Text>

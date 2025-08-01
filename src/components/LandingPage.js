@@ -12,7 +12,7 @@ const LandingPage = ({ onStart }) => {
       display="flex"
       flexDirection="column"
       minHeight="100vh"
-      className='.custom-scroll'
+      className
       sx={{
         background: 'linear-gradient(135deg, #0B0C10 0%, #1F2833 60%, #243B55 100%)',
         color: '#C5C6C7',

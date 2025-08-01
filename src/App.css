@@ -124,24 +124,24 @@ body, html {
 
 /* making my own scroll bar */
 
-.custom-scrollbar {
+html, body {
   scrollbar-width: thin;
   scrollbar-color: #66FCF1 rgba(11, 12, 16, 0.1);
 }
 
-.custom-scrollbar::-webkit-scrollbar{
+html::-webkit-scrollbar, body::-webkit-scrollbar{
   width: 8px;
   background: rgba(11, 12, 16, 01);
   border-radius: 4px;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb{
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb{
   background: #66FCF1;
   border-radius: 4px;
   transition: background 0.2s;
 }
 
-.custom-scrollbar::-webkit-scrollbar-thumb:hover{
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover{
   background: #45A29E; 
 }
 

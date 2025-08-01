@@ -118,7 +118,7 @@ const SummaryComponent = ({ userResponses}) => {
 
     // Upper GI Endoscopy recommendation for both genders above 40 with risk factors
     if (age > 40) {
-      let ethnicity = (userResponses.demographics.ethnicity || '').toLowerCase();
+      let ethnicity = (userResponses.demographics.ethnicity.toLowerCase());
       let ethnicityRisk = [
         'black or african american',
         'east asian',
@@ -130,9 +130,7 @@ const SummaryComponent = ({ userResponses}) => {
 
       // Family history of gastric cancer
       let familyGastricCancer = false;
-      if (typeof userResponses.medicalHistory.familyCancer.type === 'string' &&
-        userResponses.medicalHistory.familyCancer.type.includes('Gastric')
-      ) {
+      if (userResponses.medicalHistory.familyCancer.type.includes('Gastric')) {
         familyGastricCancer = true;
       }
 
