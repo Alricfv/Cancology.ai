@@ -278,7 +278,7 @@ const SummaryComponent = ({ userResponses}) => {
           <div class="label">Smoking (Pack-Years):</div>
           <div class="value">
             ${(() => {
-              if (userResponses.lifestyle.smoking.packYears === 0 || userResponses.lifestyle.smoking.packYears === null)
+              if (userResponses.lifestyle.smoking.packYears === null)
                 return '<span class ="badge badge-green">0 (Non-Smoker)</span>';
               if (0 < userResponses.lifestyle.smoking.packYears && userResponses.lifestyle.smoking.packYears <20)
                 return `<span class ="badge badge-yellow">${userResponses.lifestyle.smoking.packYears} (Low/Moderate)</span>`;
@@ -1424,7 +1424,7 @@ const SummaryComponent = ({ userResponses}) => {
       </Box>
       <Box mb={6}>
         <SectionTitle>Lifestyle</SectionTitle>
-        <SummaryLine label="Smoking (Pack-Years)" value={userResponses.lifestyle.smoking.packYears} />
+        <SummaryLine label="Smoking (Pack-Years)" value={userResponses.lifestyle.smoking.packYears || "N/A"}  />
         <SummaryLine label="Alcohol Consumption" value={userResponses.lifestyle.alcohol?.consumes ? `Yes (${userResponses.lifestyle.alcohol.drinksPerWeek || 0} drinks/week)` : 'No'} />
         <SummaryLine label="Salty/Smoked Foods" value={userResponses.lifestyle.saltySmokedFoods || 'Not specified'} />
         <SummaryLine label="Fruits & Veg (servings)" value={userResponses.lifestyle.fruitVegServings || 'Not specified'} />
