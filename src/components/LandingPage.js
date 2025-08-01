@@ -1,18 +1,18 @@
 import { Box, Button, Heading, Text, VStack, Icon, Flex, Spacer, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Grid, GridItem, Badge, ScaleFade, List, ListItem} from '@chakra-ui/react';
 import { FaNotesMedical, FaEnvelope, FaInfoCircle, FaShieldAlt, FaFileDownload, FaClipboardList, FaChartLine, FaLock, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
-
-
+import '../App.css';
 
 const LandingPage = ({ onStart }) => {
   const { isOpen: isAboutOpen, onOpen: onAboutOpen, onClose: onAboutClose } = useDisclosure();
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure();
   
-  // Animation for hero section
+  // hero section animation
   return (
     <Box
       display="flex"
       flexDirection="column"
       minHeight="100vh"
+      className='.custom-scroll'
       sx={{
         background: 'linear-gradient(135deg, #0B0C10 0%, #1F2833 60%, #243B55 100%)',
         color: '#C5C6C7',
@@ -105,7 +105,7 @@ const LandingPage = ({ onStart }) => {
                   </Heading>
                   
                   <Text fontSize="lg" fontWeight="medium" color="#000000ff" lineHeight="1.8" mb={6} maxW="xl">
-                    Our interactive screening tool guides you through personalized questions to determine the most appropriate cancer screening tests based on your health profile.
+                    Our interactive screening tool guides you through personalized questions to recommend the most appropriate cancer screening tests based on your health profile.
                   </Text>
                   
                   <Box 
@@ -218,8 +218,8 @@ const LandingPage = ({ onStart }) => {
                         },
                         { 
                           icon: FaShieldAlt, 
-                          title: "End-to-End Encryption", 
-                          desc: "Your medical data is secure, only web-side access is allowed." 
+                          title: "Data Privacy & Security", 
+                          desc: "Your medical data is only shared with Sky Premium Hospital's Oncologists." 
                         },
                         { 
                           icon: FaChartLine, 
@@ -264,7 +264,7 @@ const LandingPage = ({ onStart }) => {
                       borderLeft="4px solid #66FCF1"
                     >
                       <Text fontSize="sm" color="#C5C6C7" fontStyle="italic">
-                        We comply with all medical privacy regulations and use industry-standard security protocols.
+                        We comply with all medical data privacy regulations.
                       </Text>
                     </Box>
                   </Box>

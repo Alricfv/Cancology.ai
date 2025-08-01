@@ -266,7 +266,7 @@ export const getPrescribedTests = (userResponses) => {
   }
   
   // 4. Family history of oral/throat cancer
-  if (userResponses.medicalHistory.familyCancer.type.toLowerCase().includes('Oral')) {
+  if (userResponses.medicalHistory.familyCancer.type.includes('Oral')) {
     oralCancerRiskFactors.push("family history of oral/throat cancer");
     isHighRiskForOralCancer = true;
   }
