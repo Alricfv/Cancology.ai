@@ -789,7 +789,7 @@ function App() {
                 <strong>7. Governing Law:</strong><br></br>These Terms are governed by the laws of the Republic of Ghana, including the Ghana Data Protection Act, 2012 (Act 843).
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                <strong>8. Contact:</strong><br></br>If you have any questions regarding the Terms/Screening or need support to delete your stored data, please email us at:
+                <strong>8. Contact:</strong><br></br>If you have any questions regarding the Terms/Screening or need support to delete your stored data, please email us at: sphscreeningtech@gmail.com
               </Text>
             </ModalBody>
             <ModalFooter>

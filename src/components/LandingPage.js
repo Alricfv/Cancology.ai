@@ -361,7 +361,7 @@ const LandingPage = ({ onStart }) => {
               </Heading>
               
               <Text lineHeight="1.8" fontSize="md">
-                Upon completion, you'll receive a secure, downloadable document that summarizes all your provided medical information and recommended screening tests. This document uses end-to-end encryption and can be securely shared with your healthcare provider.
+                Upon completion, you'll receive a secure, downloadable document that summarizes all your provided medical information and recommended screening tests.
               </Text>
             </Box>
             
@@ -450,9 +450,9 @@ const LandingPage = ({ onStart }) => {
                     <Icon as={FaNotesMedical} color="#66FCF1" boxSize={5} />
                   </Box>
                   <Box>
-                    <Heading size="sm" mb={2} color="#66FCF1" fontWeight="bold">Sky Premium Hospital</Heading>
-                    <Text fontSize="md" color="#C5C6C7">123 Medical Center Drive</Text>
-                    <Text fontSize="md" color="#C5C6C7">Healthville, MD 20814</Text>
+                    <Heading size="sm" mb={2} color="#66FCF1" fontWeight="bold">Location</Heading>
+                    <Text fontSize="md" color="#C5C6C7">Sky Premium Hospital</Text>
+                    <Text fontSize="md" color="#C5C6C7">Madina 1156, Accra, Ghana</Text>
                   </Box>
                 </Flex>
               </Box>
@@ -486,7 +486,7 @@ const LandingPage = ({ onStart }) => {
                       color="#66FCF1" 
                       _hover={{ textDecoration: "underline", cursor: "pointer" }}
                     >
-                      screening@skypremium.org
+                      sphscreeningtech@gmail.com
                     </Text>
                   </Box>
                 </Flex>
