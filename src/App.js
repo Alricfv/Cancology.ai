@@ -857,7 +857,17 @@ function App() {
   }
 
   return (
-    <Box id="app-container" w="100%" h="100dvh" overflow="hidden" position="fixed" top="0" left="0" maxW="100vw">
+    <Box 
+      id="app-container" 
+      w="100%" 
+      h="100dvh" 
+      overflow="hidden" 
+      position="fixed" 
+      top="0" 
+      left="0" 
+      maxW="100vw"
+      
+      >
       <Flex direction="column" h="100%" maxW="100vw" overflowX="hidden">
         <Box 
           py={3} 

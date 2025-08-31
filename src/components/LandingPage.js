@@ -14,13 +14,15 @@ const LandingPage = ({ onStart }) => {
       minHeight="100vh"
       className
       sx={{
-        background: 'linear-gradient(135deg, #0B0C10 0%, #1F2833 60%, #243B55 100%)',
+        background: 'rgba(0, 0, 0, 0.7)',
         color: '#C5C6C7',
-        backgroundImage: `
-          radial-gradient(circle at 20% 30%, rgba(102, 252, 241, 0.05) 0%, transparent 20%), 
-          radial-gradient(circle at 80% 70%, rgba(102, 252, 241, 0.08) 0%, transparent 20%)
-        `,
-        backgroundAttachment: 'fixed'
+        backgroundImage: "url('https://raw.githubusercontent.com/Alricfv/Cancology.ai/9b7e7eb5b55b7235d897ac36db31db7eb622ac9d/ghanacancology.jpg')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: 'fixed',
+        backgroundBlendMode: "overlay"
+        
       }}
     >
       {/* Header */}
@@ -93,12 +95,12 @@ const LandingPage = ({ onStart }) => {
                     fontSize={["xl", "2xl"]} 
                     fontWeight="bold" 
                     mb={6}
-                    color="#000000ff"
+                    color="#ffffffff"
                   >
                     Cancer Screening Program
                   </Heading>
                   
-                  <Text fontSize="lg" fontWeight="medium" color="#000000ff" lineHeight="1.8" mb={6} maxW="xl">
+                  <Text fontSize="lg" fontWeight="medium" color="#ffffffff" lineHeight="1.8" mb={6} maxW="xl">
                     Our interactive screening tool guides you through personalized questions to recommend the most appropriate cancer screening tests based on your health profile.
                   </Text>
                   
@@ -154,7 +156,7 @@ const LandingPage = ({ onStart }) => {
                     <Button 
                       variant="outline" 
                       borderColor="#45A29E" 
-                      color="#000000ff"
+                      color="#ffffffff"
                       _hover={{ 
                         bg: "rgba(102, 252, 241, 0.1)",
                       }}
