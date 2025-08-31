@@ -63,7 +63,7 @@ const LandingPage = ({ onStart }) => {
           maxW="7xl" 
           w="full"
           px={[4, 8, 16]}
-          py={12}
+          py={1}
         >
           <Grid 
             templateColumns={["1fr", "1fr", "1fr 1fr"]} 
@@ -74,12 +74,6 @@ const LandingPage = ({ onStart }) => {
             <GridItem>
               <ScaleFade initialScale={0.9} in={true}>
                 <Box textAlign={["center", "center", "left"]}>
-                  <HStack spacing={4} mb={4} justifyContent={["center", "center", "flex-start"]}>
-                    <Icon as={FaNotesMedical} w={10} h={10} color="#66FCF1" />
-                    <Badge colorScheme="teal" fontSize="sm" px={3} py={1} borderRadius="full">
-                      Personalized Care
-                    </Badge>
-                  </HStack>
                   
                   <Heading 
                     as="h1" 
@@ -264,7 +258,7 @@ const LandingPage = ({ onStart }) => {
                       borderLeft="4px solid #66FCF1"
                     >
                       <Text fontSize="sm" color="#C5C6C7" fontStyle="italic">
-                        We comply with all medical data privacy regulations.
+                        We comply with Ghana's Data Protection Act, 2012 (Act 843)
                       </Text>
                     </Box>
                   </Box>

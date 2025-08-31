@@ -753,13 +753,13 @@ function App() {
                 <strong>Please read and accept our Terms & Conditions before proceeding with our assessment.</strong>
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                These Terms and Conditions govern your access to and use of the Cancer Screening Chatbot developed for and operated by Sky Premium Hospital, Ghana. By using this service, you agree to comply with and be bound by these Terms. <br />
+                These Terms and Conditions govern your access and use of the Cancer Screening Chatbot developed for and operated by Sky Premium Hospital, Ghana. By using this service, you agree to comply with and be bound by these Terms. <br />
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
                 <strong>1. Purpose of the Chatbot:</strong><br></br>This chatbot is a support tool designed to assist in identifying whether you may benefit from further cancer screening tests. It uses structured symptom-based logic to offer test recommendations, not a medical diagnosis or treatment. Final clinical decisions must always be made by qualified healthcare professionals.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                <strong>2. Eligibility:</strong><br></br>An exception is made for participants under 18 from the Summer of Making event. Otherwise, You must be at least 18 years old or have the consent of a parent or guardian to utilize this screening. Use of this service does not establish a doctor-patient relationship.
+                <strong>2. Eligibility:</strong><br></br> You must be at least 18 years old or have the consent of a parent or guardian to utilize this screening. Use of this service does not establish a doctor-patient relationship.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
                 <strong>3. Data Collection and Privacy</strong><br></br>We may collect basic non-personally identifiable information (non-PII) based on your responses. This may include symptoms reported, test recommendations generated, and anonymized usage patterns, all of which are used solely to improve the screening process and support critical decision-making.
@@ -768,7 +768,22 @@ function App() {
                 <br></br><br></br>
                 Authorized oncologists and clinical staff at Sky Premium Hospital may access collected non-PII data to review screening trends and inform care pathways. However, they will not have access to any data that can identify individual users.
                 <br></br><br></br>
+                Data is temporarily stored in your browser memory, no data is transmitted to any external servers apart from the Sky Premium Hospital's Custom Database
+                <br></br><br></br>
+                The chatbot doesn't use cookies or tracking technologies. No personally identifiable information is collected or stored.
+                <br></br><br></br>
+                The downloadable PDF at the end of your interactions is generated locally.
+                <br></br><br></br>
                 Any future collection or storage of personally identifiable information will be subject to explicit user consent and handled in full compliance with the Ghana Data Protection Act, 2012 (Act 843).
+                <br></br><br></br>
+                <strong>Data Security:</strong><br></br>
+                We use reasonable technical and organizational measures to protect your data. However, as this is a client-side application, we cannot guarantee absolute security. You are responsible for ensuring the security of your device and browser.
+                <br></br><br></br>
+                <strong>Data Retention:</strong><br></br>
+                Your response summary will be retained and is accessible only by qualified medical professionals at Sky Premium Hospital for security and legal safeguarding purposes in the event of any tampering with the tool from the client-side.
+                <br></br><br></br>
+                <strong>Data Sharing:</strong><br></br>
+                Your data will not be shared with third parties except as required by law.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
                 <strong>4. Disclaimer and Limitation of Liability:</strong><br></br>The screening is not a diagnostic tool. It provides preliminary screening suggestions based solely on user input. 
@@ -776,20 +791,48 @@ function App() {
                 All outputs are subject to review by a qualified clinician, and Sky Premium Hospital makes no guarantee of completeness or accuracy.
                 <br></br><br></br>
                 Sky Premium Hospital and the solution developers shall not be held liable for any medical decision, delay or harm resulting from reliance on the screening's output without clinical follow-up.
+                <br></br><br></br>
+                This tool is not intended for use in medical emergencies. If you believe you are experiencing a medical emergency, call your local emergency number immediately
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
                 <strong>5. User Responsibilities:</strong><br></br>You are responsible for providing accurate and truthful information.
-                <br></br><br></br>You agree not to misuse, reverse engineer, or attempt unauthorized access to the screening system.
-                <br></br><br></br>You understand that test recommendations are for informational purposes only and must be verified with a clinician.
+                <br></br><br></br>
+                You agree not to misuse, reverse engineer, or attempt unauthorized access to the screening system.
+                <br></br><br></br>
+                You understand that test recommendations are for informational purposes only and must be verified with a clinician.
+                <br></br><br></br>
+                By agreeing to the terms and conditions, you also acknowledge that we are not liable for any damages or losses resulting from your use of the screening tool. (refer to Section 4 of T&C)
+                <br></br><br></br>
+                <strong>Responsibility for Downloaded Data:</strong><br></br>
+                If you choose to download your screening summary, you are solely responsible for its security and confidentiality. Sky Premium Hospital is not liable for any unauthorized access or misuse of the downloaded data.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                <strong>6. Changes to the Terms:</strong><br></br>Sky Premium Hospital may update these Terms occasionally. Continued use of the screening after such changes will be considered acceptance of the new Terms.
+                <strong>6. Intellectual Property:</strong><br></br>
+                All content, logic and design of this application are the intellectual property of the developer behind this tool. Unauthorized reproduction or distribution is prohibited.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                <strong>7. Governing Law:</strong><br></br>These Terms are governed by the laws of the Republic of Ghana, including the Ghana Data Protection Act, 2012 (Act 843).
+                <strong>7. Changes to the Terms:</strong><br></br>
+                Sky Premium Hospital may update these Terms occasionally. Continued use of the screening after such changes will be considered acceptance of the new Terms.
               </Text>
               <Text fontSize="15px" mb={4} color="#ffffffff">
-                <strong>8. Contact:</strong><br></br>If you have any questions regarding the Terms/Screening or need support to delete your stored data, please email us at: sphscreeningtech@gmail.com
+                <strong>8. Governing Law:</strong><br></br>
+                These Terms are governed by the laws of the Republic of Ghana, including the Ghana Data Protection Act, 2012 (Act 843).
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>9. Regulatory Status:</strong><br></br>
+                This screening tool is not certified as a "medical device" by the Ghana Food and Drugs Authority (FDA) or any other regulatory body. It is intended solely as an informational and triage support tool.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>10. Contact:</strong><br></br>
+                If you have any questions regarding the Terms/Screening or need support to delete your stored data, please email us at: sphscreeningtech@gmail.com . This is for general inquiries or data concerns, sensitive medical information should never be sent via email.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>11. Service Availability:</strong><br></br>
+                We reserve the right to modify, suspend or discontinue this service at any time without notice.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>12. Consent:</strong><br></br>
+                By clicking "I Accept", you confirm that you have read, understood, and agreed to these Terms and Conditions, including all disclaimers and privacy notices.
               </Text>
             </ModalBody>
             <ModalFooter>
