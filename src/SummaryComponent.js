@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
+import emailjs from 'emailjs-com';
 
 
 const SummaryComponent = ({ userResponses}) => {
@@ -1248,8 +1249,10 @@ const SummaryComponent = ({ userResponses}) => {
       
       // Flag to prevent multiple print dialogs
       let hasPrintBeenTriggered = false;
+
+
       
-      const triggerPrint = () => {
+      const triggerPrint = async() => {
         if (hasPrintBeenTriggered) {
           return;
         }
@@ -1257,6 +1260,11 @@ const SummaryComponent = ({ userResponses}) => {
         hasPrintBeenTriggered = true;
         
         try {
+
+          if(window.html2pdf){
+            const pdfBlob = await window.html2pdf().from(printDocument.body).outputPdf('blob');
+            emailPdfToDoctor(pdfBlob)
+          }
           // Try to focus the iframe before printing
           if (printIframe.contentWindow) {
             printIframe.contentWindow.focus();
@@ -1305,6 +1313,39 @@ const SummaryComponent = ({ userResponses}) => {
       });
     }
   };
+
+  const emailPdfToDoctor = async (pdfBlob) => {
+    try{
+      const formData = new FormData();
+      formData.append('pdf_file', pdfBlob, `cancer_screening_${userResponses.demographics.age}_${userResponses.demographics.sex}.pdf`);
+      
+      const templateParams = {
+        patientAge: userResponses.demographics.age,
+        patientSex: userResponses.demographics.sex,
+        timestamp: new Date().toISOString(),
+        patientEthnicity: userResponses.demographics.ethnicity,
+        patientCountry: userResponses.demographics.country
+      };
+
+      await emailjs.send(
+        'service_xy9g2x6',
+        'template_o3hrp64',
+        templateParams,
+        'wlJpmaQOr9WhtVYPl',
+        {
+          file: pdfBlob,
+          fileName: `cancer_screening_${userResponses.demographics.age}_${userResponses.demographics.sex}.pdf`,
+          mimeType: 'application/pdf'
+        }
+      );
+
+    } 
+    catch (error){
+
+    }
+  };
+
+
   React.useEffect(() => {
     // Fix badges in the UI
     const fixBadges = () => {
