@@ -2,7 +2,7 @@
   "name": "drfrempong",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://elixiumlife.com/screening",
+  "homepage": "https://alricfv.github.io/Cancology.ai/",
   "dependencies": {
     "@chakra-ui/react": "^2.5.5",
     "@emotion/react": "^11.14.0",
@@ -13,6 +13,7 @@
     "@testing-library/user-event": "^13.5.0",
     "emailjs-com": "^3.2.0",
     "framer-motion": "^12.16.0",
+    "html2pdf.js": "^0.12.0",
     "jspdf": "^3.0.1",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",

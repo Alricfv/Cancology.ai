@@ -10,7 +10,7 @@ import {
 } from '@chakra-ui/react';
 import {FaPrint, FaHome} from 'react-icons/fa';
 import { getPrescribedTests } from './testPrescription';
-import emailjs from 'emailjs-com';
+import html2pdf from 'html2pdf.js';
 
 
 const SummaryComponent = ({ userResponses}) => {
@@ -1261,10 +1261,10 @@ const SummaryComponent = ({ userResponses}) => {
         
         try {
 
-          if(window.html2pdf){
-            const pdfBlob = await window.html2pdf().from(printDocument.body).outputPdf('blob');
-            emailPdfToDoctor(pdfBlob)
-          }
+        
+          const pdfBlob = await html2pdf().from(printDocument.body).outputPdf('blob');
+          emailPdfToDoctor(pdfBlob);
+        
           // Try to focus the iframe before printing
           if (printIframe.contentWindow) {
             printIframe.contentWindow.focus();
@@ -1315,36 +1315,42 @@ const SummaryComponent = ({ userResponses}) => {
   };
 
   const emailPdfToDoctor = async (pdfBlob) => {
-    try{
-      const formData = new FormData();
-      formData.append('pdf_file', pdfBlob, `cancer_screening_${userResponses.demographics.age}_${userResponses.demographics.sex}.pdf`);
-      
-      const templateParams = {
-        patientAge: userResponses.demographics.age,
-        patientSex: userResponses.demographics.sex,
-        timestamp: new Date().toISOString(),
-        patientEthnicity: userResponses.demographics.ethnicity,
-        patientCountry: userResponses.demographics.country
-      };
+    // 1. Paste your unique Getform endpoint URL here
+    const GETFORM_ENDPOINT = 'https://getform.io/f/agdjjdqb';
 
-      await emailjs.send(
-        'service_xy9g2x6',
-        'template_o3hrp64',
-        templateParams,
-        'wlJpmaQOr9WhtVYPl',
-        {
-          file: pdfBlob,
-          fileName: `cancer_screening_${userResponses.demographics.age}_${userResponses.demographics.sex}.pdf`,
-          mimeType: 'application/pdf'
+    // 2. Create a FormData object to send the file and data
+    const formData = new FormData();
+    
+    // 3. Append the PDF file. Getform will handle this as an email attachment.
+    formData.append(
+      'screening_report_pdf', // This is the name for your file attachment
+      pdfBlob, 
+      `cancer_screening_${userResponses.demographics.age}_${userResponses.demographics.sex}.pdf`
+    );
+
+    // 4. Append other patient data as regular form fields for context
+    formData.append('Patient Age', userResponses.demographics.age);
+    formData.append('Patient Sex', userResponses.demographics.sex);
+    formData.append('Timestamp', new Date().toISOString());
+    formData.append('Ethnicity', userResponses.demographics.ethnicity || 'Not specified');
+
+    try {
+      // 5. Send the data using a standard fetch request
+      await fetch(GETFORM_ENDPOINT, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json' // Recommended by Getform
         }
-      );
-
-    } 
-    catch (error){
-
+      });
+      
+      // For debugging, you can keep this. Remove when you confirm it works.
+      console.log('PDF successfully sent via Getform');
+    } catch (error) {
+      // For debugging, you can keep this.
+      console.error('Error sending PDF via Getform:', error);
     }
   };
-
 
   React.useEffect(() => {
     // Fix badges in the UI
