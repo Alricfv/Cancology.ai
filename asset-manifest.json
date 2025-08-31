@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/Cancology.ai/static/css/main.3e4efb68.css",
-    "main.js": "/Cancology.ai/static/js/main.92ef71ec.js",
-    "static/js/453.d85a2596.chunk.js": "/Cancology.ai/static/js/453.d85a2596.chunk.js",
-    "index.html": "/Cancology.ai/index.html",
-    "main.3e4efb68.css.map": "/Cancology.ai/static/css/main.3e4efb68.css.map",
-    "main.92ef71ec.js.map": "/Cancology.ai/static/js/main.92ef71ec.js.map",
-    "453.d85a2596.chunk.js.map": "/Cancology.ai/static/js/453.d85a2596.chunk.js.map"
+    "main.css": "/screening/static/css/main.3e4efb68.css",
+    "main.js": "/screening/static/js/main.51ca62de.js",
+    "static/js/453.d85a2596.chunk.js": "/screening/static/js/453.d85a2596.chunk.js",
+    "index.html": "/screening/index.html",
+    "main.3e4efb68.css.map": "/screening/static/css/main.3e4efb68.css.map",
+    "main.51ca62de.js.map": "/screening/static/js/main.51ca62de.js.map",
+    "453.d85a2596.chunk.js.map": "/screening/static/js/453.d85a2596.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.3e4efb68.css",
-    "static/js/main.92ef71ec.js"
+    "static/js/main.51ca62de.js"
   ]
 }
