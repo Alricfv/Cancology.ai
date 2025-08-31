@@ -1,11 +1,16 @@
 /**
- This file handles all of the UI components, 
- rendering, and user interactions for the medical 
- screening application
+ This file handles all of the UI components, rendering, and user 
+ interactions for the medical screening application
 **/
 import { useState, useRef, useEffect } from 'react';
 
 import {
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
   Box,
   Flex,
   Text,
@@ -35,6 +40,8 @@ import {
   FaHeartbeat, 
   FaNotesMedical,
  } from 'react-icons/fa';
+
+import './App.css'
 
 import LandingPage from './components/LandingPage';
 import { maleCancerTypes, femaleCancerTypes } from './cancerTypes';
@@ -98,6 +105,7 @@ function App() {
   const [gastricGeneMutationError, setGastricGeneMutationError] = useState("");
   const [hasSubmittedGastricGeneMutation, setHasSubmittedGastricGeneMutation] = useState(false);
   const [appState, setAppState] = useState('landing'); 
+  const [termsAccepted, setTermsAccepted] = useState(false)
   const [messages, setMessages] = useState([
     {
       id: 1,
@@ -230,6 +238,7 @@ function App() {
       }
     }
   });
+  
 
 
   const messagesEndRef = useRef(null);
@@ -662,84 +671,17 @@ function App() {
     }
   };
 
+//the progress indicator bar's percentage calculation function
+  const steps = Object.keys(conversationFlow);
+  const ProgressMap = steps.reduce (
+    (accum, step, index) =>{
+      accum[step] = Math.round((index / (steps.length -1)) * 100);
+      return accum;
+    },{}
+  );
+
   const calculateProgress = () => {
-    // Map steps to their progress points (0-100%)
-    const stepProgressMap = {
-      'start': 0,
-      'info': 0,
-      'age': 2,
-      'sex': 4,
-      'ethnicity': 6,
-      'location': 8,
-      'cancer': 10,
-      'cancerDetails': 12,
-      'familyHistory': 14,
-      'familyHistoryDetails': 16,
-      'hypertension': 18,
-      'partialGastrectomy': 20,
-      'perniciousAnemia': 22,
-      'gastricGeneMutation': 24,
-      'chronicConditions': 26,
-      'smokingStatus': 28,
-      'smokingYears': 30,
-      'smokingAmount': 32,
-      'alcoholConsumption': 34,
-      'alcoholAmount': 36,
-      'saltySmokedFoods': 38,
-      'fruitVegServings': 40,
-      'sexualHealth': 42,
-      'transplant': 44,
-      'brcaMutation': 46,
-      'hPylori': 48,
-      'hPyloriEradication': 50,
-      'gastritisUlcer': 52,
-      'medications': 54,
-      'allergies': 56,
-      'allergyDetails': 58,
-      'symptomScreenIntro': 60,
-      'swallowingDifficulty': 62,
-      'blackStool': 64,
-      'weightLoss': 66,
-      'vomiting': 68,
-      'epigastricPain': 70,
-      'indigestion': 72,
-      'painWakesAtNight': 74,
-      // Male branch
-      'maleQuestions': 76,
-      'urinarySymptoms': 78,
-      'prostateTest': 80,
-      'prostateTestAge': 82,
-      'testicularIssues': 84,
-      // Female branch
-      'femaleQuestions': 76,
-      'menarcheAge': 78,
-      'menstruationStatus': 80,
-      'menopauseAge': 82,
-      'pregnancy': 84,
-      'numberOfBirths': 86,
-      'firstPregnancyAge': 88,
-      'birthControl': 90,
-      'pillYears': 91,
-      'hormoneReplacementTherapy': 92,
-      'tubalLigation': 93,
-      'ovaryRemoved': 94,
-      'endometriosis': 95,
-      'fertilityDrugs': 96,
-      'goffSymptomIntro': 97,
-      'goffBloating': 97.5,
-      'goffPain': 98,
-      'goffFullness': 98.5,
-      'goffUrinary': 99,
-      'goffAbdomenSize': 99.5,
-      // Rejoin
-      'pastCancerScreening': 99.7,
-      'pastCancerScreeningDetails': 99.8,
-      'hpvVaccine': 99.9,
-      'hepBVaccine': 99.95,
-      'summary': 100,
-      'end': 100
-    };
-    return stepProgressMap[currentStep] || 0;
+    return ProgressMap[currentStep] || 0;
   };
 
   const getCurrentSectionName = () => {
@@ -787,8 +729,131 @@ function App() {
     return sectionNames[currentStep] || 'Screening';
   };
 
-  if (appState === 'landing') {
-    return <LandingPage onStart={() => setAppState('chatbot')} />;
+  if (appState === 'landing' || appState === 'terms') {
+  return (
+    <>
+      <LandingPage onStart={() => setAppState('terms')} />
+      {!termsAccepted && appState === 'terms' && (
+        <Modal isOpen={true} onClose={() => {}} isCentered size="lg" closeOnOverlayClick={false}>
+          <ModalOverlay bg="rgba(11, 12, 16, 0.8)" backdropFilter="blur(1px)" />
+          <ModalContent
+            bg="#0B0C10"
+            color="#C5C6C7"
+            borderRadius="xl"
+            boxShadow="0 0 35px rgba(102, 252, 241, 0.15)"
+            border="1px solid rgba(102, 252, 241, 0.1)"
+            overflow="hidden"
+            maxW="800px"
+          >
+            <ModalHeader fontWeight="bold" fontSize="30px" color="#66FCF1" borderBottom="1px solid rgba(102, 252, 241, 0.1)">
+              Terms & Conditions
+            </ModalHeader>
+            <ModalBody overflowY="auto" maxH="60vh">
+              <Text fontSize="20px" mb={4} color="#C5C6C7">
+                <strong>Please read and accept our Terms & Conditions before proceeding with our assessment.</strong>
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                These Terms and Conditions govern your access and use of the Cancer Screening Chatbot developed for and operated by Sky Premium Hospital, Ghana. By using this service, you agree to comply with and be bound by these Terms. <br />
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>1. Purpose of the Chatbot:</strong><br></br>This chatbot is a support tool designed to assist in identifying whether you may benefit from further cancer screening tests. It uses structured symptom-based logic to offer test recommendations, not a medical diagnosis or treatment. Final clinical decisions must always be made by qualified healthcare professionals.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>2. Eligibility:</strong><br></br> You must be at least 18 years old or have the consent of a parent or guardian to utilize this screening. Use of this service does not establish a doctor-patient relationship.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>3. Data Collection and Privacy</strong><br></br>We may collect basic non-personally identifiable information (non-PII) based on your responses. This may include symptoms reported, test recommendations generated, and anonymized usage patterns, all of which are used solely to improve the screening process and support critical decision-making.
+                <br></br><br></br>
+                No personally identifiable health data (such as name, NHIS number, contact details, or national ID) is collected or stored by default during standard use of this MVP.
+                <br></br><br></br>
+                Authorized oncologists and clinical staff at Sky Premium Hospital may access collected non-PII data to review screening trends and inform care pathways. However, they will not have access to any data that can identify individual users.
+                <br></br><br></br>
+                Data is temporarily stored in your browser memory, no data is transmitted to any external servers apart from the Sky Premium Hospital's Custom Database
+                <br></br><br></br>
+                The chatbot doesn't use cookies or tracking technologies. No personally identifiable information is collected or stored.
+                <br></br><br></br>
+                The downloadable PDF at the end of your interactions is generated locally.
+                <br></br><br></br>
+                Any future collection or storage of personally identifiable information will be subject to explicit user consent and handled in full compliance with the Ghana Data Protection Act, 2012 (Act 843).
+                <br></br><br></br>
+                <strong>Data Security:</strong><br></br>
+                We use reasonable technical and organizational measures to protect your data. However, as this is a client-side application, we cannot guarantee absolute security. You are responsible for ensuring the security of your device and browser.
+                <br></br><br></br>
+                <strong>Data Retention:</strong><br></br>
+                Your response summary will be retained and is accessible only by qualified medical professionals at Sky Premium Hospital for security and legal safeguarding purposes in the event of any tampering with the tool from the client-side.
+                <br></br><br></br>
+                <strong>Data Sharing:</strong><br></br>
+                Your data will not be shared with third parties except as required by law.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>4. Disclaimer and Limitation of Liability:</strong><br></br>The screening is not a diagnostic tool. It provides preliminary screening suggestions based solely on user input. 
+                <br></br><br></br>
+                All outputs are subject to review by a qualified clinician, and Sky Premium Hospital makes no guarantee of completeness or accuracy.
+                <br></br><br></br>
+                Sky Premium Hospital and the solution developers shall not be held liable for any medical decision, delay or harm resulting from reliance on the screening's output without clinical follow-up.
+                <br></br><br></br>
+                This tool is not intended for use in medical emergencies. If you believe you are experiencing a medical emergency, call your local emergency number immediately
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>5. User Responsibilities:</strong><br></br>You are responsible for providing accurate and truthful information.
+                <br></br><br></br>
+                You agree not to misuse, reverse engineer, or attempt unauthorized access to the screening system.
+                <br></br><br></br>
+                You understand that test recommendations are for informational purposes only and must be verified with a clinician.
+                <br></br><br></br>
+                By agreeing to the terms and conditions, you also acknowledge that we are not liable for any damages or losses resulting from your use of the screening tool. (refer to Section 4 of T&C)
+                <br></br><br></br>
+                <strong>Responsibility for Downloaded Data:</strong><br></br>
+                If you choose to download your screening summary, you are solely responsible for its security and confidentiality. Sky Premium Hospital is not liable for any unauthorized access or misuse of the downloaded data.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>6. Intellectual Property:</strong><br></br>
+                All content, logic and design of this application are the intellectual property of the developer behind this tool. Unauthorized reproduction or distribution is prohibited.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>7. Changes to the Terms:</strong><br></br>
+                Sky Premium Hospital may update these Terms occasionally. Continued use of the screening after such changes will be considered acceptance of the new Terms.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>8. Governing Law:</strong><br></br>
+                These Terms are governed by the laws of the Republic of Ghana, including the Ghana Data Protection Act, 2012 (Act 843).
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>9. Regulatory Status:</strong><br></br>
+                This screening tool is not certified as a "medical device" by the Ghana Food and Drugs Authority (FDA) or any other regulatory body. It is intended solely as an informational and triage support tool.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>10. Contact:</strong><br></br>
+                If you have any questions regarding the Terms/Screening or need support to delete your stored data, please email us at: sphscreeningtech@gmail.com . This is for general inquiries or data concerns, sensitive medical information should never be sent via email.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>11. Service Availability:</strong><br></br>
+                We reserve the right to modify, suspend or discontinue this service at any time without notice.
+              </Text>
+              <Text fontSize="15px" mb={4} color="#ffffffff">
+                <strong>12. Consent:</strong><br></br>
+                By clicking "I Accept", you confirm that you have read, understood, and agreed to these Terms and Conditions, including all disclaimers and privacy notices.
+              </Text>
+            </ModalBody>
+            <ModalFooter>
+              <Button 
+              bg="#66FCF1" 
+              color="#0B0C10" 
+              _hover={{ bg: "#45A29E" }} 
+              borderRadius="full" px={8} fontWeight="bold" 
+              onClick={() => {
+                setTermsAccepted(true);
+                setAppState('chatbot');
+              }}
+              >
+                I Accept
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+        )}
+      </>
+    );
   }
 
   return (

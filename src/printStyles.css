@@ -1,5 +1,6 @@
 @media print {
-  /* General print styles */
+  /* everything over here is marked with !important as i still can't find the css conflicts
+  within the summarycomponent (PDF Functionality)*/
   body {
     background: white !important;
     color: black !important;
@@ -14,7 +15,6 @@
     box-shadow: none !important;
   }
 
-  /* Hide non-printable elements */
   .no-print {
     display: none !important;
   }
@@ -39,12 +39,11 @@
     page-break-after: always !important;
   }
 
-  /* Remove background colors from sections */
   .chakra-box, div {
     background-color: white !important;
   }
 
-  /* spacing adjustments for the pdf summary */
+
   h1, h2, h3, h4 {
     margin-top: 10pt !important;
     margin-bottom: 5pt !important;

@@ -1,18 +1,18 @@
 import { Box, Button, Heading, Text, VStack, Icon, Flex, Spacer, HStack, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton, useDisclosure, Grid, GridItem, Badge, ScaleFade, List, ListItem} from '@chakra-ui/react';
 import { FaNotesMedical, FaEnvelope, FaInfoCircle, FaShieldAlt, FaFileDownload, FaClipboardList, FaChartLine, FaLock, FaCheckCircle, FaArrowRight } from 'react-icons/fa';
-
-
+import '../App.css';
 
 const LandingPage = ({ onStart }) => {
   const { isOpen: isAboutOpen, onOpen: onAboutOpen, onClose: onAboutClose } = useDisclosure();
   const { isOpen: isContactOpen, onOpen: onContactOpen, onClose: onContactClose } = useDisclosure();
   
-  // Animation for hero section
+  // hero section animation
   return (
     <Box
       display="flex"
       flexDirection="column"
       minHeight="100vh"
+      className
       sx={{
         background: 'linear-gradient(135deg, #0B0C10 0%, #1F2833 60%, #243B55 100%)',
         color: '#C5C6C7',
@@ -63,7 +63,7 @@ const LandingPage = ({ onStart }) => {
           maxW="7xl" 
           w="full"
           px={[4, 8, 16]}
-          py={12}
+          py={1}
         >
           <Grid 
             templateColumns={["1fr", "1fr", "1fr 1fr"]} 
@@ -74,12 +74,6 @@ const LandingPage = ({ onStart }) => {
             <GridItem>
               <ScaleFade initialScale={0.9} in={true}>
                 <Box textAlign={["center", "center", "left"]}>
-                  <HStack spacing={4} mb={4} justifyContent={["center", "center", "flex-start"]}>
-                    <Icon as={FaNotesMedical} w={10} h={10} color="#66FCF1" />
-                    <Badge colorScheme="teal" fontSize="sm" px={3} py={1} borderRadius="full">
-                      Personalized Care
-                    </Badge>
-                  </HStack>
                   
                   <Heading 
                     as="h1" 
@@ -105,7 +99,7 @@ const LandingPage = ({ onStart }) => {
                   </Heading>
                   
                   <Text fontSize="lg" fontWeight="medium" color="#000000ff" lineHeight="1.8" mb={6} maxW="xl">
-                    Our interactive screening tool guides you through personalized questions to determine the most appropriate cancer screening tests based on your health profile.
+                    Our interactive screening tool guides you through personalized questions to recommend the most appropriate cancer screening tests based on your health profile.
                   </Text>
                   
                   <Box 
@@ -218,8 +212,8 @@ const LandingPage = ({ onStart }) => {
                         },
                         { 
                           icon: FaShieldAlt, 
-                          title: "End-to-End Encryption", 
-                          desc: "Your medical data is secure, only web-side access is allowed." 
+                          title: "Data Privacy & Security", 
+                          desc: "Your medical data is only shared with Sky Premium Hospital's Oncologists." 
                         },
                         { 
                           icon: FaChartLine, 
@@ -264,7 +258,7 @@ const LandingPage = ({ onStart }) => {
                       borderLeft="4px solid #66FCF1"
                     >
                       <Text fontSize="sm" color="#C5C6C7" fontStyle="italic">
-                        We comply with all medical privacy regulations and use industry-standard security protocols.
+                        We comply with Ghana's Data Protection Act, 2012 (Act 843)
                       </Text>
                     </Box>
                   </Box>
@@ -361,7 +355,7 @@ const LandingPage = ({ onStart }) => {
               </Heading>
               
               <Text lineHeight="1.8" fontSize="md">
-                Upon completion, you'll receive a secure, downloadable document that summarizes all your provided medical information and recommended screening tests. This document uses end-to-end encryption and can be securely shared with your healthcare provider.
+                Upon completion, you'll receive a secure, downloadable document that summarizes all your provided medical information and recommended screening tests.
               </Text>
             </Box>
             
@@ -450,9 +444,9 @@ const LandingPage = ({ onStart }) => {
                     <Icon as={FaNotesMedical} color="#66FCF1" boxSize={5} />
                   </Box>
                   <Box>
-                    <Heading size="sm" mb={2} color="#66FCF1" fontWeight="bold">Sky Premium Hospital</Heading>
-                    <Text fontSize="md" color="#C5C6C7">123 Medical Center Drive</Text>
-                    <Text fontSize="md" color="#C5C6C7">Healthville, MD 20814</Text>
+                    <Heading size="sm" mb={2} color="#66FCF1" fontWeight="bold">Location</Heading>
+                    <Text fontSize="md" color="#C5C6C7">Sky Premium Hospital</Text>
+                    <Text fontSize="md" color="#C5C6C7">Madina 1156, Accra, Ghana</Text>
                   </Box>
                 </Flex>
               </Box>
@@ -486,7 +480,7 @@ const LandingPage = ({ onStart }) => {
                       color="#66FCF1" 
                       _hover={{ textDecoration: "underline", cursor: "pointer" }}
                     >
-                      screening@skypremium.org
+                      sphscreeningtech@gmail.com
                     </Text>
                   </Box>
                 </Flex>

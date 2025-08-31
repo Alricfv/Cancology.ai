@@ -118,7 +118,36 @@ body, html {
   }
 }
 
-/* container for prescribed tests */
 .tests-container {
   padding-bottom: 60px; 
+}
+
+/* making my own scroll bar */
+
+html, body {
+  scrollbar-width: thin;
+  scrollbar-color: #66FCF1 rgba(11, 12, 16, 0.1);
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar{
+  width: 8px;
+  background: rgba(11, 12, 16, 01);
+  border-radius: 4px;
+}
+
+html::-webkit-scrollbar-thumb, body::-webkit-scrollbar-thumb{
+  background: #66FCF1;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+html::-webkit-scrollbar-thumb:hover, body::-webkit-scrollbar-thumb:hover{
+  background: #45A29E; 
+}
+
+/* for the terms and conditions */
+strong{
+  font-size: 20px;
+  letter-spacing: 0.5px;
+  padding-bottom: 10px;
 }
